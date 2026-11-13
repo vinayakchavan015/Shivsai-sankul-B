@@ -238,7 +238,7 @@
           <p id="kpi-pending-sub" class="text-xs text-slate-500 mt-1">प्रलंबित फ्लॅट्स</p>
         </div>
 
-        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80">
+        <div class="admin-only bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80">
           <div class="flex items-center justify-between">
             <span class="text-sm font-medium text-slate-500">सोसायटी शिल्लक निधी</span>
             <span class="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
@@ -545,15 +545,15 @@
           <p class="text-xs font-medium text-slate-500">एकूण खर्च (Expense)</p>
           <p id="acc-total-expense" class="text-xl font-bold text-rose-600 mt-1">₹0</p>
         </div>
-        <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80">
+        <div class="admin-only bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80">
           <p class="text-xs font-medium text-slate-500">ऑनलाइन शिल्लक (Online)</p>
           <p id="acc-online-balance" class="text-xl font-bold text-teal-700 mt-1">₹0</p>
         </div>
-        <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80">
+        <div class="admin-only bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80">
           <p class="text-xs font-medium text-slate-500">कॅश शिल्लक (Cash)</p>
           <p id="acc-cash-balance" class="text-xl font-bold text-amber-600 mt-1">₹0</p>
         </div>
-        <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80">
+        <div class="admin-only bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80">
           <p class="text-xs font-medium text-slate-500">एकूण निव्वळ शिल्लक</p>
           <p id="acc-net-balance" class="text-xl font-bold text-slate-900 mt-1">₹0</p>
         </div>
@@ -7538,7 +7538,10 @@
       const totalOwners = state.members.length;
       const totalTenants = state.tenants.length;
 
-      const scopedMaint = selMonth === 'all' ? state.maintenance : state.maintenance.filter(m => m.month === selMonth);
+      const baseMaint = (!isAdmin() && loggedInFlat)
+        ? state.maintenance.filter(m => m.flat === loggedInFlat)
+        : state.maintenance;
+      const scopedMaint = selMonth === 'all' ? baseMaint : baseMaint.filter(m => m.month === selMonth);
       const paidMaint = scopedMaint.filter(m => m.status === 'भरलेले');
       const pendingMaint = scopedMaint.filter(m => m.status === 'थकीत');
       const collectedSum = paidMaint.reduce((s, m) => s + Number(m.totalPayable != null ? m.totalPayable : m.amount), 0);
@@ -7722,7 +7725,10 @@
       const modeFilter = document.getElementById('maint-filter-mode').value;
       const query = (document.getElementById('maint-search').value || '').trim().toLowerCase();
 
-      const monthFiltered = state.maintenance.filter(m => selectedMonth === 'all' || m.month === selectedMonth);
+      const maintSource = (!isAdmin() && loggedInFlat)
+        ? state.maintenance.filter(m => m.flat === loggedInFlat)
+        : state.maintenance;
+      const monthFiltered = maintSource.filter(m => selectedMonth === 'all' || m.month === selectedMonth);
       let onlineSum = 0, cashSum = 0, pendSum = 0;
       monthFiltered.forEach(m => {
         const payAmt = Number(m.totalPayable != null ? m.totalPayable : m.amount) || 0;
@@ -7821,7 +7827,16 @@
       accMonthSel.value = (prevAccVal && (prevAccVal === 'all' || txMonths.includes(prevAccVal))) ? prevAccVal : currYM;
 
       const selYM = accMonthSel.value;
-      const monthTx = selYM === 'all' ? state.transactions : state.transactions.filter(t => (t.date || '').startsWith(selYM));
+      const baseTx = (!isAdmin() && loggedInFlat)
+        ? state.transactions.filter(t => {
+            if (t.type === 'खर्च') return true;
+            if (t.category === 'देखभाल शुल्क') {
+              return (t.desc || '').startsWith(loggedInFlat + ' ') || (t.desc || '').includes('फ्लॅट ' + loggedInFlat);
+            }
+            return true;
+          })
+        : state.transactions;
+      const monthTx = selYM === 'all' ? baseTx : baseTx.filter(t => (t.date || '').startsWith(selYM));
 
       const totalIncome = monthTx.filter(t => t.type === 'जमा').reduce((s, t) => s + Number(t.amount), 0);
       const totalExpense = monthTx.filter(t => t.type === 'खर्च').reduce((s, t) => s + Number(t.amount), 0);
