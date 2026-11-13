@@ -1,0 +1,1886 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>शिवसाई संकुल बी विंग को-ऑपरेटिव्ह सोसायटी लिमिटेड</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Noto Sans Devanagari', 'Inter', system-ui, -apple-system, sans-serif;
+      background-color: #f8fafc;
+      color: #0f172a;
+    }
+    .tab-scroll::-webkit-scrollbar {
+      display: none;
+    }
+    .tab-scroll {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #receipt-print-area, #receipt-print-area * {
+        visibility: visible;
+      }
+      #receipt-print-area {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        padding: 20px;
+      }
+      .no-print {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+  <!-- LOGIN OVERLAY -->
+  <div id="login-screen" class="fixed inset-0 bg-gradient-to-br from-teal-900 via-teal-800 to-emerald-900 flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl">
+      <div class="text-center mb-6">
+        <div class="w-14 h-14 mx-auto rounded-2xl bg-teal-50 text-teal-800 flex items-center justify-center mb-3 border border-teal-200">
+          <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-4h6v4M9 9h.01M15 9h.01M9 13h.01M15 13h.01" />
+          </svg>
+        </div>
+        <h1 class="text-lg font-bold text-slate-900 leading-snug">शिवसाई संकुल बी विंग को-ऑपरेटिव्ह सोसायटी लिमिटेड</h1>
+        <p class="text-xs font-medium text-teal-700 mt-1">नोंदणी क्र.: TNS/VSI/HSG/26019/2014</p>
+      </div>
+
+      <!-- Login Mode Switcher -->
+      <div class="grid grid-cols-2 gap-2 p-1 bg-slate-100 rounded-xl mb-5">
+        <button id="login-tab-member" type="button" class="py-2 px-3 rounded-lg text-sm font-semibold bg-white text-teal-800 shadow-xs transition">
+          सभासद लॉगिन
+        </button>
+        <button id="login-tab-admin" type="button" class="py-2 px-3 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 transition">
+          ॲडमिन लॉगिन
+        </button>
+      </div>
+
+      <!-- Member Login Panel -->
+      <form id="form-member-login" class="space-y-4">
+        <div class="bg-teal-50 border border-teal-200/80 rounded-xl p-3 text-xs text-teal-900 leading-relaxed">
+          <strong>सभासद प्रवेश (Read-Only):</strong> सभासदांना सोसायटीचे हिशोब, सूचना फलक, भाडेकरू माहिती व स्वतःची देखभाल पावती फक्त पाहता येईल. बदल करण्याचे अधिकार फक्त ॲडमिनकडे आहेत.
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">तुमचा फ्लॅट क्रमांक निवडा</label>
+          <select id="login-member-flat" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm bg-white focus:ring-2 focus:ring-teal-500 outline-none"></select>
+        </div>
+        <button type="submit" class="w-full py-2.5 rounded-xl bg-teal-700 hover:bg-teal-800 text-white font-semibold text-sm transition">
+          सभासद म्हणून प्रवेश करा
+        </button>
+      </form>
+
+      <!-- Admin Login Panel -->
+      <form id="form-admin-login" class="space-y-4 hidden">
+        <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-900 leading-relaxed">
+          <strong>ॲडमिन प्रवेश:</strong> सभासद, भाडेकरू, बिले, सूचना, कर्ज व आर्थिक नोंदींमध्ये बदल करण्यासाठी ॲडमिन पासवर्ड टाका. (डीफॉल्ट PIN: <strong>1234</strong>)
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">ॲडमिन युजरनेम</label>
+          <input id="login-admin-user" type="text" required value="admin" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-teal-500 outline-none" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">ॲडमिन PIN / पासवर्ड</label>
+          <input id="login-admin-pin" type="password" required placeholder="PIN टाका (1234)" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-teal-500 outline-none" />
+        </div>
+        <p id="admin-login-error" class="text-xs text-rose-600 font-semibold hidden">चुकीचा युजरनेम किंवा PIN! कृपया पुन्हा प्रयत्न करा.</p>
+        <button type="submit" class="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-sm transition">
+          ॲडमिन लॉगिन करा
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Top Header -->
+  <header class="bg-gradient-to-r from-teal-800 via-teal-700 to-emerald-700 text-white shadow-md sticky top-0 z-30">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3.5">
+      <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-2.5">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-white/15 backdrop-blur flex items-center justify-center shrink-0 border border-white/20">
+            <svg class="w-6 h-6 text-amber-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 21h18M5 21V7l7-4 7 4v14M9 21v-4h6v4M9 9h.01M15 9h.01M9 13h.01M15 13h.01" />
+            </svg>
+          </div>
+          <div>
+            <h1 class="text-base sm:text-lg font-bold leading-tight tracking-tight">
+              शिवसाई संकुल बी विंग को-ऑपरेटिव्ह सोसायटी लिमिटेड
+            </h1>
+            <p class="text-xs text-teal-100 mt-0.5 flex flex-wrap items-center gap-2">
+              <span class="inline-flex items-center gap-1 bg-white/15 px-2 py-0.5 rounded-full font-medium">
+                नोंदणी क्र.: TNS/VSI/HSG/26019/2014
+              </span>
+              <span id="role-badge" class="inline-flex items-center gap-1 bg-amber-400/90 text-slate-950 px-2.5 py-0.5 rounded-full font-bold">
+                सभासद व्ह्यू (Read-Only)
+              </span>
+              <span id="cloud-sync-badge" class="inline-flex items-center gap-1 bg-white/15 text-teal-100 px-2.5 py-0.5 rounded-full font-medium">
+                क्लाउड जोडत आहे...
+              </span>
+            </p>
+          </div>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2 self-start md:self-auto">
+          <button id="btn-export-json" type="button" class="admin-only hidden text-xs bg-white/15 hover:bg-white/25 text-white px-3 py-1.5 rounded-lg font-medium transition items-center gap-1.5 border border-white/20">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+            बॅकअप डाउनलोड
+          </button>
+          <button id="btn-reset-demo" type="button" class="admin-only hidden text-xs bg-amber-500/90 hover:bg-amber-500 text-slate-950 px-3 py-1.5 rounded-lg font-semibold transition">
+            डेटा रीसेट
+          </button>
+          <button id="btn-switch-login" type="button" class="text-xs bg-slate-900/60 hover:bg-slate-900 text-white px-3 py-1.5 rounded-lg font-semibold transition border border-white/20">
+            लॉगआउट / लॉगिन बदला
+          </button>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <nav class="mt-3 -mb-3.5 flex items-center gap-1 overflow-x-auto tab-scroll" aria-label="मुख्य मेनू">
+        <button data-tab="dashboard" class="nav-tab px-4 py-2.5 text-sm font-semibold rounded-t-xl whitespace-nowrap transition flex items-center gap-2 bg-slate-50 text-teal-800">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+          डॅशबोर्ड
+        </button>
+        <button data-tab="members" class="nav-tab px-4 py-2.5 text-sm font-medium rounded-t-xl whitespace-nowrap transition flex items-center gap-2 text-teal-100 hover:bg-white/10">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          सभासद (मालक)
+        </button>
+        <button data-tab="tenants" class="nav-tab px-4 py-2.5 text-sm font-medium rounded-t-xl whitespace-nowrap transition flex items-center gap-2 text-teal-100 hover:bg-white/10">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+          भाडेकरू व करार
+        </button>
+        <button data-tab="maintenance" class="nav-tab px-4 py-2.5 text-sm font-medium rounded-t-xl whitespace-nowrap transition flex items-center gap-2 text-teal-100 hover:bg-white/10">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          देखभाल शुल्क
+        </button>
+        <button data-tab="notices" class="nav-tab px-4 py-2.5 text-sm font-medium rounded-t-xl whitespace-nowrap transition flex items-center gap-2 text-teal-100 hover:bg-white/10">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+          सूचना फलक
+        </button>
+        <button data-tab="accounting" class="nav-tab px-4 py-2.5 text-sm font-medium rounded-t-xl whitespace-nowrap transition flex items-center gap-2 text-teal-100 hover:bg-white/10">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          आर्थिक हिशोब
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6">
+
+    <!-- Read-only Banner for Members -->
+    <div id="member-readonly-banner" class="mb-5 bg-teal-50 border border-teal-200 rounded-2xl px-4 py-3 flex items-center justify-between gap-3 text-xs sm:text-sm text-teal-900">
+      <div class="flex items-center gap-2">
+        <svg class="w-5 h-5 text-teal-700 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <span>तुम्ही <strong>सभासद (Read-Only)</strong> मोडमध्ये आहात. सर्व माहिती पाहू शकता आणि पावती डाउनलोड करू शकता; कोणतेही बदल फक्त ॲडमिन करू शकतात.</span>
+      </div>
+    </div>
+
+    <!-- TAB 1: DASHBOARD -->
+    <section id="tab-dashboard" class="tab-panel space-y-6">
+      <!-- KPI Cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80">
+          <div class="flex items-center justify-between">
+            <span class="text-sm font-medium text-slate-500">एकूण सभासद व भाडेकरू</span>
+            <span class="w-9 h-9 rounded-xl bg-teal-50 text-teal-700 flex items-center justify-center">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            </span>
+          </div>
+          <p id="kpi-members" class="text-2xl font-bold text-slate-900 mt-2">0</p>
+          <p id="kpi-members-sub" class="text-xs text-slate-500 mt-1">मालक व भाडेकरू</p>
+        </div>
+
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80">
+          <div class="flex items-center justify-between">
+            <span class="text-sm font-medium text-slate-500">जमा देखभाल शुल्क</span>
+            <span class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </span>
+          </div>
+          <p id="kpi-collected" class="text-2xl font-bold text-emerald-700 mt-2">₹0</p>
+          <p id="kpi-collected-sub" class="text-xs text-slate-500 mt-1">चालू महिन्यातील वसुली</p>
+        </div>
+
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80">
+          <div class="flex items-center justify-between">
+            <span class="text-sm font-medium text-slate-500">थकीत देखभाल शुल्क</span>
+            <span class="w-9 h-9 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </span>
+          </div>
+          <p id="kpi-pending" class="text-2xl font-bold text-rose-600 mt-2">₹0</p>
+          <p id="kpi-pending-sub" class="text-xs text-slate-500 mt-1">प्रलंबित फ्लॅट्स</p>
+        </div>
+
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80">
+          <div class="flex items-center justify-between">
+            <span class="text-sm font-medium text-slate-500">सोसायटी शिल्लक निधी</span>
+            <span class="w-9 h-9 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+            </span>
+          </div>
+          <p id="kpi-balance" class="text-2xl font-bold text-slate-900 mt-2">₹0</p>
+          <p class="text-xs text-slate-500 mt-1">एकूण जमा वजा एकूण खर्च</p>
+        </div>
+      </div>
+
+      <!-- SOCIETY LOAN DETAILS CARD -->
+      <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-teal-950 text-white rounded-2xl p-5 sm:p-6 shadow-md border border-slate-700">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl bg-amber-400/20 text-amber-300 flex items-center justify-center shrink-0">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+            </div>
+            <div>
+              <h2 class="text-base sm:text-lg font-bold">सोसायटी कर्ज तपशील (Society Loan Details)</h2>
+              <p id="loan-bank-info" class="text-xs text-slate-300 mt-0.5"></p>
+            </div>
+          </div>
+          <button id="btn-edit-loan" type="button" class="admin-only hidden text-xs bg-amber-400 hover:bg-amber-300 text-slate-950 px-3.5 py-2 rounded-xl font-bold transition self-start sm:self-auto">
+            कर्ज तपशील संपादित करा
+          </button>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
+          <div class="bg-white/10 rounded-xl p-3">
+            <p class="text-xs text-slate-300">एकूण मंजूर कर्ज</p>
+            <p id="loan-total" class="text-lg sm:text-xl font-bold text-white mt-0.5">₹0</p>
+          </div>
+          <div class="bg-white/10 rounded-xl p-3">
+            <p class="text-xs text-slate-300">शिल्लक कर्ज रक्कम</p>
+            <p id="loan-remaining" class="text-lg sm:text-xl font-bold text-rose-300 mt-0.5">₹0</p>
+          </div>
+          <div class="bg-white/10 rounded-xl p-3">
+            <p class="text-xs text-slate-300">मासिक हप्ता (EMI)</p>
+            <p id="loan-emi" class="text-lg sm:text-xl font-bold text-amber-300 mt-0.5">₹0</p>
+          </div>
+          <div class="bg-white/10 rounded-xl p-3">
+            <p class="text-xs text-slate-300">व्याजदर व अंतिम मुदत</p>
+            <p id="loan-rate-end" class="text-sm sm:text-base font-bold text-emerald-300 mt-1"></p>
+          </div>
+        </div>
+
+        <div>
+          <div class="flex justify-between text-xs text-slate-300 mb-1.5">
+            <span>परतफेड प्रगती (<span id="loan-paid-amt">₹0</span> भरले)</span>
+            <span id="loan-progress-pct" class="font-bold text-emerald-300">0%</span>
+          </div>
+          <div class="w-full h-2.5 bg-white/15 rounded-full overflow-hidden">
+            <div id="loan-progress-bar" class="h-full bg-emerald-400 rounded-full transition-all duration-500" style="width: 0%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts Row -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80">
+          <h2 class="text-base font-bold text-slate-800 mb-1">मासिक जमा आणि खर्च</h2>
+          <p class="text-xs text-slate-500 mb-4">सोसायटीच्या आर्थिक व्यवहारांचा तुलनात्मक आढावा</p>
+          <div class="relative h-72">
+            <canvas id="chart-income-expense"></canvas>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80">
+          <h2 class="text-base font-bold text-slate-800 mb-1">खर्चाचे वर्गीकरण</h2>
+          <p class="text-xs text-slate-500 mb-4">विविध कारणांसाठी झालेल्या खर्चाचा तपशील</p>
+          <div class="relative h-72">
+            <canvas id="chart-expense-categories"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Dashboard Row: Recent Notices & Pending Dues -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-base font-bold text-slate-800">ताज्या सूचना</h2>
+            <button data-goto="notices" class="goto-tab-btn text-xs font-semibold text-teal-700 hover:text-teal-900">सर्व पहा →</button>
+          </div>
+          <div id="dash-notices-list" class="space-y-3"></div>
+        </div>
+
+        <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-base font-bold text-slate-800">थकीत देखभाल शुल्क यादी</h2>
+            <button data-goto="maintenance" class="goto-tab-btn text-xs font-semibold text-teal-700 hover:text-teal-900">व्यवस्थापन पहा →</button>
+          </div>
+          <div id="dash-pending-list" class="space-y-2.5"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: MEMBERS (OWNERS) -->
+    <section id="tab-members" class="tab-panel hidden space-y-5">
+      <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
+          <div>
+            <h2 class="text-lg font-bold text-slate-900">सभासद नोंदवही (फ्लॅट मालक)</h2>
+            <p class="text-xs text-slate-500">सोसायटीतील सर्व मूळ फ्लॅट धारकांची माहिती</p>
+          </div>
+          <button id="btn-open-member-modal" type="button" class="admin-only hidden bg-teal-700 hover:bg-teal-800 text-white px-4 py-2 rounded-xl text-sm font-semibold transition items-center gap-2 self-start sm:self-auto">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+            नवीन सभासद जोडा
+          </button>
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-3 mb-4">
+          <input id="member-search" type="text" placeholder="फ्लॅट क्र., मालकाचे नाव किंवा मोबाइल नंबर शोधा..." class="flex-1 px-3.5 py-2 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500" />
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase bg-slate-50">
+                <th class="py-3 px-3 rounded-tl-lg">फ्लॅट क्र.</th>
+                <th class="py-3 px-3">मालकाचे नाव</th>
+                <th class="py-3 px-3">मोबाइल क्र.</th>
+                <th class="py-3 px-3">वाहन / पार्किंग</th>
+                <th class="py-3 px-3 text-right rounded-tr-lg admin-col hidden">कृती</th>
+              </tr>
+            </thead>
+            <tbody id="members-table-body" class="divide-y divide-slate-100 text-sm"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: TENANTS & RENT AGREEMENTS -->
+    <section id="tab-tenants" class="tab-panel hidden space-y-5">
+      <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
+          <div>
+            <h2 class="text-lg font-bold text-slate-900">भाडेकरू नोंदवही आणि भाडे करार मुदत</h2>
+            <p class="text-xs text-slate-500">भाडेकरूंची स्वतंत्र माहिती आणि भाडे करार सुरू व समाप्ती दिनांक</p>
+          </div>
+          <button id="btn-open-tenant-modal" type="button" class="admin-only hidden bg-teal-700 hover:bg-teal-800 text-white px-4 py-2 rounded-xl text-sm font-semibold transition items-center gap-2 self-start sm:self-auto">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+            नवीन भाडेकरू जोडा
+          </button>
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-3 mb-4">
+          <input id="tenant-search" type="text" placeholder="फ्लॅट क्र., भाडेकरूचे नाव किंवा मालक शोधा..." class="flex-1 px-3.5 py-2 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500" />
+          <select id="tenant-filter-status" class="px-3.5 py-2 rounded-xl border border-slate-300 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-teal-500">
+            <option value="all">सर्व करार स्थिती</option>
+            <option value="सक्रिय">सक्रिय करार</option>
+            <option value="लवकरच संपणार">लवकरच संपणार (३० दिवसांत)</option>
+            <option value="मुदत संपली">मुदत संपली</option>
+          </select>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase bg-slate-50">
+                <th class="py-3 px-3 rounded-tl-lg">फ्लॅट क्र.</th>
+                <th class="py-3 px-3">भाडेकरूचे नाव</th>
+                <th class="py-3 px-3">मूळ मालक</th>
+                <th class="py-3 px-3">मोबाइल क्र.</th>
+                <th class="py-3 px-3">करार सुरू दिनांक</th>
+                <th class="py-3 px-3">करार समाप्ती दिनांक</th>
+                <th class="py-3 px-3">करार स्थिती</th>
+                <th class="py-3 px-3 text-right rounded-tr-lg admin-col hidden">कृती</th>
+              </tr>
+            </thead>
+            <tbody id="tenants-table-body" class="divide-y divide-slate-100 text-sm"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: MAINTENANCE -->
+    <section id="tab-maintenance" class="tab-panel hidden space-y-5">
+      <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
+          <div>
+            <h2 class="text-lg font-bold text-slate-900">मासिक देखभाल शुल्क (Maintenance)</h2>
+            <p class="text-xs text-slate-500">बिल तपशील पहा आणि भरलेल्या शुल्काची डिजिटल पावती मिळवा</p>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <button id="btn-generate-bills" type="button" class="admin-only hidden bg-emerald-700 hover:bg-emerald-800 text-white px-3.5 py-2 rounded-xl text-sm font-semibold transition items-center gap-1.5">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
+              नवीन बिल तयार करा
+            </button>
+          </div>
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-3 mb-4">
+          <select id="maint-filter-month" class="px-3.5 py-2 rounded-xl border border-slate-300 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-teal-500"></select>
+          <select id="maint-filter-status" class="px-3.5 py-2 rounded-xl border border-slate-300 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-teal-500">
+            <option value="all">सर्व स्थिती</option>
+            <option value="भरलेले">भरलेले (Paid)</option>
+            <option value="थकीत">थकीत (Pending)</option>
+          </select>
+          <input id="maint-search" type="text" placeholder="फ्लॅट क्र. किंवा नाव शोधा..." class="flex-1 px-3.5 py-2 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500" />
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase bg-slate-50">
+                <th class="py-3 px-3 rounded-tl-lg">फ्लॅट क्र.</th>
+                <th class="py-3 px-3">सभासद</th>
+                <th class="py-3 px-3">महिना</th>
+                <th class="py-3 px-3">रक्कम</th>
+                <th class="py-3 px-3">स्थिती</th>
+                <th class="py-3 px-3">भरणा दिनांक</th>
+                <th class="py-3 px-3 text-right rounded-tr-lg">कृती</th>
+              </tr>
+            </thead>
+            <tbody id="maint-table-body" class="divide-y divide-slate-100 text-sm"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 5: NOTICE BOARD -->
+    <section id="tab-notices" class="tab-panel hidden space-y-5">
+      <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
+          <div>
+            <h2 class="text-lg font-bold text-slate-900">सोसायटी सूचना फलक</h2>
+            <p class="text-xs text-slate-500">सर्वसाधारण सभा, पाणी-वीज पुरवठा व महत्त्वाच्या सूचना</p>
+          </div>
+          <button id="btn-open-notice-modal" type="button" class="admin-only hidden bg-teal-700 hover:bg-teal-800 text-white px-4 py-2 rounded-xl text-sm font-semibold transition items-center gap-2 self-start sm:self-auto">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+            नवीन सूचना प्रसिद्ध करा
+          </button>
+        </div>
+
+        <div id="notices-grid" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+      </div>
+    </section>
+
+    <!-- TAB 6: FINANCIAL ACCOUNTING -->
+    <section id="tab-accounting" class="tab-panel hidden space-y-5">
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80">
+          <p class="text-xs font-medium text-slate-500">एकूण जमा (Income)</p>
+          <p id="acc-total-income" class="text-2xl font-bold text-emerald-700 mt-1">₹0</p>
+        </div>
+        <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80">
+          <p class="text-xs font-medium text-slate-500">एकूण खर्च (Expense)</p>
+          <p id="acc-total-expense" class="text-2xl font-bold text-rose-600 mt-1">₹0</p>
+        </div>
+        <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80">
+          <p class="text-xs font-medium text-slate-500">निव्वळ शिल्लक (Net Balance)</p>
+          <p id="acc-net-balance" class="text-2xl font-bold text-slate-900 mt-1">₹0</p>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
+          <div>
+            <h2 class="text-lg font-bold text-slate-900">जमा-खर्च नोंदवही (Ledger)</h2>
+            <p class="text-xs text-slate-500">सोसायटीचे सर्व आर्थिक व्यवहार व हिशोब</p>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <button id="btn-export-csv" type="button" class="bg-slate-100 hover:bg-slate-200 text-slate-700 px-3.5 py-2 rounded-xl text-sm font-semibold transition inline-flex items-center gap-1.5">
+              CSV डाउनलोड
+            </button>
+            <button id="btn-open-tx-modal" type="button" class="admin-only hidden bg-teal-700 hover:bg-teal-800 text-white px-4 py-2 rounded-xl text-sm font-semibold transition items-center gap-2">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+              नवीन व्यवहार नोंदवा
+            </button>
+          </div>
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-3 mb-4">
+          <select id="tx-filter-type" class="px-3.5 py-2 rounded-xl border border-slate-300 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-teal-500">
+            <option value="all">सर्व व्यवहार</option>
+            <option value="जमा">फक्त जमा (Income)</option>
+            <option value="खर्च">फक्त खर्च (Expense)</option>
+          </select>
+          <input id="tx-search" type="text" placeholder="तपशील किंवा श्रेणी शोधा..." class="flex-1 px-3.5 py-2 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500" />
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase bg-slate-50">
+                <th class="py-3 px-3 rounded-tl-lg">दिनांक</th>
+                <th class="py-3 px-3">प्रकार</th>
+                <th class="py-3 px-3">श्रेणी</th>
+                <th class="py-3 px-3">तपशील</th>
+                <th class="py-3 px-3 text-right">रक्कम</th>
+                <th class="py-3 px-3 text-right rounded-tr-lg admin-col hidden">कृती</th>
+              </tr>
+            </thead>
+            <tbody id="tx-table-body" class="divide-y divide-slate-100 text-sm"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500">
+    शिवसाई संकुल बी विंग को-ऑपरेटिव्ह सोसायटी लिमिटेड | नोंदणी क्र.: TNS/VSI/HSG/26019/2014
+  </footer>
+
+  <!-- MODAL: Add / Edit Member (Owner) -->
+  <div id="modal-member" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs hidden items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl">
+      <div class="flex items-center justify-between mb-4">
+        <h3 id="modal-member-title" class="text-lg font-bold text-slate-900">नवीन सभासद जोडा</h3>
+        <button data-close="modal-member" class="close-modal-btn text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+      </div>
+      <form id="form-member" class="space-y-3.5">
+        <input type="hidden" id="member-id" />
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">फ्लॅट क्र. *</label>
+            <input id="member-flat" type="text" required placeholder="उदा. B-101" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-teal-500 outline-none" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">मोबाइल नंबर *</label>
+            <input id="member-phone" type="tel" required placeholder="98XXXXXXXX" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-teal-500 outline-none" />
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">मालकाचे पूर्ण नाव *</label>
+          <input id="member-name" type="text" required placeholder="उदा. श्री. राजेश पाटील" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-teal-500 outline-none" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">वाहन क्र. / पार्किंग</label>
+          <input id="member-vehicle" type="text" placeholder="उदा. MH-48-AB-1234" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-teal-500 outline-none" />
+        </div>
+        <div class="flex justify-end gap-2 pt-3">
+          <button type="button" data-close="modal-member" class="close-modal-btn px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100">रद्द करा</button>
+          <button type="submit" class="px-4 py-2 rounded-xl text-sm font-semibold bg-teal-700 hover:bg-teal-800 text-white">जतन करा</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Add / Edit Tenant & Rent Agreement -->
+  <div id="modal-tenant" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs hidden items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl">
+      <div class="flex items-center justify-between mb-4">
+        <h3 id="modal-tenant-title" class="text-lg font-bold text-slate-900">नवीन भाडेकरू जोडा</h3>
+        <button data-close="modal-tenant" class="close-modal-btn text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+      </div>
+      <form id="form-tenant" class="space-y-3.5">
+        <input type="hidden" id="tenant-id" />
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">फ्लॅट क्र. *</label>
+            <input id="tenant-flat" type="text" required placeholder="उदा. B-103" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-teal-500 outline-none" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">मोबाइल नंबर *</label>
+            <input id="tenant-phone" type="tel" required placeholder="98XXXXXXXX" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-teal-500 outline-none" />
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">भाडेकरूचे पूर्ण नाव *</label>
+          <input id="tenant-name" type="text" required placeholder="उदा. श्री. अमोल शिंदे" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-teal-500 outline-none" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">मूळ फ्लॅट मालकाचे नाव *</label>
+          <input id="tenant-owner" type="text" required placeholder="उदा. श्री. दत्तात्रय शिंदे" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-teal-500 outline-none" />
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">भाडे करार सुरू दिनांक *</label>
+            <input id="tenant-from" type="date" required class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-teal-500 outline-none" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">भाडे करार समाप्ती दिनांक *</label>
+            <input id="tenant-to" type="date" required class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-teal-500 outline-none" />
+          </div>
+        </div>
+        <div class="flex justify-end gap-2 pt-3">
+          <button type="button" data-close="modal-tenant" class="close-modal-btn px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100">रद्द करा</button>
+          <button type="submit" class="px-4 py-2 rounded-xl text-sm font-semibold bg-teal-700 hover:bg-teal-800 text-white">जतन करा</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Edit Society Loan Details -->
+  <div id="modal-loan" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs hidden items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-bold text-slate-900">सोसायटी कर्ज तपशील संपादित करा</h3>
+        <button data-close="modal-loan" class="close-modal-btn text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+      </div>
+      <form id="form-loan" class="space-y-3.5">
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">बँक / वित्तीय संस्थेचे नाव *</label>
+          <input id="edit-loan-bank" type="text" required class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-teal-500 outline-none" />
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">एकूण कर्ज रक्कम (₹) *</label>
+            <input id="edit-loan-total" type="number" min="0" required class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-teal-500 outline-none" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">शिल्लक कर्ज (₹) *</label>
+            <input id="edit-loan-remaining" type="number" min="0" required class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-teal-500 outline-none" />
+          </div>
+        </div>
+        <div class="grid grid-cols-3 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">मासिक EMI (₹) *</label>
+            <input id="edit-loan-emi" type="number" min="0" required class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-teal-500 outline-none" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">व्याजदर (%) *</label>
+            <input id="edit-loan-rate" type="text" required class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-teal-500 outline-none" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">अंतिम मुदत *</label>
+            <input id="edit-loan-end" type="text" required placeholder="उदा. मार्च २०२९" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-teal-500 outline-none" />
+          </div>
+        </div>
+        <div class="flex justify-end gap-2 pt-3">
+          <button type="button" data-close="modal-loan" class="close-modal-btn px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100">रद्द करा</button>
+          <button type="submit" class="px-4 py-2 rounded-xl text-sm font-semibold bg-teal-700 hover:bg-teal-800 text-white">जतन करा</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Generate Maintenance Bill -->
+  <div id="modal-bill" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs hidden items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-bold text-slate-900">मासिक देखभाल बिल तयार करा</h3>
+        <button data-close="modal-bill" class="close-modal-btn text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+      </div>
+      <form id="form-bill" class="space-y-3.5">
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">महिना व वर्ष *</label>
+          <input id="bill-month" type="text" required placeholder="उदा. डिसेंबर २०२६" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-teal-500 outline-none" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">देखभाल शुल्क रक्कम (₹) *</label>
+          <input id="bill-amount" type="number" min="100" required value="1500" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-teal-500 outline-none" />
+        </div>
+        <div class="flex justify-end gap-2 pt-3">
+          <button type="button" data-close="modal-bill" class="close-modal-btn px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100">रद्द करा</button>
+          <button type="submit" class="px-4 py-2 rounded-xl text-sm font-semibold bg-emerald-700 hover:bg-emerald-800 text-white">बिले तयार करा</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Receipt Preview & Print -->
+  <div id="modal-receipt" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs hidden items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl">
+      <div id="receipt-print-area" class="border-2 border-teal-800 rounded-xl p-5 bg-white">
+        <div class="text-center border-b border-slate-200 pb-3 mb-4">
+          <h3 class="text-base font-bold text-teal-900">शिवसाई संकुल बी विंग को-ऑपरेटिव्ह सोसायटी लिमिटेड</h3>
+          <p class="text-xs text-slate-600">नोंदणी क्र.: TNS/VSI/HSG/26019/2014</p>
+          <span class="inline-block mt-2 px-3 py-0.5 bg-teal-50 text-teal-800 text-xs font-bold rounded-full border border-teal-200">
+            देखभाल शुल्क पावती (Maintenance Receipt)
+          </span>
+        </div>
+        <div class="space-y-2 text-sm">
+          <div class="flex justify-between"><span class="text-slate-500">पावती क्र.:</span><span id="rec-no" class="font-semibold"></span></div>
+          <div class="flex justify-between"><span class="text-slate-500">फ्लॅट क्रमांक:</span><span id="rec-flat" class="font-bold"></span></div>
+          <div class="flex justify-between"><span class="text-slate-500">सभासदाचे नाव:</span><span id="rec-name" class="font-semibold"></span></div>
+          <div class="flex justify-between"><span class="text-slate-500">महिना:</span><span id="rec-month" class="font-semibold"></span></div>
+          <div class="flex justify-between"><span class="text-slate-500">भरणा दिनांक:</span><span id="rec-date" class="font-semibold"></span></div>
+          <div class="flex justify-between border-t border-dashed border-slate-300 pt-2 mt-2 text-base">
+            <span class="font-bold text-slate-800">एकूण प्राप्त रक्कम:</span>
+            <span id="rec-amount" class="font-bold text-emerald-700"></span>
+          </div>
+        </div>
+        <div class="mt-6 pt-3 border-t border-slate-200 flex justify-between items-end text-xs text-slate-500">
+          <span>ही संगणकीय पावती आहे.</span>
+          <span class="font-semibold text-slate-700">अध्यक्ष / सचिव सही</span>
+        </div>
+      </div>
+      <div class="flex justify-end gap-2 mt-4 no-print">
+        <button type="button" data-close="modal-receipt" class="close-modal-btn px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100">बंद करा</button>
+        <button id="btn-print-receipt" type="button" class="px-4 py-2 rounded-xl text-sm font-semibold bg-teal-700 hover:bg-teal-800 text-white inline-flex items-center gap-1.5">
+          प्रिंट / PDF सेव्ह करा
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: Add Notice -->
+  <div id="modal-notice" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs hidden items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-bold text-slate-900">नवीन सूचना प्रसिद्ध करा</h3>
+        <button data-close="modal-notice" class="close-modal-btn text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+      </div>
+      <form id="form-notice" class="space-y-3.5">
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">सूचनेचा विषय *</label>
+          <input id="notice-title" type="text" required placeholder="उदा. वार्षिक सर्वसाधारण सभा" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-teal-500 outline-none" />
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">श्रेणी</label>
+            <select id="notice-category" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm bg-white focus:ring-2 focus:ring-teal-500 outline-none">
+              <option value="सभा">सभा</option>
+              <option value="पाणी/वीज">पाणी / वीज</option>
+              <option value="देखभाल">देखभाल</option>
+              <option value="तातडीची">तातडीची</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">दिनांक *</label>
+            <input id="notice-date" type="date" required class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-teal-500 outline-none" />
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">सूचनेचा सविस्तर तपशील *</label>
+          <textarea id="notice-body" rows="4" required placeholder="सविस्तर माहिती येथे लिहा..." class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-teal-500 outline-none"></textarea>
+        </div>
+        <div class="flex justify-end gap-2 pt-3">
+          <button type="button" data-close="modal-notice" class="close-modal-btn px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100">रद्द करा</button>
+          <button type="submit" class="px-4 py-2 rounded-xl text-sm font-semibold bg-teal-700 hover:bg-teal-800 text-white">प्रसिद्ध करा</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Add Transaction -->
+  <div id="modal-tx" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs hidden items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-bold text-slate-900">नवीन आर्थिक व्यवहार नोंदवा</h3>
+        <button data-close="modal-tx" class="close-modal-btn text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+      </div>
+      <form id="form-tx" class="space-y-3.5">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">प्रकार *</label>
+            <select id="tx-type" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm bg-white focus:ring-2 focus:ring-teal-500 outline-none">
+              <option value="जमा">जमा (Income)</option>
+              <option value="खर्च">खर्च (Expense)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">दिनांक *</label>
+            <input id="tx-date" type="date" required class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-teal-500 outline-none" />
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">श्रेणी *</label>
+            <select id="tx-category" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm bg-white focus:ring-2 focus:ring-teal-500 outline-none">
+              <option value="देखभाल शुल्क">देखभाल शुल्क</option>
+              <option value="पार्किंग शुल्क">पार्किंग शुल्क</option>
+              <option value="पाणी व वीज बिल">पाणी व वीज बिल</option>
+              <option value="स्वच्छता व सुरक्षा">स्वच्छता व सुरक्षा</option>
+              <option value="लिफ्ट व दुरुस्ती">लिफ्ट व दुरुस्ती</option>
+              <option value="कर्ज हप्ता">कर्ज हप्ता</option>
+              <option value="इतर">इतर</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">रक्कम (₹) *</label>
+            <input id="tx-amount" type="number" min="1" required placeholder="0" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-teal-500 outline-none" />
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">तपशील *</label>
+          <input id="tx-desc" type="text" required placeholder="उदा. कॉमन मीटर वीज बिल भरणा" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-teal-500 outline-none" />
+        </div>
+        <div class="flex justify-end gap-2 pt-3">
+          <button type="button" data-close="modal-tx" class="close-modal-btn px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100">रद्द करा</button>
+          <button type="submit" class="px-4 py-2 rounded-xl text-sm font-semibold bg-teal-700 hover:bg-teal-800 text-white">नोंद जतन करा</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Confirmation Dialog -->
+  <div id="modal-confirm" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs hidden items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-2xl max-w-sm w-full p-5 shadow-xl">
+      <h3 id="confirm-title" class="text-base font-bold text-slate-900 mb-2">खात्री करा</h3>
+      <p id="confirm-msg" class="text-sm text-slate-600 mb-5"></p>
+      <div class="flex justify-end gap-2">
+        <button id="btn-confirm-cancel" type="button" class="px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100">नाही</button>
+        <button id="btn-confirm-ok" type="button" class="px-4 py-2 rounded-xl text-sm font-semibold bg-rose-600 hover:bg-rose-700 text-white">होय, पुढे जा</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed bottom-5 right-5 bg-slate-900 text-white px-4 py-2.5 rounded-xl shadow-lg text-sm font-medium transform translate-y-16 opacity-0 transition-all duration-300 z-50 pointer-events-none"></div>
+
+  <script>
+    const STORAGE_KEY = 'shivsai_sankul_b_wing_v2';
+    const firebaseConfig = {
+      apiKey: "AIzaSyA3zUQ6MrUsozP4PtvvyQS_Kh9270alqDE",
+      authDomain: "shivsai-sankun-b.firebaseapp.com",
+      projectId: "shivsai-sankun-b",
+      storageBucket: "shivsai-sankun-b.firebasestorage.app",
+      messagingSenderId: "792573372783",
+      appId: "1:792573372783:web:e32fbe7c68c6ce6a46609a"
+    };
+    let firestoreDocRef = null;
+    try {
+      if (typeof firebase !== 'undefined') {
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        firestoreDocRef = db.collection('societies').doc('shivsai_sankul_b');
+      }
+    } catch (e) {
+      firestoreDocRef = null;
+    }
+    const ADMIN_USER = 'admin';
+    const ADMIN_PIN = '1234';
+
+    const DEFAULT_DATA = {
+      members: [
+        { id: 1, flat: 'B-101', name: 'श्री. सुरेश महादेव कदम', phone: '9822011223', vehicle: 'MH-48-AA-1010' },
+        { id: 2, flat: 'B-102', name: 'श्रीमती. सुनिता प्रकाश जोशी', phone: '9823044556', vehicle: 'MH-48-BC-2244' },
+        { id: 3, flat: 'B-103', name: 'श्री. दत्तात्रय शंकर शिंदे', phone: '9822901122', vehicle: 'नाही' },
+        { id: 4, flat: 'B-104', name: 'श्री. महेश विठ्ठल सावंत', phone: '9890123456', vehicle: 'MH-48-DE-4512' },
+        { id: 5, flat: 'B-105', name: 'श्री. विनायक शिवाजी चव्हाण', phone: '9820556677', vehicle: 'MH-48-AE-4369' },
+        { id: 6, flat: 'B-201', name: 'श्री. संदीप प्रभाकर कुलकर्णी', phone: '9850112299', vehicle: 'MH-48-EF-7788' },
+        { id: 7, flat: 'B-202', name: 'श्री. रामचंद्र गोविंद मोरे', phone: '9821002233', vehicle: 'नाही' },
+        { id: 8, flat: 'B-203', name: 'श्रीमती. वैशाली विजय देशमुख', phone: '9881223344', vehicle: 'MH-48-GH-9090' }
+      ],
+      tenants: [
+        { id: 401, flat: 'B-103', name: 'श्री. अमोल दत्तात्रय शिंदे', owner: 'श्री. दत्तात्रय शंकर शिंदे', phone: '9765099887', fromDate: '2026-01-01', toDate: '2026-11-30' },
+        { id: 402, flat: 'B-202', name: 'श्री. निलेश रामचंद्र मोरे', owner: 'श्री. रामचंद्र गोविंद मोरे', phone: '9922334455', fromDate: '2026-05-01', toDate: '2027-03-31' },
+        { id: 403, flat: 'B-204', name: 'श्री. किरण बाळासाहेब जाधव', owner: 'श्री. बाळासाहेब जाधव', phone: '9860114477', fromDate: '2025-10-01', toDate: '2026-09-30' }
+      ],
+      loan: {
+        bankName: 'ठाणे जिल्हा मध्यवर्ती सहकारी बँक (TDCC)',
+        purpose: 'इमारत दुरुस्ती व लिफ्ट नूतनीकरण कर्ज',
+        totalAmount: 1000000,
+        remainingAmount: 625000,
+        emi: 22500,
+        interestRate: '9.5%',
+        endDate: 'मार्च २०२९'
+      },
+      maintenance: [
+        { id: 101, memberId: 1, flat: 'B-101', name: 'श्री. सुरेश महादेव कदम', month: 'नोव्हेंबर २०२६', amount: 1500, status: 'भरलेले', paidDate: '2026-11-05' },
+        { id: 102, memberId: 2, flat: 'B-102', name: 'श्रीमती. सुनिता प्रकाश जोशी', month: 'नोव्हेंबर २०२६', amount: 1500, status: 'भरलेले', paidDate: '2026-11-06' },
+        { id: 103, memberId: 3, flat: 'B-103', name: 'श्री. दत्तात्रय शंकर शिंदे', month: 'नोव्हेंबर २०२६', amount: 1500, status: 'थकीत', paidDate: '' },
+        { id: 104, memberId: 4, flat: 'B-104', name: 'श्री. महेश विठ्ठल सावंत', month: 'नोव्हेंबर २०२६', amount: 1500, status: 'भरलेले', paidDate: '2026-11-08' },
+        { id: 105, memberId: 5, flat: 'B-105', name: 'श्री. विनायक शिवाजी चव्हाण', month: 'नोव्हेंबर २०२६', amount: 1500, status: 'भरलेले', paidDate: '2026-11-04' },
+        { id: 106, memberId: 6, flat: 'B-201', name: 'श्री. संदीप प्रभाकर कुलकर्णी', month: 'नोव्हेंबर २०२६', amount: 1500, status: 'थकीत', paidDate: '' },
+        { id: 107, memberId: 7, flat: 'B-202', name: 'श्री. रामचंद्र गोविंद मोरे', month: 'नोव्हेंबर २०२६', amount: 1500, status: 'भरलेले', paidDate: '2026-11-10' },
+        { id: 108, memberId: 8, flat: 'B-203', name: 'श्रीमती. वैशाली विजय देशमुख', month: 'नोव्हेंबर २०२६', amount: 1500, status: 'थकीत', paidDate: '' }
+      ],
+      notices: [
+        {
+          id: 201,
+          title: 'मासिक कार्यकारिणी बैठक सूचना',
+          category: 'सभा',
+          date: '2026-11-15',
+          body: 'रविवार दि. १५ नोव्हेंबर २०२६ रोजी सकाळी १०:३० वाजता सोसायटी कार्यालयात मासिक बैठक आयोजित केली आहे. सर्व सभासदांनी उपस्थित राहावे.'
+        },
+        {
+          id: 202,
+          title: 'पाण्याची टाकी स्वच्छता काम',
+          category: 'पाणी/वीज',
+          date: '2026-11-18',
+          body: 'बुधवार दि. १८ नोव्हेंबर रोजी दुपारी १२ ते ३ या वेळेत मुख्य पाण्याच्या टाकीची स्वच्छता केली जाईल. कृपया पुरेसा पाणीसाठा करून ठेवावा.'
+        },
+        {
+          id: 203,
+          title: 'नोव्हेंबर महिन्याचे देखभाल शुल्क भरण्याबाबत',
+          category: 'देखभाल',
+          date: '2026-11-10',
+          body: 'ज्या सभासदांचे नोव्हेंबर २०२६ चे देखभाल शुल्क अद्याप थकीत आहे, त्यांनी लवकरात लवकर जमा करून पावती घ्यावी ही विनंती.'
+        }
+      ],
+      transactions: [
+        { id: 301, date: '2026-09-10', type: 'जमा', category: 'देखभाल शुल्क', desc: 'सप्टेंबर मासिक देखभाल संकलन', amount: 12000 },
+        { id: 302, date: '2026-09-15', type: 'खर्च', category: 'स्वच्छता व सुरक्षा', desc: 'वॉचमन व सफाई कामगार मानधन (सप्टेंबर)', amount: 5500 },
+        { id: 303, date: '2026-09-20', type: 'खर्च', category: 'पाणी व वीज बिल', desc: 'कॉमन जिना व पंप वीज बिल', amount: 2400 },
+        { id: 304, date: '2026-10-10', type: 'जमा', category: 'देखभाल शुल्क', desc: 'ऑक्टोबर मासिक देखभाल संकलन', amount: 12000 },
+        { id: 305, date: '2026-10-14', type: 'खर्च', category: 'लिफ्ट व दुरुस्ती', desc: 'लिफ्ट वार्षिक देखभाल हप्ता', amount: 3200 },
+        { id: 306, date: '2026-10-18', type: 'खर्च', category: 'स्वच्छता व सुरक्षा', desc: 'वॉचमन व सफाई कामगार मानधन (ऑक्टोबर)', amount: 5500 },
+        { id: 307, date: '2026-11-10', type: 'जमा', category: 'देखभाल शुल्क', desc: 'नोव्हेंबर देखभाल शुल्क जमा (५ फ्लॅट)', amount: 7500 },
+        { id: 308, date: '2026-11-11', type: 'जमा', category: 'पार्किंग शुल्क', desc: 'अतिरिक्त दुचाकी पार्किंग शुल्क', amount: 1000 },
+        { id: 309, date: '2026-11-12', type: 'खर्च', category: 'पाणी व वीज बिल', desc: 'MSEDCL कॉमन मीटर बिल', amount: 2650 }
+      ]
+    };
+
+    let state = loadState();
+    let currentRole = null; // 'member' or 'admin'
+    let loggedInFlat = '';
+    let activeTab = 'dashboard';
+    let incomeExpenseChart = null;
+    let expenseCatChart = null;
+    let confirmCallback = null;
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed && Array.isArray(parsed.members) && Array.isArray(parsed.tenants) && parsed.loan) {
+            return parsed;
+          }
+        }
+      } catch (e) {}
+      return JSON.parse(JSON.stringify(DEFAULT_DATA));
+    }
+
+    function updateSyncBadge(connected, label) {
+      const el = document.getElementById('cloud-sync-badge');
+      if (!el) return;
+      el.textContent = label;
+      el.className = connected
+        ? 'inline-flex items-center gap-1 bg-emerald-400/90 text-slate-950 px-2.5 py-0.5 rounded-full font-semibold'
+        : 'inline-flex items-center gap-1 bg-white/15 text-teal-100 px-2.5 py-0.5 rounded-full font-medium';
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch (e) {}
+      if (firestoreDocRef) {
+        try {
+          firestoreDocRef.set(state, { merge: false })
+            .then(() => updateSyncBadge(true, 'क्लाउड सिंक सक्रिय'))
+            .catch(() => updateSyncBadge(false, 'लोकल मोड (Firestore नियम तपासा)'));
+        } catch (e) {}
+      }
+    }
+
+    function initFirestoreSync() {
+      if (!firestoreDocRef) {
+        updateSyncBadge(false, 'लोकल मोड');
+        return;
+      }
+      try {
+        firestoreDocRef.onSnapshot((doc) => {
+          if (doc.exists) {
+            const remote = doc.data();
+            if (remote && Array.isArray(remote.members)) {
+              state = remote;
+              try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+              populateMemberLoginDropdown();
+              renderAll();
+            }
+            updateSyncBadge(true, 'क्लाउड सिंक सक्रिय');
+          } else {
+            firestoreDocRef.set(state)
+              .then(() => updateSyncBadge(true, 'क्लाउड सिंक सक्रिय'))
+              .catch(() => updateSyncBadge(false, 'लोकल मोड'));
+          }
+        }, () => {
+          updateSyncBadge(false, 'लोकल मोड (ऑफलाइन)');
+        });
+      } catch (e) {
+        updateSyncBadge(false, 'लोकल मोड');
+      }
+    }
+
+    function isAdmin() {
+      return currentRole === 'admin';
+    }
+
+    function formatINR(num) {
+      return '₹' + Number(num || 0).toLocaleString('en-IN');
+    }
+
+    function escapeHtml(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.classList.remove('translate-y-16', 'opacity-0');
+      setTimeout(() => {
+        toast.classList.add('translate-y-16', 'opacity-0');
+      }, 2800);
+    }
+
+    function openModal(id) {
+      const el = document.getElementById(id);
+      if (el) {
+        el.classList.remove('hidden');
+        el.classList.add('flex');
+      }
+    }
+
+    function closeModal(id) {
+      const el = document.getElementById(id);
+      if (el) {
+        el.classList.add('hidden');
+        el.classList.remove('flex');
+      }
+    }
+
+    function askConfirm(title, msg, onConfirm) {
+      if (!isAdmin()) return;
+      document.getElementById('confirm-title').textContent = title;
+      document.getElementById('confirm-msg').textContent = msg;
+      confirmCallback = onConfirm;
+      openModal('modal-confirm');
+    }
+
+    function populateMemberLoginDropdown() {
+      const sel = document.getElementById('login-member-flat');
+      sel.innerHTML = state.members.map(m =>
+        `<option value="${escapeHtml(m.flat)}">${escapeHtml(m.flat)} — ${escapeHtml(m.name)}</option>`
+      ).join('');
+    }
+
+    function applyRoleUI() {
+      const admin = isAdmin();
+      const badge = document.getElementById('role-badge');
+      const banner = document.getElementById('member-readonly-banner');
+
+      if (admin) {
+        badge.textContent = 'ॲडमिन मोड (पूर्ण अधिकार)';
+        badge.className = 'inline-flex items-center gap-1 bg-amber-400 text-slate-950 px-2.5 py-0.5 rounded-full font-bold';
+        banner.classList.add('hidden');
+      } else {
+        badge.textContent = `सभासद व्ह्यू: ${loggedInFlat} (Read-Only)`;
+        badge.className = 'inline-flex items-center gap-1 bg-white/20 text-white px-2.5 py-0.5 rounded-full font-semibold';
+        banner.classList.remove('hidden');
+      }
+
+      document.querySelectorAll('.admin-only').forEach(el => {
+        if (admin) {
+          el.classList.remove('hidden');
+          if (el.tagName === 'BUTTON' && el.classList.contains('items-center')) {
+            el.classList.add('inline-flex');
+          }
+        } else {
+          el.classList.add('hidden');
+          el.classList.remove('inline-flex');
+        }
+      });
+
+      document.querySelectorAll('.admin-col').forEach(el => {
+        if (admin) el.classList.remove('hidden');
+        else el.classList.add('hidden');
+      });
+    }
+
+    function switchTab(tabName) {
+      activeTab = tabName;
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('hidden'));
+      const target = document.getElementById('tab-' + tabName);
+      if (target) target.classList.remove('hidden');
+
+      document.querySelectorAll('.nav-tab').forEach(btn => {
+        if (btn.dataset.tab === tabName) {
+          btn.classList.add('bg-slate-50', 'text-teal-800', 'font-semibold');
+          btn.classList.remove('text-teal-100', 'hover:bg-white/10', 'font-medium');
+        } else {
+          btn.classList.remove('bg-slate-50', 'text-teal-800', 'font-semibold');
+          btn.classList.add('text-teal-100', 'hover:bg-white/10', 'font-medium');
+        }
+      });
+
+      renderAll();
+    }
+
+    function getAgreementStatus(toDateStr) {
+      if (!toDateStr) return { label: 'अज्ञात', cls: 'bg-slate-100 text-slate-700' };
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const end = new Date(toDateStr);
+      const diffDays = Math.ceil((end - today) / (1000 * 60 * 60 * 24));
+      if (diffDays < 0) return { label: 'मुदत संपली', cls: 'bg-rose-100 text-rose-700' };
+      if (diffDays <= 30) return { label: 'लवकरच संपणार', cls: 'bg-amber-100 text-amber-800' };
+      return { label: 'सक्रिय', cls: 'bg-emerald-100 text-emerald-800' };
+    }
+
+    function renderLoanCard() {
+      const l = state.loan;
+      const total = Number(l.totalAmount) || 0;
+      const rem = Number(l.remainingAmount) || 0;
+      const paid = Math.max(0, total - rem);
+      const pct = total > 0 ? Math.min(100, Math.round((paid / total) * 100)) : 0;
+
+      document.getElementById('loan-bank-info').textContent = `${l.bankName} — ${l.purpose}`;
+      document.getElementById('loan-total').textContent = formatINR(total);
+      document.getElementById('loan-remaining').textContent = formatINR(rem);
+      document.getElementById('loan-emi').textContent = formatINR(l.emi);
+      document.getElementById('loan-rate-end').textContent = `${l.interestRate} | ${l.endDate}`;
+      document.getElementById('loan-paid-amt').textContent = formatINR(paid);
+      document.getElementById('loan-progress-pct').textContent = `${pct}%`;
+      document.getElementById('loan-progress-bar').style.width = `${pct}%`;
+    }
+
+    function renderDashboard() {
+      const totalOwners = state.members.length;
+      const totalTenants = state.tenants.length;
+      const paidMaint = state.maintenance.filter(m => m.status === 'भरलेले');
+      const pendingMaint = state.maintenance.filter(m => m.status === 'थकीत');
+      const collectedSum = paidMaint.reduce((s, m) => s + Number(m.amount), 0);
+      const pendingSum = pendingMaint.reduce((s, m) => s + Number(m.amount), 0);
+
+      const totalIncome = state.transactions.filter(t => t.type === 'जमा').reduce((s, t) => s + Number(t.amount), 0);
+      const totalExpense = state.transactions.filter(t => t.type === 'खर्च').reduce((s, t) => s + Number(t.amount), 0);
+      const balance = totalIncome - totalExpense;
+
+      document.getElementById('kpi-members').textContent = `${totalOwners} मालक / ${totalTenants} भाडेकरू`;
+      document.getElementById('kpi-collected').textContent = formatINR(collectedSum);
+      document.getElementById('kpi-collected-sub').textContent = `${paidMaint.length} फ्लॅट्सचे शुल्क जमा`;
+      document.getElementById('kpi-pending').textContent = formatINR(pendingSum);
+      document.getElementById('kpi-pending-sub').textContent = `${pendingMaint.length} फ्लॅट्स थकीत`;
+      document.getElementById('kpi-balance').textContent = formatINR(balance);
+
+      renderLoanCard();
+
+      // Recent notices
+      const dashNotices = document.getElementById('dash-notices-list');
+      const topNotices = state.notices.slice(0, 3);
+      dashNotices.innerHTML = topNotices.length
+        ? topNotices.map(n => `
+          <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/70">
+            <div class="flex items-center justify-between gap-2 mb-1">
+              <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-teal-100 text-teal-800">${escapeHtml(n.category)}</span>
+              <span class="text-xs text-slate-400">${escapeHtml(n.date)}</span>
+            </div>
+            <h3 class="text-sm font-bold text-slate-800">${escapeHtml(n.title)}</h3>
+            <p class="text-xs text-slate-600 mt-1 line-clamp-2">${escapeHtml(n.body)}</p>
+          </div>
+        `).join('')
+        : '<p class="text-sm text-slate-500">सध्या कोणतीही सूचना नाही.</p>';
+
+      // Pending dues
+      const dashPending = document.getElementById('dash-pending-list');
+      dashPending.innerHTML = pendingMaint.length
+        ? pendingMaint.slice(0, 5).map(m => `
+          <div class="flex items-center justify-between p-3 rounded-xl bg-rose-50/60 border border-rose-100">
+            <div>
+              <p class="text-sm font-bold text-slate-800">${escapeHtml(m.flat)} — ${escapeHtml(m.name)}</p>
+              <p class="text-xs text-slate-500">${escapeHtml(m.month)}</p>
+            </div>
+            <div class="text-right">
+              <p class="text-sm font-bold text-rose-600">${formatINR(m.amount)}</p>
+              ${isAdmin() ? `<button data-pay-id="${m.id}" class="quick-pay-btn text-xs font-semibold text-teal-700 hover:underline mt-0.5">रक्कम भरा</button>` : '<span class="text-xs text-rose-500">थकीत</span>'}
+            </div>
+          </div>
+        `).join('')
+        : '<p class="text-sm text-emerald-700 font-medium bg-emerald-50 p-3 rounded-xl">सर्व सभासदांचे देखभाल शुल्क जमा झाले आहे!</p>';
+
+      renderCharts();
+    }
+
+    function renderCharts() {
+      if (typeof Chart === 'undefined') return;
+
+      const monthMap = {};
+      state.transactions.forEach(t => {
+        const key = (t.date || '').slice(0, 7) || 'इतर';
+        if (!monthMap[key]) monthMap[key] = { income: 0, expense: 0 };
+        if (t.type === 'जमा') monthMap[key].income += Number(t.amount);
+        else monthMap[key].expense += Number(t.amount);
+      });
+      const sortedMonths = Object.keys(monthMap).sort();
+      const labels = sortedMonths.map(m => {
+        const [y, mo] = m.split('-');
+        const names = { '09': 'सप्टेंबर', '10': 'ऑक्टोबर', '11': 'नोव्हेंबर', '12': 'डिसेंबर', '01': 'जानेवारी', '02': 'फेब्रुवारी' };
+        return (names[mo] || mo) + ' ' + (y || '');
+      });
+      const incomeData = sortedMonths.map(m => monthMap[m].income);
+      const expenseData = sortedMonths.map(m => monthMap[m].expense);
+
+      const ctx1 = document.getElementById('chart-income-expense');
+      if (ctx1) {
+        if (incomeExpenseChart) incomeExpenseChart.destroy();
+        incomeExpenseChart = new Chart(ctx1, {
+          type: 'bar',
+          data: {
+            labels,
+            datasets: [
+              { label: 'जमा (₹)', data: incomeData, backgroundColor: '#0f766e', borderRadius: 6 },
+              { label: 'खर्च (₹)', data: expenseData, backgroundColor: '#e11d48', borderRadius: 6 }
+            ]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'bottom' } },
+            scales: { y: { beginAtZero: true } }
+          }
+        });
+      }
+
+      const catMap = {};
+      state.transactions.filter(t => t.type === 'खर्च').forEach(t => {
+        catMap[t.category] = (catMap[t.category] || 0) + Number(t.amount);
+      });
+      const catLabels = Object.keys(catMap);
+      const catValues = Object.values(catMap);
+
+      const ctx2 = document.getElementById('chart-expense-categories');
+      if (ctx2) {
+        if (expenseCatChart) expenseCatChart.destroy();
+        expenseCatChart = new Chart(ctx2, {
+          type: 'doughnut',
+          data: {
+            labels: catLabels.length ? catLabels : ['खर्च नाही'],
+            datasets: [{
+              data: catValues.length ? catValues : [1],
+              backgroundColor: ['#0f766e', '#f59e0b', '#e11d48', '#6366f1', '#14b8a6', '#64748b']
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'bottom' } }
+          }
+        });
+      }
+    }
+
+    function renderMembers() {
+      const query = (document.getElementById('member-search').value || '').trim().toLowerCase();
+      const filtered = state.members.filter(m =>
+        !query ||
+        m.flat.toLowerCase().includes(query) ||
+        m.name.toLowerCase().includes(query) ||
+        m.phone.toLowerCase().includes(query)
+      );
+
+      const tbody = document.getElementById('members-table-body');
+      tbody.innerHTML = filtered.length
+        ? filtered.map(m => `
+          <tr class="hover:bg-slate-50/80 transition">
+            <td class="py-3 px-3 font-bold text-teal-800">${escapeHtml(m.flat)}</td>
+            <td class="py-3 px-3 font-medium text-slate-900">${escapeHtml(m.name)}</td>
+            <td class="py-3 px-3 text-slate-600">${escapeHtml(m.phone)}</td>
+            <td class="py-3 px-3 text-slate-600">${escapeHtml(m.vehicle || 'नाही')}</td>
+            ${isAdmin() ? `
+              <td class="py-3 px-3 text-right space-x-2 whitespace-nowrap">
+                <button data-edit-member="${m.id}" class="edit-member-btn text-xs font-semibold text-teal-700 hover:underline">संपादित</button>
+                <button data-del-member="${m.id}" class="del-member-btn text-xs font-semibold text-rose-600 hover:underline">काढा</button>
+              </td>` : ''}
+          </tr>
+        `).join('')
+        : `<tr><td colspan="${isAdmin() ? 5 : 4}" class="py-6 text-center text-slate-500">कोणतेही सभासद आढळले नाहीत.</td></tr>`;
+    }
+
+    function renderTenants() {
+      const query = (document.getElementById('tenant-search').value || '').trim().toLowerCase();
+      const statusFilter = document.getElementById('tenant-filter-status').value;
+
+      const filtered = state.tenants.filter(t => {
+        const st = getAgreementStatus(t.toDate).label;
+        const matchStatus = statusFilter === 'all' || st === statusFilter;
+        const matchQuery = !query ||
+          t.flat.toLowerCase().includes(query) ||
+          t.name.toLowerCase().includes(query) ||
+          t.owner.toLowerCase().includes(query);
+        return matchStatus && matchQuery;
+      });
+
+      const tbody = document.getElementById('tenants-table-body');
+      tbody.innerHTML = filtered.length
+        ? filtered.map(t => {
+          const st = getAgreementStatus(t.toDate);
+          return `
+            <tr class="hover:bg-slate-50/80 transition">
+              <td class="py-3 px-3 font-bold text-teal-800">${escapeHtml(t.flat)}</td>
+              <td class="py-3 px-3 font-medium text-slate-900">${escapeHtml(t.name)}</td>
+              <td class="py-3 px-3 text-slate-700">${escapeHtml(t.owner)}</td>
+              <td class="py-3 px-3 text-slate-600">${escapeHtml(t.phone)}</td>
+              <td class="py-3 px-3 text-slate-700 font-medium whitespace-nowrap">${escapeHtml(t.fromDate)}</td>
+              <td class="py-3 px-3 text-slate-700 font-medium whitespace-nowrap">${escapeHtml(t.toDate)}</td>
+              <td class="py-3 px-3">
+                <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold ${st.cls}">${st.label}</span>
+              </td>
+              ${isAdmin() ? `
+                <td class="py-3 px-3 text-right space-x-2 whitespace-nowrap">
+                  <button data-edit-tenant="${t.id}" class="edit-tenant-btn text-xs font-semibold text-teal-700 hover:underline">संपादित</button>
+                  <button data-del-tenant="${t.id}" class="del-tenant-btn text-xs font-semibold text-rose-600 hover:underline">काढा</button>
+                </td>` : ''}
+            </tr>
+          `;
+        }).join('')
+        : `<tr><td colspan="${isAdmin() ? 8 : 7}" class="py-6 text-center text-slate-500">कोणतेही भाडेकरू आढळले नाहीत.</td></tr>`;
+    }
+
+    function renderMaintenance() {
+      const monthSelect = document.getElementById('maint-filter-month');
+      const months = [...new Set(state.maintenance.map(m => m.month))];
+      const currentVal = monthSelect.value;
+      monthSelect.innerHTML = '<option value="all">सर्व महिने</option>' +
+        months.map(mo => `<option value="${escapeHtml(mo)}">${escapeHtml(mo)}</option>`).join('');
+      if (currentVal && (currentVal === 'all' || months.includes(currentVal))) {
+        monthSelect.value = currentVal;
+      }
+
+      const selectedMonth = monthSelect.value;
+      const statusFilter = document.getElementById('maint-filter-status').value;
+      const query = (document.getElementById('maint-search').value || '').trim().toLowerCase();
+
+      const filtered = state.maintenance.filter(m => {
+        const matchMonth = selectedMonth === 'all' || m.month === selectedMonth;
+        const matchStatus = statusFilter === 'all' || m.status === statusFilter;
+        const matchQuery = !query || m.flat.toLowerCase().includes(query) || m.name.toLowerCase().includes(query);
+        return matchMonth && matchStatus && matchQuery;
+      });
+
+      const tbody = document.getElementById('maint-table-body');
+      tbody.innerHTML = filtered.length
+        ? filtered.map(m => `
+          <tr class="hover:bg-slate-50/80 transition">
+            <td class="py-3 px-3 font-bold text-slate-900">${escapeHtml(m.flat)}</td>
+            <td class="py-3 px-3 text-slate-800">${escapeHtml(m.name)}</td>
+            <td class="py-3 px-3 text-slate-600">${escapeHtml(m.month)}</td>
+            <td class="py-3 px-3 font-semibold text-slate-900">${formatINR(m.amount)}</td>
+            <td class="py-3 px-3">
+              <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold ${m.status === 'भरलेले' ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-700'}">
+                ${escapeHtml(m.status)}
+              </span>
+            </td>
+            <td class="py-3 px-3 text-slate-500 text-xs">${m.paidDate ? escapeHtml(m.paidDate) : '—'}</td>
+            <td class="py-3 px-3 text-right whitespace-nowrap space-x-2">
+              ${m.status === 'थकीत'
+                ? (isAdmin()
+                  ? `<button data-pay-id="${m.id}" class="pay-maint-btn bg-teal-700 hover:bg-teal-800 text-white px-3 py-1 rounded-lg text-xs font-semibold">रक्कम भरा</button>`
+                  : `<span class="text-xs text-slate-400">प्रलंबित</span>`)
+                : `<button data-receipt-id="${m.id}" class="receipt-btn bg-slate-100 hover:bg-slate-200 text-slate-800 px-3 py-1 rounded-lg text-xs font-semibold">पावती पहा</button>`
+              }
+            </td>
+          </tr>
+        `).join('')
+        : '<tr><td colspan="7" class="py-6 text-center text-slate-500">कोणतीही नोंद आढळली नाही.</td></tr>';
+    }
+
+    function renderNotices() {
+      const grid = document.getElementById('notices-grid');
+      grid.innerHTML = state.notices.length
+        ? state.notices.map(n => {
+          const badgeColor = n.category === 'तातडीची' ? 'bg-rose-100 text-rose-700' :
+            n.category === 'पाणी/वीज' ? 'bg-amber-100 text-amber-800' : 'bg-teal-100 text-teal-800';
+          return `
+            <div class="p-4 rounded-2xl border border-slate-200 bg-slate-50/70 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between gap-2 mb-2">
+                  <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold ${badgeColor}">${escapeHtml(n.category)}</span>
+                  <span class="text-xs text-slate-500">${escapeHtml(n.date)}</span>
+                </div>
+                <h3 class="text-base font-bold text-slate-900 mb-1.5">${escapeHtml(n.title)}</h3>
+                <p class="text-sm text-slate-700 leading-relaxed">${escapeHtml(n.body)}</p>
+              </div>
+              ${isAdmin() ? `
+                <div class="mt-4 pt-3 border-t border-slate-200/70 flex justify-end">
+                  <button data-del-notice="${n.id}" class="del-notice-btn text-xs font-semibold text-rose-600 hover:underline">सूचना काढा</button>
+                </div>` : ''}
+            </div>
+          `;
+        }).join('')
+        : '<p class="text-sm text-slate-500 col-span-2 text-center py-6">सध्या कोणतीही सूचना प्रसिद्ध केलेली नाही.</p>';
+    }
+
+    function renderAccounting() {
+      const totalIncome = state.transactions.filter(t => t.type === 'जमा').reduce((s, t) => s + Number(t.amount), 0);
+      const totalExpense = state.transactions.filter(t => t.type === 'खर्च').reduce((s, t) => s + Number(t.amount), 0);
+      document.getElementById('acc-total-income').textContent = formatINR(totalIncome);
+      document.getElementById('acc-total-expense').textContent = formatINR(totalExpense);
+      document.getElementById('acc-net-balance').textContent = formatINR(totalIncome - totalExpense);
+
+      const typeFilter = document.getElementById('tx-filter-type').value;
+      const query = (document.getElementById('tx-search').value || '').trim().toLowerCase();
+
+      const filtered = [...state.transactions]
+        .sort((a, b) => (b.date || '').localeCompare(a.date || ''))
+        .filter(t => {
+          const matchType = typeFilter === 'all' || t.type === typeFilter;
+          const matchQuery = !query || t.desc.toLowerCase().includes(query) || t.category.toLowerCase().includes(query);
+          return matchType && matchQuery;
+        });
+
+      const tbody = document.getElementById('tx-table-body');
+      tbody.innerHTML = filtered.length
+        ? filtered.map(t => `
+          <tr class="hover:bg-slate-50/80 transition">
+            <td class="py-3 px-3 text-slate-600 text-xs whitespace-nowrap">${escapeHtml(t.date)}</td>
+            <td class="py-3 px-3">
+              <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold ${t.type === 'जमा' ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-700'}">
+                ${escapeHtml(t.type)}
+              </span>
+            </td>
+            <td class="py-3 px-3 text-slate-700 font-medium">${escapeHtml(t.category)}</td>
+            <td class="py-3 px-3 text-slate-800">${escapeHtml(t.desc)}</td>
+            <td class="py-3 px-3 text-right font-bold ${t.type === 'जमा' ? 'text-emerald-700' : 'text-rose-600'}">
+              ${t.type === 'जमा' ? '+' : '-'}${formatINR(t.amount)}
+            </td>
+            ${isAdmin() ? `
+              <td class="py-3 px-3 text-right">
+                <button data-del-tx="${t.id}" class="del-tx-btn text-xs font-semibold text-rose-600 hover:underline">काढा</button>
+              </td>` : ''}
+          </tr>
+        `).join('')
+        : `<tr><td colspan="${isAdmin() ? 6 : 5}" class="py-6 text-center text-slate-500">कोणतेही व्यवहार आढळले नाहीत.</td></tr>`;
+    }
+
+    function renderAll() {
+      applyRoleUI();
+      renderDashboard();
+      renderMembers();
+      renderTenants();
+      renderMaintenance();
+      renderNotices();
+      renderAccounting();
+    }
+
+    function markMaintenancePaid(id) {
+      if (!isAdmin()) return;
+      const item = state.maintenance.find(m => m.id === id);
+      if (!item || item.status === 'भरलेले') return;
+      const today = new Date().toISOString().slice(0, 10);
+      item.status = 'भरलेले';
+      item.paidDate = today;
+
+      state.transactions.push({
+        id: Date.now(),
+        date: today,
+        type: 'जमा',
+        category: 'देखभाल शुल्क',
+        desc: `${item.flat} (${item.name}) - ${item.month}`,
+        amount: Number(item.amount)
+      });
+
+      saveState();
+      renderAll();
+      showToast(`${item.flat} चे देखभाल शुल्क जमा नोंदवले गेले!`);
+    }
+
+    function openReceipt(id) {
+      const item = state.maintenance.find(m => m.id === id);
+      if (!item) return;
+      document.getElementById('rec-no').textContent = 'SS-' + item.id;
+      document.getElementById('rec-flat').textContent = item.flat;
+      document.getElementById('rec-name').textContent = item.name;
+      document.getElementById('rec-month').textContent = item.month;
+      document.getElementById('rec-date').textContent = item.paidDate || '—';
+      document.getElementById('rec-amount').textContent = formatINR(item.amount);
+      openModal('modal-receipt');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      populateMemberLoginDropdown();
+      initFirestoreSync();
+
+      // Login tabs
+      const tabMem = document.getElementById('login-tab-member');
+      const tabAdm = document.getElementById('login-tab-admin');
+      const formMemLogin = document.getElementById('form-member-login');
+      const formAdmLogin = document.getElementById('form-admin-login');
+
+      tabMem.addEventListener('click', () => {
+        tabMem.className = 'py-2 px-3 rounded-lg text-sm font-semibold bg-white text-teal-800 shadow-xs transition';
+        tabAdm.className = 'py-2 px-3 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 transition';
+        formMemLogin.classList.remove('hidden');
+        formAdmLogin.classList.add('hidden');
+      });
+
+      tabAdm.addEventListener('click', () => {
+        tabAdm.className = 'py-2 px-3 rounded-lg text-sm font-semibold bg-white text-teal-800 shadow-xs transition';
+        tabMem.className = 'py-2 px-3 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 transition';
+        formAdmLogin.classList.remove('hidden');
+        formMemLogin.classList.add('hidden');
+        document.getElementById('admin-login-error').classList.add('hidden');
+      });
+
+      formMemLogin.addEventListener('submit', (e) => {
+        e.preventDefault();
+        currentRole = 'member';
+        loggedInFlat = document.getElementById('login-member-flat').value || 'B-101';
+        document.getElementById('login-screen').classList.add('hidden');
+        renderAll();
+        showToast(`${loggedInFlat} सभासद म्हणून प्रवेश केला (Read-Only)`);
+      });
+
+      formAdmLogin.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const u = document.getElementById('login-admin-user').value.trim();
+        const p = document.getElementById('login-admin-pin').value.trim();
+        if (u === ADMIN_USER && p === ADMIN_PIN) {
+          currentRole = 'admin';
+          loggedInFlat = '';
+          document.getElementById('login-screen').classList.add('hidden');
+          document.getElementById('login-admin-pin').value = '';
+          renderAll();
+          showToast('ॲडमिन लॉगिन यशस्वी!');
+        } else {
+          document.getElementById('admin-login-error').classList.remove('hidden');
+        }
+      });
+
+      document.getElementById('btn-switch-login').addEventListener('click', () => {
+        populateMemberLoginDropdown();
+        document.getElementById('login-screen').classList.remove('hidden');
+      });
+
+      // Navigation tabs
+      document.querySelectorAll('.nav-tab').forEach(btn => {
+        btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+      });
+
+      document.querySelectorAll('.goto-tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => switchTab(btn.dataset.goto));
+      });
+
+      // Close modal buttons
+      document.querySelectorAll('.close-modal-btn').forEach(btn => {
+        btn.addEventListener('click', () => closeModal(btn.dataset.close));
+      });
+
+      // Confirm modal
+      document.getElementById('btn-confirm-cancel').addEventListener('click', () => {
+        confirmCallback = null;
+        closeModal('modal-confirm');
+      });
+      document.getElementById('btn-confirm-ok').addEventListener('click', () => {
+        if (typeof confirmCallback === 'function') confirmCallback();
+        confirmCallback = null;
+        closeModal('modal-confirm');
+      });
+
+      // Search & filters
+      document.getElementById('member-search').addEventListener('input', renderMembers);
+      document.getElementById('tenant-search').addEventListener('input', renderTenants);
+      document.getElementById('tenant-filter-status').addEventListener('change', renderTenants);
+      document.getElementById('maint-filter-month').addEventListener('change', renderMaintenance);
+      document.getElementById('maint-filter-status').addEventListener('change', renderMaintenance);
+      document.getElementById('maint-search').addEventListener('input', renderMaintenance);
+      document.getElementById('tx-filter-type').addEventListener('change', renderAccounting);
+      document.getElementById('tx-search').addEventListener('input', renderAccounting);
+
+      // Member Modal (Admin only)
+      document.getElementById('btn-open-member-modal').addEventListener('click', () => {
+        if (!isAdmin()) return;
+        document.getElementById('form-member').reset();
+        document.getElementById('member-id').value = '';
+        document.getElementById('modal-member-title').textContent = 'नवीन सभासद जोडा';
+        openModal('modal-member');
+      });
+
+      document.getElementById('form-member').addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (!isAdmin()) return;
+        const idVal = document.getElementById('member-id').value;
+        const flat = document.getElementById('member-flat').value.trim();
+        const name = document.getElementById('member-name').value.trim();
+        const phone = document.getElementById('member-phone').value.trim();
+        const vehicle = document.getElementById('member-vehicle').value.trim() || 'नाही';
+
+        if (idVal) {
+          const idx = state.members.findIndex(m => m.id === Number(idVal));
+          if (idx !== -1) {
+            state.members[idx] = { id: Number(idVal), flat, name, phone, vehicle };
+            showToast('सभासदाची माहिती अद्ययावत केली!');
+          }
+        } else {
+          state.members.push({ id: Date.now(), flat, name, phone, vehicle });
+          showToast('नवीन सभासद यशस्वीरित्या जोडला!');
+        }
+        saveState();
+        closeModal('modal-member');
+        renderAll();
+      });
+
+      // Tenant Modal (Admin only)
+      document.getElementById('btn-open-tenant-modal').addEventListener('click', () => {
+        if (!isAdmin()) return;
+        document.getElementById('form-tenant').reset();
+        document.getElementById('tenant-id').value = '';
+        document.getElementById('modal-tenant-title').textContent = 'नवीन भाडेकरू जोडा';
+        openModal('modal-tenant');
+      });
+
+      document.getElementById('form-tenant').addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (!isAdmin()) return;
+        const idVal = document.getElementById('tenant-id').value;
+        const flat = document.getElementById('tenant-flat').value.trim();
+        const name = document.getElementById('tenant-name').value.trim();
+        const owner = document.getElementById('tenant-owner').value.trim();
+        const phone = document.getElementById('tenant-phone').value.trim();
+        const fromDate = document.getElementById('tenant-from').value;
+        const toDate = document.getElementById('tenant-to').value;
+
+        if (idVal) {
+          const idx = state.tenants.findIndex(t => t.id === Number(idVal));
+          if (idx !== -1) {
+            state.tenants[idx] = { id: Number(idVal), flat, name, owner, phone, fromDate, toDate };
+            showToast('भाडेकरू व करार माहिती अद्ययावत केली!');
+          }
+        } else {
+          state.tenants.push({ id: Date.now(), flat, name, owner, phone, fromDate, toDate });
+          showToast('नवीन भाडेकरू नोंदवला गेला!');
+        }
+        saveState();
+        closeModal('modal-tenant');
+        renderAll();
+      });
+
+      // Loan Modal (Admin only)
+      document.getElementById('btn-edit-loan').addEventListener('click', () => {
+        if (!isAdmin()) return;
+        document.getElementById('edit-loan-bank').value = state.loan.bankName;
+        document.getElementById('edit-loan-total').value = state.loan.totalAmount;
+        document.getElementById('edit-loan-remaining').value = state.loan.remainingAmount;
+        document.getElementById('edit-loan-emi').value = state.loan.emi;
+        document.getElementById('edit-loan-rate').value = state.loan.interestRate;
+        document.getElementById('edit-loan-end').value = state.loan.endDate;
+        openModal('modal-loan');
+      });
+
+      document.getElementById('form-loan').addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (!isAdmin()) return;
+        state.loan.bankName = document.getElementById('edit-loan-bank').value.trim();
+        state.loan.totalAmount = Number(document.getElementById('edit-loan-total').value);
+        state.loan.remainingAmount = Number(document.getElementById('edit-loan-remaining').value);
+        state.loan.emi = Number(document.getElementById('edit-loan-emi').value);
+        state.loan.interestRate = document.getElementById('edit-loan-rate').value.trim();
+        state.loan.endDate = document.getElementById('edit-loan-end').value.trim();
+        saveState();
+        closeModal('modal-loan');
+        renderAll();
+        showToast('कर्ज तपशील अद्ययावत केला!');
+      });
+
+      // Bill Modal (Admin only)
+      document.getElementById('btn-generate-bills').addEventListener('click', () => {
+        if (!isAdmin()) return;
+        openModal('modal-bill');
+      });
+
+      document.getElementById('form-bill').addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (!isAdmin()) return;
+        const month = document.getElementById('bill-month').value.trim();
+        const amount = Number(document.getElementById('bill-amount').value);
+        let added = 0;
+        state.members.forEach((m, i) => {
+          const exists = state.maintenance.some(x => x.memberId === m.id && x.month === month);
+          if (!exists) {
+            state.maintenance.push({
+              id: Date.now() + i,
+              memberId: m.id,
+              flat: m.flat,
+              name: m.name,
+              month,
+              amount,
+              status: 'थकीत',
+              paidDate: ''
+            });
+            added++;
+          }
+        });
+        saveState();
+        closeModal('modal-bill');
+        renderAll();
+        showToast(added > 0 ? `${added} सभासदांची बिले तयार झाली!` : 'या महिन्याची बिले आधीच तयार आहेत.');
+      });
+
+      // Print receipt
+      document.getElementById('btn-print-receipt').addEventListener('click', () => {
+        window.print();
+      });
+
+      // Notice Modal (Admin only)
+      document.getElementById('btn-open-notice-modal').addEventListener('click', () => {
+        if (!isAdmin()) return;
+        document.getElementById('form-notice').reset();
+        document.getElementById('notice-date').value = new Date().toISOString().slice(0, 10);
+        openModal('modal-notice');
+      });
+
+      document.getElementById('form-notice').addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (!isAdmin()) return;
+        state.notices.unshift({
+          id: Date.now(),
+          title: document.getElementById('notice-title').value.trim(),
+          category: document.getElementById('notice-category').value,
+          date: document.getElementById('notice-date').value,
+          body: document.getElementById('notice-body').value.trim()
+        });
+        saveState();
+        closeModal('modal-notice');
+        renderAll();
+        showToast('नवीन सूचना प्रसिद्ध केली!');
+      });
+
+      // Transaction Modal (Admin only)
+      document.getElementById('btn-open-tx-modal').addEventListener('click', () => {
+        if (!isAdmin()) return;
+        document.getElementById('form-tx').reset();
+        document.getElementById('tx-date').value = new Date().toISOString().slice(0, 10);
+        openModal('modal-tx');
+      });
+
+      document.getElementById('form-tx').addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (!isAdmin()) return;
+        state.transactions.push({
+          id: Date.now(),
+          type: document.getElementById('tx-type').value,
+          date: document.getElementById('tx-date').value,
+          category: document.getElementById('tx-category').value,
+          amount: Number(document.getElementById('tx-amount').value),
+          desc: document.getElementById('tx-desc').value.trim()
+        });
+        saveState();
+        closeModal('modal-tx');
+        renderAll();
+        showToast('आर्थिक व्यवहार नोंदवला गेला!');
+      });
+
+      // Delegated clicks for dynamic buttons
+      document.body.addEventListener('click', (e) => {
+        const recBtn = e.target.closest('.receipt-btn');
+        if (recBtn) {
+          openReceipt(Number(recBtn.dataset.receiptId));
+          return;
+        }
+
+        if (!isAdmin()) return;
+
+        const payBtn = e.target.closest('.pay-maint-btn, .quick-pay-btn');
+        if (payBtn) {
+          markMaintenancePaid(Number(payBtn.dataset.payId));
+          return;
+        }
+        const editMemBtn = e.target.closest('.edit-member-btn');
+        if (editMemBtn) {
+          const m = state.members.find(x => x.id === Number(editMemBtn.dataset.editMember));
+          if (m) {
+            document.getElementById('member-id').value = m.id;
+            document.getElementById('member-flat').value = m.flat;
+            document.getElementById('member-name').value = m.name;
+            document.getElementById('member-phone').value = m.phone;
+            document.getElementById('member-vehicle').value = m.vehicle;
+            document.getElementById('modal-member-title').textContent = 'सभासद माहिती संपादित करा';
+            openModal('modal-member');
+          }
+          return;
+        }
+        const delMemBtn = e.target.closest('.del-member-btn');
+        if (delMemBtn) {
+          const id = Number(delMemBtn.dataset.delMember);
+          askConfirm('सभासद काढा', 'तुम्हाला खात्री आहे की हा सभासद काढून टाकायचा आहे?', () => {
+            state.members = state.members.filter(x => x.id !== id);
+            saveState();
+            renderAll();
+            showToast('सभासद काढून टाकला.');
+          });
+          return;
+        }
+        const editTenBtn = e.target.closest('.edit-tenant-btn');
+        if (editTenBtn) {
+          const t = state.tenants.find(x => x.id === Number(editTenBtn.dataset.editTenant));
+          if (t) {
+            document.getElementById('tenant-id').value = t.id;
+            document.getElementById('tenant-flat').value = t.flat;
+            document.getElementById('tenant-name').value = t.name;
+            document.getElementById('tenant-owner').value = t.owner;
+            document.getElementById('tenant-phone').value = t.phone;
+            document.getElementById('tenant-from').value = t.fromDate;
+            document.getElementById('tenant-to').value = t.toDate;
+            document.getElementById('modal-tenant-title').textContent = 'भाडेकरू माहिती संपादित करा';
+            openModal('modal-tenant');
+          }
+          return;
+        }
+        const delTenBtn = e.target.closest('.del-tenant-btn');
+        if (delTenBtn) {
+          const id = Number(delTenBtn.dataset.delTenant);
+          askConfirm('भाडेकरू काढा', 'हा भाडेकरू यादीतून काढून टाकायचा का?', () => {
+            state.tenants = state.tenants.filter(x => x.id !== id);
+            saveState();
+            renderAll();
+            showToast('भाडेकरू काढून टाकला.');
+          });
+          return;
+        }
+        const delNoticeBtn = e.target.closest('.del-notice-btn');
+        if (delNoticeBtn) {
+          const id = Number(delNoticeBtn.dataset.delNotice);
+          askConfirm('सूचना काढा', 'तुम्हाला ही सूचना काढून टाकायची आहे का?', () => {
+            state.notices = state.notices.filter(x => x.id !== id);
+            saveState();
+            renderAll();
+            showToast('सूचना काढून टाकली.');
+          });
+          return;
+        }
+        const delTxBtn = e.target.closest('.del-tx-btn');
+        if (delTxBtn) {
+          const id = Number(delTxBtn.dataset.delTx);
+          askConfirm('व्यवहार काढा', 'हा आर्थिक व्यवहार नोंदवहीतून काढून टाकायचा का?', () => {
+            state.transactions = state.transactions.filter(x => x.id !== id);
+            saveState();
+            renderAll();
+            showToast('व्यवहार काढून टाकला.');
+          });
+        }
+      });
+
+      // Export JSON Backup (Admin only)
+      document.getElementById('btn-export-json').addEventListener('click', () => {
+        if (!isAdmin()) return;
+        const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'shivsai_sankul_backup.json';
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast('बॅकअप फाइल डाउनलोड झाली!');
+      });
+
+      // Export CSV (Allowed for both)
+      document.getElementById('btn-export-csv').addEventListener('click', () => {
+        const rows = [['दिनांक', 'प्रकार', 'श्रेणी', 'तपशील', 'रक्कम']];
+        state.transactions.forEach(t => {
+          rows.push([t.date, t.type, t.category, `"${(t.desc || '').replace(/"/g, '""')}"`, t.amount]);
+        });
+        const csv = '\uFEFF' + rows.map(r => r.join(',')).join('\n');
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'shivsai_sankul_hisheb.csv';
+        a.click();
+        URL.revokeObjectURL(url);
+        showToast('CSV हिशोब फाइल डाउनलोड झाली!');
+      });
+
+      // Reset Demo Data (Admin only)
+      document.getElementById('btn-reset-demo').addEventListener('click', () => {
+        if (!isAdmin()) return;
+        askConfirm('डेटा रीसेट करा', 'तुम्हाला सर्व माहिती मूळ नमुना डेटावर रीसेट करायची आहे का?', () => {
+          state = JSON.parse(JSON.stringify(DEFAULT_DATA));
+          saveState();
+          renderAll();
+          showToast('मूळ डेटा यशस्वीरित्या रीसेट केला!');
+        });
+      });
+
+      renderAll();
+    });
+  </script>
+</body>
+</html>
