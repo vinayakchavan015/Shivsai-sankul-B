@@ -301,11 +301,15 @@
               <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
             </div>
             <div>
-              <h2 class="text-base font-bold text-slate-900">वसई विरार शहर महानगरपालिका (VVCMC) — मालमत्ता कर</h2>
-              <p class="text-xs text-slate-500">ऑनलाइन घरपट्टी / प्रॉपर्टी टॅक्स भरण्यासाठी आणि पावती डाउनलोड करण्यासाठी थेट अधिकृत लिंक</p>
+              <h2 class="text-base font-bold text-slate-900">वसई विरार शहर महानगरपालिका (VVCMC) — घरपट्टी व पाणीपट्टी</h2>
+              <p class="text-xs text-slate-500">ऑनलाइन मालमत्ता कर (Property Tax) व सोसायटी पाणीपट्टी बिल भरणा आणि पावती डाउनलोड करण्यासाठी थेट अधिकृत लिंक</p>
             </div>
           </div>
           <div class="flex flex-wrap items-center gap-2 shrink-0">
+            <a href="https://onlinevvcmc.in/VVCMCOnlinePGWater/" target="_blank" rel="noopener noreferrer"
+              class="inline-flex items-center gap-1.5 bg-cyan-700 hover:bg-cyan-800 text-white px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition shadow-xs">
+              पाणीपट्टी बिल भरा ↗
+            </a>
             <a href="https://onlinevvcmc.in/VVCMCOnlinePGProp/" target="_blank" rel="noopener noreferrer"
               class="inline-flex items-center gap-1.5 bg-sky-700 hover:bg-sky-800 text-white px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition shadow-xs">
               प्रॉपर्टी टॅक्स भरा ↗
@@ -314,7 +318,32 @@
               class="inline-flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 px-3.5 py-2 rounded-xl text-xs font-semibold transition">
               VVCMC सेवा माहिती ↗
             </a>
+            <button id="btn-edit-water-info" type="button" class="admin-only hidden inline-flex items-center gap-1.5 bg-teal-700 hover:bg-teal-800 text-white px-3.5 py-2 rounded-xl text-xs font-semibold transition">
+              पाणीपट्टी तपशील सेव्ह करा
+            </button>
           </div>
+        </div>
+        <div class="mt-3 pt-3 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-xs">
+          <div class="bg-cyan-50/70 border border-cyan-100 rounded-xl px-3 py-2">
+            <span class="text-slate-500 font-medium">सोसायटीचे नाव (बिलावरील):</span>
+            <strong id="disp-water-soc-name" class="text-cyan-900 ml-1">शिवसाई संकुल बी विंग को-ऑप. हौ. सोसायटी लि.</strong>
+          </div>
+          <div class="bg-cyan-50/70 border border-cyan-100 rounded-xl px-3 py-2">
+            <span class="text-slate-500 font-medium">मागणी क्रमांक / जोडणी क्र.:</span>
+            <strong id="disp-water-bill" class="text-cyan-900 ml-1">नोंद नाही</strong>
+          </div>
+          <div class="bg-cyan-50/70 border border-cyan-100 rounded-xl px-3 py-2">
+            <span class="text-slate-500 font-medium">झोन क्रमांक:</span>
+            <strong id="disp-water-zone" class="text-cyan-900 ml-1">नोंद नाही</strong>
+          </div>
+          <div class="bg-cyan-50/70 border border-cyan-100 rounded-xl px-3 py-2">
+            <span class="text-slate-500 font-medium">भरल्याची दिनांक:</span>
+            <strong id="disp-water-date" class="text-cyan-900 ml-1">नोंद नाही</strong>
+          </div>
+        </div>
+        <div id="disp-water-history-wrap" class="mt-2.5 hidden">
+          <p class="text-[11px] font-bold text-slate-600 mb-1.5">वार्षिक पाणीपट्टी भरणा इतिहास (Year-wise Payment History):</p>
+          <div id="disp-water-history" class="flex flex-wrap gap-2"></div>
         </div>
         <div id="vvcmc-prop-bar" class="pt-3 border-t border-sky-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs"></div>
       </div>
@@ -518,6 +547,12 @@
             <button id="btn-apply-interest" type="button" class="admin-only hidden bg-rose-700 hover:bg-rose-800 text-white px-3.5 py-2 rounded-xl text-sm font-semibold transition items-center gap-1.5">
               % थकीत व्याज लावा
             </button>
+            <button id="btn-maint-audit" type="button" class="admin-only hidden bg-indigo-700 hover:bg-indigo-800 text-white px-3.5 py-2 rounded-xl text-sm font-semibold transition items-center gap-1.5">
+              पडताळणी / बल्क अपडेट
+            </button>
+            <button id="btn-export-maint-csv" type="button" class="admin-only hidden bg-slate-700 hover:bg-slate-800 text-white px-3.5 py-2 rounded-xl text-sm font-semibold transition items-center gap-1.5">
+              Excel / CSV डाउनलोड
+            </button>
           </div>
         </div>
 
@@ -619,6 +654,9 @@
             <button id="btn-print-ledger" type="button" class="bg-slate-800 hover:bg-slate-900 text-white px-4 py-2 rounded-xl text-sm font-semibold transition inline-flex items-center gap-1.5">
               मासिक लेजर PDF / प्रिंट
             </button>
+            <a href="https://onlinevvcmc.in/VVCMCOnlinePGWater/" target="_blank" rel="noopener noreferrer" class="bg-cyan-700 hover:bg-cyan-800 text-white px-4 py-2 rounded-xl text-sm font-semibold transition inline-flex items-center gap-1.5">
+              VVCMC पाणीपट्टी बिल ↗
+            </a>
           </div>
         </div>
 
@@ -1194,16 +1232,21 @@
         </div>
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1">श्रेणी *</label>
-            <select id="tx-category" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm bg-white focus:ring-2 focus:ring-teal-500 outline-none">
-              <option value="देखभाल शुल्क">देखभाल शुल्क</option>
-              <option value="पार्किंग शुल्क">पार्किंग शुल्क</option>
-              <option value="पाणी व वीज बिल">पाणी व वीज बिल</option>
-              <option value="स्वच्छता व सुरक्षा">स्वच्छता व सुरक्षा</option>
-              <option value="लिफ्ट व दुरुस्ती">लिफ्ट व दुरुस्ती</option>
-              <option value="कर्ज हप्ता">कर्ज हप्ता</option>
-              <option value="इतर">इतर</option>
-            </select>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">श्रेणी (निवडा किंवा स्वतः टाईप करा) *</label>
+            <input id="tx-category" type="text" list="tx-category-list" required placeholder="उदा. पाणीपट्टी बिल, लिफ्ट व दुरुस्ती..." class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm bg-white focus:ring-2 focus:ring-teal-500 outline-none" />
+            <datalist id="tx-category-list">
+              <option value="देखभाल शुल्क"></option>
+              <option value="पार्किंग शुल्क"></option>
+              <option value="पाणीपट्टी बिल"></option>
+              <option value="वीज बिल"></option>
+              <option value="पाणी व वीज बिल"></option>
+              <option value="स्वच्छता व सुरक्षा"></option>
+              <option value="लिफ्ट व दुरुस्ती"></option>
+              <option value="कर्ज हप्ता"></option>
+              <option value="भाडेकरू NOC शुल्क"></option>
+              <option value="स्टेशनरी / इतर खर्च"></option>
+              <option value="इतर जमा"></option>
+            </datalist>
           </div>
           <div>
             <label class="block text-xs font-semibold text-slate-700 mb-1">रक्कम (₹) *</label>
@@ -1361,6 +1404,52 @@
           <button type="submit" class="px-4 py-2 rounded-xl text-sm font-semibold bg-amber-500 hover:bg-amber-600 text-slate-950">तक्रार नोंदवा</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Maintenance Audit & Bulk Edit Sheet -->
+  <div id="modal-maint-audit" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs hidden items-center justify-center p-3 sm:p-4 z-50 overflow-y-auto">
+    <div class="bg-white rounded-2xl max-w-6xl w-full p-4 sm:p-6 shadow-xl my-auto">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-200 pb-3 mb-4">
+        <div>
+          <h3 class="text-lg font-bold text-slate-900">सभासद-निहाय मेंटेनन्स पडताळणी व बल्क अपडेट</h3>
+          <p class="text-xs text-slate-500">फ्लॅट निवडून सर्व महिन्यांचा डेटा एकाच ठिकाणी तपासा, दुरुस्त करा व सेव्ह करा</p>
+        </div>
+        <div class="flex items-center gap-2">
+          <select id="audit-filter-flat" class="px-3 py-1.5 rounded-xl border border-slate-300 text-sm bg-white font-semibold focus:ring-2 focus:ring-indigo-500 outline-none"></select>
+          <button data-close="modal-maint-audit" class="close-modal-btn text-slate-400 hover:text-slate-600 text-2xl font-bold px-2">&times;</button>
+        </div>
+      </div>
+
+      <div id="audit-summary-bar" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-4 text-xs"></div>
+
+      <div class="overflow-x-auto max-h-[55vh] border border-slate-200 rounded-xl">
+        <table class="w-full text-left border-collapse text-xs">
+          <thead class="sticky top-0 bg-slate-100 border-b border-slate-300 text-slate-700 font-bold">
+            <tr>
+              <th class="py-2 px-2">फ्लॅट</th>
+              <th class="py-2 px-2">सभासद</th>
+              <th class="py-2 px-2">महिना</th>
+              <th class="py-2 px-2 text-right">मागील बाकी</th>
+              <th class="py-2 px-2 text-right">चालू शुल्क</th>
+              <th class="py-2 px-2 text-right">व्याज</th>
+              <th class="py-2 px-2 text-right">भरलेले (Paid)</th>
+              <th class="py-2 px-2">माध्यम</th>
+              <th class="py-2 px-2">दिनांक</th>
+              <th class="py-2 px-2 text-right">बाकी</th>
+            </tr>
+          </thead>
+          <tbody id="audit-tbody" class="divide-y divide-slate-200"></tbody>
+        </table>
+      </div>
+
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mt-4">
+        <p class="text-[11px] text-amber-700 font-medium">* पिवळ्या रंगातील ओळी म्हणजे सभासदाच्या मूळ मासिक दरापेक्षा वेगळी रक्कम किंवा प्रलंबित बाकी.</p>
+        <div class="flex justify-end gap-2">
+          <button type="button" data-close="modal-maint-audit" class="close-modal-btn px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100">बंद करा</button>
+          <button id="btn-save-audit" type="button" class="px-5 py-2 rounded-xl text-sm font-semibold bg-indigo-700 hover:bg-indigo-800 text-white">सर्व बदल सेव्ह करा</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -1536,6 +1625,54 @@
 
   <!-- Toast Notification -->
   <div id="toast" class="fixed bottom-5 right-5 bg-slate-900 text-white px-4 py-2.5 rounded-xl shadow-lg text-sm font-medium transform translate-y-16 opacity-0 transition-all duration-300 z-50 pointer-events-none"></div>
+
+  <!-- MODAL: Save Society Water Bill Details -->
+  <div id="modal-water-info" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs hidden items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-bold text-slate-900">VVCMC पाणीपट्टी बिल तपशील जतन करा</h3>
+        <button data-close="modal-water-info" class="close-modal-btn text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+      </div>
+      <form id="form-water-info" class="space-y-3.5">
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">बिलावरील सोसायटीचे नाव *</label>
+          <input id="water-soc-name" type="text" required value="शिवसाई संकुल बी विंग को-ऑप. हौ. सोसायटी लि." class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-cyan-500 outline-none" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">मागणी क्रमांक / जोडणी क्र. (Demand No.) *</label>
+          <input id="water-bill-no" type="text" required placeholder="उदा. W-123456" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-cyan-500 outline-none" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">झोन क्रमांक (Zone No.)</label>
+          <input id="water-zone-no" type="text" placeholder="उदा. Zone 04" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-cyan-500 outline-none" />
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">वर्ष निवडा (Year)</label>
+            <input id="water-paid-year" type="text" placeholder="उदा. 2026-27" value="2026-27" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-cyan-500 outline-none" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">पाणीपट्टी भरल्याची दिनांक</label>
+            <input id="water-paid-date" type="date" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-cyan-500 outline-none" />
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">भरलेली रक्कम (₹ - ऐच्छिक)</label>
+            <input id="water-paid-amt" type="number" min="0" step="0.01" placeholder="उदा. 2500" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-cyan-500 outline-none" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">पावती क्र. / शेरा (ऐच्छिक)</label>
+            <input id="water-paid-note" type="text" placeholder="उदा. R-402" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-cyan-500 outline-none" />
+          </div>
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" data-close="modal-water-info" class="close-modal-btn px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100">रद्द करा</button>
+          <button type="submit" class="px-4 py-2 rounded-xl text-sm font-semibold bg-cyan-700 hover:bg-cyan-800 text-white">तपशील जतन करा</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
   <script>
     const STORAGE_KEY = 'shivsai_sankul_b_wing_v9';
@@ -8555,7 +8692,44 @@
       }
     }
 
+    function renderWaterTaxInfo() {
+      const wt = state.waterTax || {};
+      const hist = Array.isArray(wt.history) ? wt.history : [];
+      const latest = hist.length ? hist[0] : { paidDate: wt.paidDate, amount: wt.amount };
+      const sEl = document.getElementById('disp-water-soc-name');
+      const bEl = document.getElementById('disp-water-bill');
+      const zEl = document.getElementById('disp-water-zone');
+      const dEl = document.getElementById('disp-water-date');
+      if (sEl) sEl.textContent = wt.societyName || 'शिवसाई संकुल बी विंग को-ऑप. हौ. सोसायटी लि.';
+      if (bEl) bEl.textContent = wt.billNo || 'नोंद नाही';
+      if (zEl) zEl.textContent = wt.zoneNo || 'नोंद नाही';
+      if (dEl) {
+        const amtTxt = latest.amount ? ` (${formatINR(latest.amount)})` : '';
+        dEl.textContent = latest.paidDate ? `${latest.paidDate}${amtTxt}` : 'नोंद नाही';
+      }
+      const hWrap = document.getElementById('disp-water-history-wrap');
+      const hEl = document.getElementById('disp-water-history');
+      if (hWrap && hEl) {
+        if (hist.length) {
+          hWrap.classList.remove('hidden');
+          hEl.innerHTML = hist.map(h => `
+            <span class="inline-flex items-center gap-1.5 bg-white border border-cyan-200 rounded-lg px-2.5 py-1 text-[11px] text-slate-700 shadow-2xs">
+              <strong class="text-cyan-800">${escapeHtml(h.year || '')}:</strong>
+              <span>${escapeHtml(h.paidDate || '—')}</span>
+              ${h.amount ? `<span class="text-emerald-700 font-semibold">${formatINR(h.amount)}</span>` : ''}
+              ${h.note ? `<span class="text-slate-400">(${escapeHtml(h.note)})</span>` : ''}
+              ${isAdmin() ? `<button type="button" data-del-wt="${h.id}" class="del-wt-btn text-rose-500 hover:text-rose-700 font-bold ml-0.5">&times;</button>` : ''}
+            </span>
+          `).join('');
+        } else {
+          hWrap.classList.add('hidden');
+          hEl.innerHTML = '';
+        }
+      }
+    }
+
     function renderAll() {
+      renderWaterTaxInfo();
       applyRoleUI();
       renderDashboard();
       renderMembers();
@@ -8885,6 +9059,62 @@
         }
       });
 
+      // Water Bill Info Modal (Admin only)
+      document.getElementById('btn-edit-water-info').addEventListener('click', () => {
+        if (!isAdmin()) return;
+        const wt = state.waterTax || {};
+        document.getElementById('water-soc-name').value = wt.societyName || 'शिवसाई संकुल बी विंग को-ऑप. हौ. सोसायटी लि.';
+        document.getElementById('water-bill-no').value = wt.billNo || '';
+        document.getElementById('water-zone-no').value = wt.zoneNo || '';
+        document.getElementById('water-paid-year').value = getFinancialYear(new Date().toISOString().slice(0, 10));
+        document.getElementById('water-paid-date').value = '';
+        document.getElementById('water-paid-amt').value = '';
+        document.getElementById('water-paid-note').value = '';
+        openModal('modal-water-info');
+      });
+
+      document.getElementById('form-water-info').addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (!isAdmin()) return;
+        const prevWt = state.waterTax || {};
+        const hist = Array.isArray(prevWt.history) ? [...prevWt.history] : [];
+        const yr = document.getElementById('water-paid-year').value.trim();
+        const dt = document.getElementById('water-paid-date').value;
+        const amt = Number(document.getElementById('water-paid-amt').value) || 0;
+        const note = document.getElementById('water-paid-note').value.trim();
+        if (dt) {
+          const idx = hist.findIndex(h => h.year === yr && h.paidDate === dt);
+          const entry = { id: Date.now(), year: yr || getFinancialYear(dt), paidDate: dt, amount: amt, note };
+          if (idx >= 0) hist[idx] = entry;
+          else hist.unshift(entry);
+          hist.sort((a, b) => (b.paidDate || '').localeCompare(a.paidDate || ''));
+        }
+        state.waterTax = {
+          societyName: document.getElementById('water-soc-name').value.trim(),
+          billNo: document.getElementById('water-bill-no').value.trim(),
+          zoneNo: document.getElementById('water-zone-no').value.trim(),
+          paidDate: dt || (hist[0] ? hist[0].paidDate : (prevWt.paidDate || '')),
+          amount: amt || (hist[0] ? hist[0].amount : (prevWt.amount || 0)),
+          history: hist
+        };
+        saveState();
+        closeModal('modal-water-info');
+        renderAll();
+        showToast('वार्षिक पाणीपट्टी बिल तपशील जतन केला!');
+      });
+
+      document.getElementById('disp-water-history').addEventListener('click', (e) => {
+        const delBtn = e.target.closest('.del-wt-btn');
+        if (!delBtn || !isAdmin()) return;
+        const id = Number(delBtn.dataset.delWt);
+        if (state.waterTax && Array.isArray(state.waterTax.history)) {
+          state.waterTax.history = state.waterTax.history.filter(h => h.id !== id);
+          saveState();
+          renderAll();
+          showToast('पाणीपट्टी नोंद काढून टाकली!');
+        }
+      });
+
       document.getElementById('btn-copy-ifsc').addEventListener('click', () => {
         const b = state.bankDetails || DEFAULT_DATA.bankDetails;
         copyTextVal(b.ifscCode, 'IFSC कोड');
@@ -9101,6 +9331,148 @@
             .reduce((acc, id) => acc + (Number(document.getElementById(id).value) || 0), 0);
           document.getElementById('member-rate').value = Math.round(sum * 100) / 100;
         });
+      });
+
+      // Maintenance Audit & Bulk Edit Sheet (Admin only)
+      function renderAuditTable() {
+        const flatVal = document.getElementById('audit-filter-flat').value;
+        const rows = state.maintenance
+          .filter(m => flatVal === 'ALL' || m.flat === flatVal)
+          .slice()
+          .sort((a, b) => String(a.flat).localeCompare(String(b.flat), undefined, { numeric: true }));
+
+        let totBilled = 0, totPaid = 0, totBal = 0, mismatchCount = 0;
+        rows.forEach(m => {
+          const mem = state.members.find(x => x.id === m.memberId || x.flat === m.flat);
+          const payable = Number(m.totalPayable != null ? m.totalPayable : m.amount);
+          const paid = Number(m.paidAmount || 0);
+          const bal = Math.max(0, payable - paid);
+          totBilled += payable;
+          totPaid += paid;
+          totBal += bal;
+          if ((mem && Math.abs(Number(m.amount || 0) - Number(mem.monthlyRate || 0)) > 0.5) || bal > 0) mismatchCount++;
+        });
+
+        document.getElementById('audit-summary-bar').innerHTML = `
+          <div class="bg-slate-50 border border-slate-200 rounded-xl p-2.5"><span class="text-slate-500">एकूण नोंदी:</span> <strong class="text-slate-900">${rows.length}</strong></div>
+          <div class="bg-teal-50 border border-teal-200 rounded-xl p-2.5"><span class="text-teal-700">एकूण देय:</span> <strong class="text-teal-900">${formatINR(totBilled)}</strong></div>
+          <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-2.5"><span class="text-emerald-700">एकूण जमा:</span> <strong class="text-emerald-900">${formatINR(totPaid)}</strong></div>
+          <div class="bg-amber-50 border border-amber-200 rounded-xl p-2.5"><span class="text-amber-700">बाकी / फरक नोंदी:</span> <strong class="text-rose-700">${formatINR(totBal)} (${mismatchCount})</strong></div>
+        `;
+
+        document.getElementById('audit-tbody').innerHTML = rows.length ? rows.map(m => {
+          const mem = state.members.find(x => x.id === m.memberId || x.flat === m.flat);
+          const rateDiff = mem && Math.abs(Number(m.amount || 0) - Number(mem.monthlyRate || 0)) > 0.5;
+          const payable = Number(m.totalPayable != null ? m.totalPayable : m.amount);
+          const paid = Number(m.paidAmount || 0);
+          const bal = Math.max(0, payable - paid);
+          const rowCls = (rateDiff || bal > 0) ? 'bg-amber-50/70' : 'bg-white';
+          const totInt = Number(m.oldInterest || 0) + Number(m.lateInterest || 0);
+          return `<tr class="${rowCls}" data-audit-id="${m.id}">
+            <td class="py-1.5 px-2 font-bold text-teal-800">${escapeHtml(m.flat)}</td>
+            <td class="py-1.5 px-2 text-slate-700 whitespace-nowrap">${escapeHtml(m.name)}</td>
+            <td class="py-1.5 px-2 text-slate-600 whitespace-nowrap">${escapeHtml(m.month)}</td>
+            <td class="py-1.5 px-2 text-right"><input type="number" step="0.01" class="audit-prev w-20 px-1.5 py-1 border border-slate-300 rounded text-right bg-white" value="${Number(m.prevBalance || 0)}" /></td>
+            <td class="py-1.5 px-2 text-right"><input type="number" step="0.01" class="audit-amt w-20 px-1.5 py-1 border border-slate-300 rounded text-right bg-white" value="${Number(m.amount || 0)}" /></td>
+            <td class="py-1.5 px-2 text-right"><input type="number" step="0.01" class="audit-int w-16 px-1.5 py-1 border border-slate-300 rounded text-right bg-white" value="${totInt}" /></td>
+            <td class="py-1.5 px-2 text-right"><input type="number" step="0.01" class="audit-paid w-20 px-1.5 py-1 border border-slate-300 rounded text-right bg-white" value="${paid}" /></td>
+            <td class="py-1.5 px-2">
+              <select class="audit-mode px-1.5 py-1 border border-slate-300 rounded bg-white">
+                <option value="ऑनलाइन" ${(m.paymentMode || 'ऑनलाइन') === 'ऑनलाइन' ? 'selected' : ''}>ऑनलाइन</option>
+                <option value="कॅश" ${m.paymentMode === 'कॅश' ? 'selected' : ''}>कॅश</option>
+                <option value="बँक ट्रान्सफर" ${m.paymentMode === 'बँक ट्रान्सफर' ? 'selected' : ''}>बँक ट्रान्सफर</option>
+              </select>
+            </td>
+            <td class="py-1.5 px-2"><input type="text" class="audit-date w-24 px-1.5 py-1 border border-slate-300 rounded bg-white" value="${escapeHtml(m.paidDate || '')}" placeholder="YYYY-MM-DD" /></td>
+            <td class="py-1.5 px-2 text-right font-bold ${bal > 0 ? 'text-rose-600' : 'text-emerald-700'}">${formatINR(bal)}</td>
+          </tr>`;
+        }).join('') : '<tr><td colspan="10" class="py-6 text-center text-slate-400">कोणत्याही नोंदी आढळल्या नाहीत.</td></tr>';
+      }
+
+      document.getElementById('btn-maint-audit').addEventListener('click', () => {
+        if (!isAdmin()) return;
+        const fSel = document.getElementById('audit-filter-flat');
+        fSel.innerHTML = '<option value="ALL">सर्व फ्लॅट्स (All Flats)</option>' +
+          state.members.map(m => `<option value="${escapeHtml(m.flat)}">फ्लॅट ${escapeHtml(m.flat)} — ${escapeHtml(m.name)}</option>`).join('');
+        renderAuditTable();
+        openModal('modal-maint-audit');
+      });
+
+      document.getElementById('audit-filter-flat').addEventListener('change', renderAuditTable);
+
+      document.getElementById('btn-save-audit').addEventListener('click', () => {
+        if (!isAdmin()) return;
+        const trs = document.querySelectorAll('#audit-tbody tr[data-audit-id]');
+        trs.forEach(tr => {
+          const mid = Number(tr.dataset.auditId);
+          const item = state.maintenance.find(m => m.id === mid);
+          if (!item) return;
+          const prevBal = Number(tr.querySelector('.audit-prev').value) || 0;
+          const amt = Number(tr.querySelector('.audit-amt').value) || 0;
+          const intr = Number(tr.querySelector('.audit-int').value) || 0;
+          const paid = Number(tr.querySelector('.audit-paid').value) || 0;
+          const mode = tr.querySelector('.audit-mode').value;
+          const dt = tr.querySelector('.audit-date').value.trim();
+
+          item.prevBalance = prevBal;
+          item.amount = amt;
+          item.oldInterest = 0;
+          item.lateInterest = intr;
+          item.totalPayable = prevBal + amt + intr;
+          item.paidAmount = paid;
+          item.balance = Math.max(0, item.totalPayable - paid);
+          item.status = item.balance === 0 && paid > 0 ? 'भरलेले' : 'थकीत';
+          item.paymentMode = paid > 0 ? mode : '';
+          item.paidDate = paid > 0 ? dt : '';
+
+          const txDesc = `${item.flat} (${item.name}) - ${item.month}`;
+          const existingTx = state.transactions.find(t => t.category === 'देखभाल शुल्क' && t.desc === txDesc);
+          if (paid > 0) {
+            if (existingTx) {
+              existingTx.amount = paid;
+              existingTx.mode = mode;
+              if (dt) existingTx.date = dt;
+            } else {
+              state.transactions.push({
+                id: Date.now() + Math.floor(Math.random() * 1000),
+                date: dt || new Date().toISOString().slice(0, 10),
+                type: 'जमा',
+                mode,
+                category: 'देखभाल शुल्क',
+                desc: txDesc,
+                amount: paid
+              });
+            }
+          } else if (existingTx) {
+            state.transactions = state.transactions.filter(t => t.id !== existingTx.id);
+          }
+        });
+        saveState();
+        renderAuditTable();
+        renderAll();
+        showToast('सर्व पडताळणी बदल यशस्वीरित्या सेव्ह केले!');
+      });
+
+      document.getElementById('btn-export-maint-csv').addEventListener('click', () => {
+        if (!isAdmin()) return;
+        const headers = ['Flat', 'Member Name', 'Month', 'Prev Balance', 'Current Amount', 'Interest', 'Total Payable', 'Paid Amount', 'Balance', 'Status', 'Mode', 'Paid Date'];
+        const csvRows = [headers.join(',')];
+        state.maintenance.forEach(m => {
+          const intr = Number(m.oldInterest || 0) + Number(m.lateInterest || 0);
+          const payable = Number(m.totalPayable != null ? m.totalPayable : m.amount);
+          const vals = [
+            m.flat, `"${(m.name || '').replace(/"/g, '""')}"`, `"${(m.month || '').replace(/"/g, '""')}"`,
+            Number(m.prevBalance || 0), Number(m.amount || 0), intr, payable,
+            Number(m.paidAmount || 0), Number(m.balance || 0), m.status, m.paymentMode || '', m.paidDate || ''
+          ];
+          csvRows.push(vals.join(','));
+        });
+        const blob = new Blob(['\uFEFF' + csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'shivsai_maintenance_audit.csv';
+        a.click();
+        showToast('Excel / CSV फाइल डाउनलोड झाली!');
       });
 
       // Apply Interest on Pending Maintenance (Admin only)
@@ -9522,6 +9894,13 @@
 
       // Transaction Modal (Admin only)
       document.getElementById('btn-open-tx-modal').addEventListener('click', () => {
+        const dl = document.getElementById('tx-category-list');
+        if (dl) {
+          const baseCats = ['देखभाल शुल्क','पार्किंग शुल्क','पाणीपट्टी बिल','वीज बिल','पाणी व वीज बिल','स्वच्छता व सुरक्षा','लिफ्ट व दुरुस्ती','कर्ज हप्ता','भाडेकरू NOC शुल्क','स्टेशनरी / इतर खर्च','इतर जमा'];
+          state.transactions.forEach(t => { if (t.category && !baseCats.includes(t.category)) baseCats.push(t.category); });
+          dl.innerHTML = baseCats.map(c => `<option value="${escapeHtml(c)}"></option>`).join('');
+        }
+        document.getElementById('tx-category').value = '';
         if (!isAdmin()) return;
         document.getElementById('form-tx').reset();
         document.getElementById('tx-date').value = new Date().toISOString().slice(0, 10);
