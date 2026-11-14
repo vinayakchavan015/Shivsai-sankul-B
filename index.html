@@ -84,6 +84,12 @@
           <label class="block text-xs font-semibold text-slate-700 mb-1">तुमचा फ्लॅट क्रमांक निवडा</label>
           <select id="login-member-flat" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm bg-white focus:ring-2 focus:ring-teal-500 outline-none"></select>
         </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">तुमचा ४-अंकी पासवर्ड / PIN *</label>
+          <input id="login-member-pin" type="password" inputmode="numeric" required placeholder="उदा. मोबाईलचे शेवटचे ४ अंक" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-teal-500 outline-none" />
+          <p class="text-[11px] text-slate-500 mt-1">टीप: डीफॉल्ट PIN हा तुमच्या नोंदणीकृत मोबाईल नंबरचे शेवटचे ४ अंक (किंवा १२३४) आहे.</p>
+          <p id="member-login-error" class="text-xs font-semibold text-rose-600 mt-1 hidden"></p>
+        </div>
         <button type="submit" class="w-full py-2.5 rounded-xl bg-teal-700 hover:bg-teal-800 text-white font-semibold text-sm transition">
           सभासद म्हणून प्रवेश करा
         </button>
@@ -307,7 +313,7 @@
           </div>
           <div class="flex flex-wrap items-center gap-2 shrink-0">
             <a href="https://onlinevvcmc.in/VVCMCOnlinePGWater/" target="_blank" rel="noopener noreferrer"
-              class="inline-flex items-center gap-1.5 bg-cyan-700 hover:bg-cyan-800 text-white px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition shadow-xs">
+              class="admin-only hidden inline-flex items-center gap-1.5 bg-cyan-700 hover:bg-cyan-800 text-white px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition shadow-xs">
               पाणीपट्टी बिल भरा ↗
             </a>
             <a href="https://onlinevvcmc.in/VVCMCOnlinePGProp/" target="_blank" rel="noopener noreferrer"
@@ -321,8 +327,15 @@
             <button id="btn-edit-water-info" type="button" class="admin-only hidden inline-flex items-center gap-1.5 bg-teal-700 hover:bg-teal-800 text-white px-3.5 py-2 rounded-xl text-xs font-semibold transition">
               पाणीपट्टी तपशील सेव्ह करा
             </button>
+            <button id="btn-export-water-csv" type="button" class="admin-only hidden inline-flex items-center gap-1.5 bg-slate-700 hover:bg-slate-800 text-white px-3.5 py-2 rounded-xl text-xs font-semibold transition">
+              पाणीपट्टी बॅकअप (CSV)
+            </button>
+            <button id="btn-print-water" type="button" class="admin-only hidden inline-flex items-center gap-1.5 bg-cyan-800 hover:bg-cyan-900 text-white px-3.5 py-2 rounded-xl text-xs font-semibold transition">
+              पाणीपट्टी PDF / प्रिंट
+            </button>
           </div>
         </div>
+        <div id="admin-water-section" class="admin-only hidden">
         <div class="mt-3 pt-3 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 text-xs">
           <div class="bg-cyan-50/70 border border-cyan-100 rounded-xl px-3 py-2">
             <span class="text-slate-500 font-medium">सोसायटीचे नाव (बिलावरील):</span>
@@ -344,6 +357,7 @@
         <div id="disp-water-history-wrap" class="mt-2.5 hidden">
           <p class="text-[11px] font-bold text-slate-600 mb-1.5">वार्षिक पाणीपट्टी भरणा इतिहास (Year-wise Payment History):</p>
           <div id="disp-water-history" class="flex flex-wrap gap-2"></div>
+        </div>
         </div>
         <div id="vvcmc-prop-bar" class="pt-3 border-t border-sky-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 text-xs"></div>
       </div>
@@ -424,7 +438,7 @@
             <h2 class="text-base font-bold text-slate-800">थकीत देखभाल शुल्क यादी</h2>
             <button data-goto="maintenance" class="goto-tab-btn text-xs font-semibold text-teal-700 hover:text-teal-900">व्यवस्थापन पहा →</button>
           </div>
-          <div id="dash-pending-list" class="space-y-2.5"></div>
+          <div id="dash-pending-list" class="space-y-2.5 max-h-80 overflow-y-auto pr-1"></div>
         </div>
       </div>
     </section>
@@ -654,7 +668,7 @@
             <button id="btn-print-ledger" type="button" class="bg-slate-800 hover:bg-slate-900 text-white px-4 py-2 rounded-xl text-sm font-semibold transition inline-flex items-center gap-1.5">
               मासिक लेजर PDF / प्रिंट
             </button>
-            <a href="https://onlinevvcmc.in/VVCMCOnlinePGWater/" target="_blank" rel="noopener noreferrer" class="bg-cyan-700 hover:bg-cyan-800 text-white px-4 py-2 rounded-xl text-sm font-semibold transition inline-flex items-center gap-1.5">
+            <a href="https://onlinevvcmc.in/VVCMCOnlinePGWater/" target="_blank" rel="noopener noreferrer" class="admin-only hidden bg-cyan-700 hover:bg-cyan-800 text-white px-4 py-2 rounded-xl text-sm font-semibold transition inline-flex items-center gap-1.5">
               VVCMC पाणीपट्टी बिल ↗
             </a>
           </div>
@@ -833,6 +847,10 @@
           <div>
             <label class="block text-xs font-semibold text-slate-700 mb-1">मासिक शुल्क (₹) *</label>
             <input id="member-rate" type="number" min="0" required value="1557" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm bg-slate-50 font-bold focus:ring-2 focus:ring-teal-500 outline-none" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">लॉगिन PIN (४ अंक)</label>
+            <input id="member-pin" type="text" maxlength="10" placeholder="उदा. मोबाईलचे शेवटचे ४ अंक" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-teal-500 outline-none" />
           </div>
         </div>
         <div>
@@ -1675,6 +1693,7 @@
   </div>
 
   <script>
+    const WATER_BACKUP_KEY = 'shivsai_water_tax_backup_v1';
     const STORAGE_KEY = 'shivsai_sankul_b_wing_v9';
     const firebaseConfig = {
       apiKey: "AIzaSyA3zUQ6MrUsozP4PtvvyQS_Kh9270alqDE",
@@ -7668,6 +7687,12 @@
         if (raw) {
           const parsed = JSON.parse(raw);
           if (parsed && Array.isArray(parsed.members) && Array.isArray(parsed.tenants) && parsed.loan) {
+            if (!parsed.waterTax) {
+              try {
+                const wb = localStorage.getItem(WATER_BACKUP_KEY);
+                if (wb) parsed.waterTax = JSON.parse(wb);
+              } catch (e) {}
+            }
             return parsed;
           }
         }
@@ -7687,6 +7712,7 @@
     function saveState() {
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        if (state.waterTax) localStorage.setItem(WATER_BACKUP_KEY, JSON.stringify(state.waterTax));
       } catch (e) {}
       if (firestoreDocRef) {
         try {
@@ -8092,10 +8118,14 @@
         `).join('')
         : '<p class="text-sm text-slate-500">सध्या कोणतीही सूचना नाही.</p>';
 
-      // Pending dues
+      // Pending dues (visible to all members & admin)
+      const allPendingMaint = (selMonth === 'all' ? state.maintenance : state.maintenance.filter(m => m.month === selMonth))
+        .filter(m => m.status === 'थकीत')
+        .slice()
+        .sort((a, b) => String(a.flat).localeCompare(String(b.flat), undefined, { numeric: true }));
       const dashPending = document.getElementById('dash-pending-list');
-      dashPending.innerHTML = pendingMaint.length
-        ? pendingMaint.slice(0, 5).map(m => `
+      dashPending.innerHTML = allPendingMaint.length
+        ? allPendingMaint.map(m => `
           <div class="flex items-center justify-between p-3 rounded-xl bg-rose-50/60 border border-rose-100">
             <div>
               <p class="text-sm font-bold text-slate-800">${escapeHtml(m.flat)} — ${escapeHtml(m.name)}</p>
@@ -8176,7 +8206,10 @@
 
     function renderMembers() {
       const query = (document.getElementById('member-search').value || '').trim().toLowerCase();
-      const filtered = state.members.filter(m =>
+      const baseMembers = (!isAdmin() && loggedInFlat)
+        ? state.members.filter(m => m.flat === loggedInFlat)
+        : state.members;
+      const filtered = baseMembers.filter(m =>
         !query ||
         m.flat.toLowerCase().includes(query) ||
         m.name.toLowerCase().includes(query) ||
@@ -8206,7 +8239,10 @@
       const query = (document.getElementById('tenant-search').value || '').trim().toLowerCase();
       const statusFilter = document.getElementById('tenant-filter-status').value;
 
-      const filtered = state.tenants.filter(t => {
+      const baseTenants = (!isAdmin() && loggedInFlat)
+        ? state.tenants.filter(t => t.flat === loggedInFlat)
+        : state.tenants;
+      const filtered = baseTenants.filter(t => {
         const st = getAgreementStatus(t.toDate).label;
         const matchStatus = statusFilter === 'all' || st === statusFilter;
         const matchQuery = !query ||
@@ -8947,8 +8983,23 @@
 
       formMemLogin.addEventListener('submit', (e) => {
         e.preventDefault();
+        const flatVal = document.getElementById('login-member-flat').value || '01';
+        const enteredPin = (document.getElementById('login-member-pin').value || '').trim();
+        const errEl = document.getElementById('member-login-error');
+        const mem = state.members.find(m => m.flat === flatVal);
+        const mobDigits = mem && mem.phone ? mem.phone.replace(/\D/g, '') : '';
+        const expectedPin = (mem && mem.pin && mem.pin.trim()) || (mobDigits.length >= 4 ? mobDigits.slice(-4) : '1234');
+        if (enteredPin !== expectedPin) {
+          if (errEl) {
+            errEl.textContent = 'चुकीचा PIN! कृपया तुमचा बरोबर ४-अंकी PIN टाका.';
+            errEl.classList.remove('hidden');
+          }
+          return;
+        }
+        if (errEl) errEl.classList.add('hidden');
+        document.getElementById('login-member-pin').value = '';
         currentRole = 'member';
-        loggedInFlat = document.getElementById('login-member-flat').value || 'B-101';
+        loggedInFlat = flatVal;
         document.getElementById('login-screen').classList.add('hidden');
         renderAll();
         showToast(`${loggedInFlat} सभासद म्हणून प्रवेश केला (Read-Only)`);
@@ -9101,6 +9152,79 @@
         closeModal('modal-water-info');
         renderAll();
         showToast('वार्षिक पाणीपट्टी बिल तपशील जतन केला!');
+      });
+
+      document.getElementById('btn-export-water-csv').addEventListener('click', () => {
+        const wt = state.waterTax || {};
+        const hist = Array.isArray(wt.history) ? wt.history : [];
+        const headers = ['Society Name', 'Demand/Connection No', 'Zone No', 'Year', 'Paid Date', 'Amount', 'Receipt/Note'];
+        const rows = [headers.join(',')];
+        if (hist.length) {
+          hist.forEach(h => {
+            rows.push([
+              `"${(wt.societyName || '').replace(/"/g, '""')}"`,
+              `"${(wt.billNo || '').replace(/"/g, '""')}"`,
+              `"${(wt.zoneNo || '').replace(/"/g, '""')}"`,
+              `"${(h.year || '').replace(/"/g, '""')}"`,
+              h.paidDate || '',
+              Number(h.amount || 0),
+              `"${(h.note || '').replace(/"/g, '""')}"`
+            ].join(','));
+          });
+        } else {
+          rows.push([
+            `"${(wt.societyName || '').replace(/"/g, '""')}"`,
+            `"${(wt.billNo || '').replace(/"/g, '""')}"`,
+            `"${(wt.zoneNo || '').replace(/"/g, '""')}"`,
+            '', wt.paidDate || '', Number(wt.amount || 0), ''
+          ].join(','));
+        }
+        const blob = new Blob(['\uFEFF' + rows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'shivsai_water_tax_backup.csv';
+        a.click();
+        showToast('पाणीपट्टी डेटा बॅकअप (CSV) डाउनलोड झाला!');
+      });
+
+      document.getElementById('btn-print-water').addEventListener('click', () => {
+        const wt = state.waterTax || {};
+        const hist = Array.isArray(wt.history) ? wt.history : [];
+        const rowsHtml = hist.length ? hist.map(h => `
+          <tr>
+            <td>${escapeHtml(h.year || '—')}</td>
+            <td>${escapeHtml(h.paidDate || '—')}</td>
+            <td style="text-align:right">${h.amount ? formatINR(h.amount) : '—'}</td>
+            <td>${escapeHtml(h.note || '—')}</td>
+          </tr>`).join('') : '<tr><td colspan="4" style="text-align:center;color:#64748b;">अद्याप वार्षिक भरणा नोंद नाही.</td></tr>';
+        const w = window.open('', '_blank', 'width=850,height=650');
+        if (!w) { window.print(); return; }
+        w.document.write(`<!DOCTYPE html><html lang="mr"><head><meta charset="UTF-8"><title>पाणीपट्टी डेटा रेकॉर्ड</title>
+          <style>
+            body{font-family:Arial,sans-serif;padding:24px;color:#0f172a;font-size:13px;}
+            h1{text-align:center;margin:0;font-size:16px;text-transform:uppercase;}
+            p.sub{text-align:center;margin:4px 0 16px;font-size:12px;color:#334155;}
+            .box{border:1px solid #cbd5e1;padding:12px;border-radius:8px;margin-bottom:16px;background:#f8fafc;}
+            table{width:100%;border-collapse:collapse;}
+            th,td{border:1px solid #cbd5e1;padding:8px 10px;text-align:left;}
+            th{background:#f1f5f9;}
+            .sig{margin-top:40px;text-align:right;font-weight:bold;}
+          </style></head><body>
+          <h1>SHIV SAI SANKUL 'B' WING CO-OP. HSG. SOCIETY LTD.</h1>
+          <p class="sub">Regd. No. TNA/VSI/HSG/(TC)/26019/2014 | VVCMC पाणीपट्टी बिल व भरणा नोंदवही</p>
+          <div class="box">
+            <div><strong>सोसायटीचे नाव (बिलावरील):</strong> ${escapeHtml(wt.societyName || 'शिवसाई संकुल बी विंग को-ऑप. हौ. सोसायटी लि.')}</div>
+            <div style="margin-top:4px;"><strong>मागणी क्रमांक / जोडणी क्र.:</strong> ${escapeHtml(wt.billNo || 'नोंद नाही')} &nbsp;&nbsp;|&nbsp;&nbsp; <strong>झोन क्रमांक:</strong> ${escapeHtml(wt.zoneNo || 'नोंद नाही')}</div>
+          </div>
+          <table>
+            <thead><tr><th>आर्थिक वर्ष</th><th>भरल्याची दिनांक</th><th style="text-align:right">भरलेली रक्कम</th><th>पावती क्र. / शेरा</th></tr></thead>
+            <tbody>${rowsHtml}</tbody>
+          </table>
+          <div class="sig">For SHIV SAI SANKUL 'B' WING CO-OP. HSG. SOCIETY LTD.<br><br><br>Hon. Secretary / Treasurer</div>
+          </body></html>`);
+        w.document.close();
+        w.focus();
+        setTimeout(() => w.print(), 250);
       });
 
       document.getElementById('disp-water-history').addEventListener('click', (e) => {
@@ -9655,6 +9779,7 @@
         const phone = document.getElementById('member-phone').value.trim();
         const vehicle = document.getElementById('member-vehicle').value.trim() || 'नाही';
         const monthlyRate = Number(document.getElementById('member-rate').value) || 1557;
+        const pin = (document.getElementById('member-pin').value || '').trim();
         const billableArea = document.getElementById('member-area').value.trim();
         const chargeBreakdown = {
           service: Number(document.getElementById('chg-service').value) || 0,
@@ -9670,7 +9795,7 @@
           const idx = state.members.findIndex(m => m.id === Number(idVal));
           if (idx !== -1) {
             const oldFlat = state.members[idx].flat;
-            state.members[idx] = { ...state.members[idx], id: Number(idVal), flat, name, phone, vehicle, monthlyRate, billableArea, chargeBreakdown };
+            state.members[idx] = { ...state.members[idx], id: Number(idVal), flat, name, phone, vehicle, monthlyRate, pin, billableArea, chargeBreakdown };
             // Auto-sync owner (Tenants) and name (Maintenance) across records
             state.tenants.forEach(t => {
               if (t.flat === oldFlat || t.flat === flat) {
@@ -9688,7 +9813,7 @@
             showToast('सभासद, भाडेकरू व देखभाल शुल्कातील नाव अद्ययावत केले!');
           }
         } else {
-          state.members.push({ id: Date.now(), flat, name, phone, vehicle, monthlyRate, billableArea, chargeBreakdown });
+          state.members.push({ id: Date.now(), flat, name, phone, vehicle, monthlyRate, pin, billableArea, chargeBreakdown });
           showToast('नवीन सभासद यशस्वीरित्या जोडला!');
         }
         saveState();
@@ -9950,6 +10075,7 @@
             document.getElementById('member-phone').value = m.phone;
             document.getElementById('member-vehicle').value = m.vehicle;
             document.getElementById('member-rate').value = m.monthlyRate || 1557;
+            document.getElementById('member-pin').value = m.pin || '';
             document.getElementById('member-area').value = m.billableArea || '';
             setMemberChargeInputs(m.chargeBreakdown, m.monthlyRate || 1557);
             document.getElementById('modal-member-title').textContent = 'सभासद माहिती संपादित करा';
