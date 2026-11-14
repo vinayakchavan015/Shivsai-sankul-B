@@ -509,6 +509,15 @@
               <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
               नवीन बिल तयार करा
             </button>
+            <button id="btn-open-extra-charge" type="button" class="admin-only hidden bg-amber-600 hover:bg-amber-700 text-white px-3.5 py-2 rounded-xl text-sm font-semibold transition items-center gap-1.5">
+              + अतिरिक्त शुल्क लावा
+            </button>
+            <button id="btn-add-manual-maint" type="button" class="admin-only hidden bg-teal-700 hover:bg-teal-800 text-white px-3.5 py-2 rounded-xl text-sm font-semibold transition items-center gap-1.5">
+              + मॅन्युअल बिल जोडा
+            </button>
+            <button id="btn-clear-all-maint" type="button" class="admin-only hidden bg-rose-600 hover:bg-rose-700 text-white px-3.5 py-2 rounded-xl text-sm font-semibold transition items-center gap-1.5">
+              सर्व देखभाल डेटा डिलीट करा
+            </button>
           </div>
         </div>
 
@@ -641,6 +650,74 @@
           </table>
         </div>
       </div>
+
+      <!-- ANNUAL P&L (INCOME & EXPENDITURE ACCOUNT) -->
+      <div id="pnl-print-area" class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80 space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-200 pb-4">
+          <div>
+            <h2 class="text-lg font-bold text-slate-900">वार्षिक नफा-तोटा पत्रक (Annual P&amp;L / Income &amp; Expenditure Account)</h2>
+            <p id="pnl-subtitle" class="text-xs text-slate-500">आर्थिक वर्ष (१ एप्रिल ते ३१ मार्च) नुसार श्रेणीनिहाय एकूण उत्पन्न व खर्च</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2 no-print">
+            <select id="pnl-fy-select" class="px-3 py-2 rounded-xl border border-slate-300 text-sm bg-white font-semibold focus:outline-none focus:ring-2 focus:ring-teal-500"></select>
+            <button id="btn-print-pnl" type="button" class="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-teal-700 hover:bg-teal-800 text-white transition">
+              P&amp;L प्रिंट / PDF काढा
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <!-- Expenditure Side -->
+          <div class="border border-rose-200 rounded-xl overflow-hidden flex flex-col justify-between">
+            <div>
+              <div class="bg-rose-50 px-4 py-2.5 border-b border-rose-200 flex justify-between items-center">
+                <span class="text-sm font-bold text-rose-900">खर्च बाजू (Expenditure)</span>
+                <span id="pnl-total-exp" class="text-sm font-bold text-rose-700 tabular-nums">₹0</span>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-xs sm:text-sm">
+                  <thead>
+                    <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-semibold text-slate-600">
+                      <th class="py-2 px-3">श्रेणी</th>
+                      <th class="py-2 px-3 text-right">कॅश</th>
+                      <th class="py-2 px-3 text-right">बँक/ऑनलाइन</th>
+                      <th class="py-2 px-3 text-right">एकूण</th>
+                    </tr>
+                  </thead>
+                  <tbody id="pnl-exp-body" class="divide-y divide-slate-100"></tbody>
+                </table>
+              </div>
+            </div>
+            <div id="pnl-exp-split" class="bg-rose-50/60 px-3 py-2 border-t border-rose-200 text-xs font-semibold text-rose-900 flex flex-wrap justify-between gap-2"></div>
+          </div>
+
+          <!-- Income Side -->
+          <div class="border border-emerald-200 rounded-xl overflow-hidden flex flex-col justify-between">
+            <div>
+              <div class="bg-emerald-50 px-4 py-2.5 border-b border-emerald-200 flex justify-between items-center">
+                <span class="text-sm font-bold text-emerald-900">उत्पन्न बाजू (Income)</span>
+                <span id="pnl-total-inc" class="text-sm font-bold text-emerald-700 tabular-nums">₹0</span>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse text-xs sm:text-sm">
+                  <thead>
+                    <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-semibold text-slate-600">
+                      <th class="py-2 px-3">श्रेणी</th>
+                      <th class="py-2 px-3 text-right">कॅश</th>
+                      <th class="py-2 px-3 text-right">बँक/ऑनलाइन</th>
+                      <th class="py-2 px-3 text-right">एकूण</th>
+                    </tr>
+                  </thead>
+                  <tbody id="pnl-inc-body" class="divide-y divide-slate-100"></tbody>
+                </table>
+              </div>
+            </div>
+            <div id="pnl-inc-split" class="bg-emerald-50/60 px-3 py-2 border-t border-emerald-200 text-xs font-semibold text-emerald-900 flex flex-wrap justify-between gap-2"></div>
+          </div>
+        </div>
+
+        <div id="pnl-net-banner" class="rounded-xl p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border"></div>
+      </div>
     </section>
 
 
@@ -683,7 +760,7 @@
   </footer>
 
   <!-- MODAL: Add / Edit Member (Owner) -->
-  <div id="modal-member" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs hidden items-center justify-center p-4 z-50">
+  <div id="modal-member" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs hidden items-center justify-center p-4 z-50 overflow-y-auto">
     <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl">
       <div class="flex items-center justify-between mb-4">
         <h3 id="modal-member-title" class="text-lg font-bold text-slate-900">नवीन सभासद जोडा</h3>
@@ -712,7 +789,23 @@
           </div>
           <div>
             <label class="block text-xs font-semibold text-slate-700 mb-1">मासिक शुल्क (₹) *</label>
-            <input id="member-rate" type="number" min="0" required value="1616" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-teal-500 outline-none" />
+            <input id="member-rate" type="number" min="0" required value="1557" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm bg-slate-50 font-bold focus:ring-2 focus:ring-teal-500 outline-none" />
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">क्षेत्रफळ (Billable Area - Sq.Ft.)</label>
+          <input id="member-area" type="text" placeholder="उदा. 550 Sq.Ft." class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-teal-500 outline-none" />
+        </div>
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-2">
+          <p class="text-xs font-bold text-slate-700">बिलातील चार्जेस विभागणी (₹) — बदलल्यास एकूण दर आपोआप अपडेट होईल</p>
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs">
+            <div><label class="text-[11px] text-slate-600">Service Charges</label><input id="chg-service" type="number" step="0.01" value="120" class="mem-charge-input w-full px-2 py-1.5 rounded-lg border border-slate-300 bg-white" /></div>
+            <div><label class="text-[11px] text-slate-600">Sinking Fund</label><input id="chg-sinking" type="number" step="0.01" value="78" class="mem-charge-input w-full px-2 py-1.5 rounded-lg border border-slate-300 bg-white" /></div>
+            <div><label class="text-[11px] text-slate-600">Repair Fund</label><input id="chg-repair" type="number" step="0.01" value="234" class="mem-charge-input w-full px-2 py-1.5 rounded-lg border border-slate-300 bg-white" /></div>
+            <div><label class="text-[11px] text-slate-600">Festival Fund</label><input id="chg-festival" type="number" step="0.01" value="80" class="mem-charge-input w-full px-2 py-1.5 rounded-lg border border-slate-300 bg-white" /></div>
+            <div><label class="text-[11px] text-slate-600">Federation Chg.</label><input id="chg-federation" type="number" step="0.01" value="15" class="mem-charge-input w-full px-2 py-1.5 rounded-lg border border-slate-300 bg-white" /></div>
+            <div><label class="text-[11px] text-slate-600">N/A Charges</label><input id="chg-na" type="number" step="0.01" value="30" class="mem-charge-input w-full px-2 py-1.5 rounded-lg border border-slate-300 bg-white" /></div>
+            <div class="col-span-2 sm:col-span-3"><label class="text-[11px] text-slate-600">Building Repair Fund</label><input id="chg-building" type="number" step="0.01" value="1000" class="mem-charge-input w-full px-2 py-1.5 rounded-lg border border-slate-300 bg-white" /></div>
           </div>
         </div>
         <div class="flex justify-end gap-2 pt-3">
@@ -930,7 +1023,7 @@
         <div id="pay-maint-info" class="text-xs font-semibold text-teal-900 bg-teal-50 p-3 rounded-xl"></div>
         <div>
           <label class="block text-xs font-semibold text-slate-700 mb-1">भरलेली रक्कम (₹) *</label>
-          <input id="pay-maint-amount" type="number" min="1" step="0.01" required class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-teal-500 outline-none" />
+          <input id="pay-maint-amount" type="number" min="0" step="0.01" required class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-teal-500 outline-none" />
         </div>
         <div>
           <label class="block text-xs font-semibold text-slate-700 mb-1">पेमेंट माध्यम निवडा *</label>
@@ -947,39 +1040,85 @@
     </div>
   </div>
 
-  <!-- MODAL: Receipt Preview & Print -->
-  <div id="modal-receipt" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs hidden items-center justify-center p-4 z-50">
-    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl">
-      <div id="receipt-print-area" class="border-2 border-teal-800 rounded-xl p-5 bg-white">
-        <div class="text-center border-b border-slate-200 pb-3 mb-4">
-          <h3 class="text-base font-bold text-teal-900">शिवसाई संकुल बी विंग को-ऑपरेटिव्ह सोसायटी लिमिटेड</h3>
-          <p class="text-xs text-slate-600">नोंदणी क्र.: TNS/VSI/HSG/26019/2014</p>
-          <span class="inline-block mt-2 px-3 py-0.5 bg-teal-50 text-teal-800 text-xs font-bold rounded-full border border-teal-200">
-            देखभाल शुल्क पावती (Maintenance Receipt)
-          </span>
+  <!-- MODAL: Receipt / Bill Preview & Print -->
+  <div id="modal-receipt" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs hidden items-center justify-center p-3 sm:p-4 z-50 overflow-y-auto">
+    <div class="bg-white rounded-2xl max-w-2xl w-full p-4 sm:p-6 shadow-xl my-auto">
+      <div id="receipt-print-area" class="bg-white text-slate-900 text-xs leading-snug font-sans">
+        <!-- Header -->
+        <div class="text-center pb-2">
+          <h3 class="text-sm sm:text-base font-bold tracking-wide uppercase text-slate-900">SHIV SAI SANKUL 'B' WING CO-OP. HSG. SOCIETY LTD.</h3>
+          <p class="text-[11px] font-medium text-slate-800">Regd. No. TNA/VSI/HSG/(TC)/26019/2014</p>
+          <p class="text-[11px] text-slate-700">Sant Nagar, Manvelpada Road, Virar (East)</p>
         </div>
-        <div class="space-y-2 text-sm">
-          <div class="flex justify-between"><span class="text-slate-500">पावती क्र.:</span><span id="rec-no" class="font-semibold"></span></div>
-          <div class="flex justify-between"><span class="text-slate-500">फ्लॅट क्रमांक:</span><span id="rec-flat" class="font-bold"></span></div>
-          <div class="flex justify-between"><span class="text-slate-500">सभासदाचे नाव:</span><span id="rec-name" class="font-semibold"></span></div>
-          <div class="flex justify-between"><span class="text-slate-500">महिना:</span><span id="rec-month" class="font-semibold"></span></div>
-          <div class="flex justify-between"><span class="text-slate-500">भरणा दिनांक:</span><span id="rec-date" class="font-semibold"></span></div>
-          <div class="flex justify-between"><span class="text-slate-500">पेमेंट माध्यम:</span><span id="rec-mode" class="font-semibold"></span></div>
-          <div class="flex justify-between border-t border-dashed border-slate-300 pt-2 mt-2 text-base">
-            <span class="font-bold text-slate-800">एकूण प्राप्त रक्कम:</span>
-            <span id="rec-amount" class="font-bold text-emerald-700"></span>
+
+        <!-- Main Bill Box -->
+        <div class="border border-slate-800">
+          <!-- Top Member & Bill Meta Grid -->
+          <div class="grid grid-cols-1 sm:grid-cols-12 border-b border-slate-800">
+            <div class="sm:col-span-6 p-2.5 sm:border-r border-b sm:border-b-0 border-slate-800 flex flex-col justify-between min-h-[76px]">
+              <p id="rec-name" class="font-bold uppercase text-xs sm:text-sm text-slate-900"></p>
+              <p class="text-[11px] font-semibold text-slate-800 mt-3">Billable Area : <span id="rec-area" class="font-normal"></span></p>
+            </div>
+            <div class="sm:col-span-6 p-2.5 space-y-1 text-[11px]">
+              <div class="flex justify-between gap-2">
+                <span><strong>Bill No. :</strong> <span id="rec-no"></span></span>
+                <span><strong>Date:</strong> <span id="rec-bill-date"></span></span>
+              </div>
+              <div><strong>Period :</strong> <span id="rec-period"></span></div>
+              <div><strong>Flat No.:</strong> <span id="rec-flat" class="font-bold"></span></div>
+              <div><strong>Due Date:</strong> <span id="rec-due-date"></span></div>
+            </div>
+          </div>
+
+          <!-- Particulars Table -->
+          <table class="w-full border-collapse text-[11px]">
+            <thead>
+              <tr class="border-b border-slate-800 bg-slate-50">
+                <th class="w-12 py-1.5 px-2 text-center border-r border-slate-800 font-semibold">S.No</th>
+                <th class="py-1.5 px-2.5 text-left border-r border-slate-800 font-semibold">Particulars</th>
+                <th class="w-28 py-1.5 px-2.5 text-right font-semibold">Amount</th>
+              </tr>
+            </thead>
+            <tbody id="rec-particulars-body" class="divide-y divide-slate-200"></tbody>
+          </table>
+
+          <!-- Bottom Split: Receipt Info & Totals -->
+          <div class="grid grid-cols-1 sm:grid-cols-12 border-t border-slate-800">
+            <div class="sm:col-span-6 p-2.5 sm:border-r border-b sm:border-b-0 border-slate-800 flex flex-col justify-between min-h-[110px]">
+              <div>
+                <div class="grid grid-cols-4 gap-1 text-[10px] font-bold border-b border-slate-300 pb-1">
+                  <span>R.No.</span>
+                  <span>Date</span>
+                  <span>Chq. No.</span>
+                  <span class="text-right">Amount</span>
+                </div>
+                <div id="rec-payment-row" class="grid grid-cols-4 gap-1 text-[10px] pt-1 text-slate-800"></div>
+              </div>
+              <p id="rec-amount-words" class="text-[11px] font-medium text-slate-900 mt-4 pt-2"></p>
+            </div>
+            <div class="sm:col-span-6 p-2.5 space-y-1 text-[11px]">
+              <div class="flex justify-between"><span>Current Charges:</span><span id="rec-curr-charges" class="font-medium tabular-nums"></span></div>
+              <div class="flex justify-between"><span>Old Outstanding:</span><span id="rec-old-out" class="font-medium tabular-nums"></span></div>
+              <div class="flex justify-between"><span>Old Int. Amt:</span><span class="font-medium tabular-nums">0.00</span></div>
+              <div class="flex justify-between"><span>Interest on Late Payment:</span><span class="font-medium tabular-nums">0.00</span></div>
+              <div class="flex justify-between"><span>Advance:</span><span id="rec-advance" class="font-medium tabular-nums"></span></div>
+              <div class="flex justify-between border-t border-slate-300 pt-1 font-bold text-slate-900"><span>Total Payable:</span><span id="rec-amount" class="tabular-nums"></span></div>
+            </div>
           </div>
         </div>
-        <div class="mt-6 pt-3 border-t border-slate-200 flex justify-between items-end text-xs text-slate-500">
-          <span>ही संगणकीय पावती आहे.</span>
-          <span class="font-semibold text-slate-700">अध्यक्ष / सचिव सही</span>
+
+        <!-- Signature Footer -->
+        <div class="mt-3 text-[11px] text-slate-800">
+          <div class="text-right pt-2 font-semibold">
+            <p>For SHIV SAI SANKUL 'B' WING CO-OP. HSG. SOCIETY LTD.</p>
+            <p class="mt-7">Hon. Secretary / Treasurer</p>
+          </div>
         </div>
       </div>
+
       <div class="flex justify-end gap-2 mt-4 no-print">
         <button type="button" data-close="modal-receipt" class="close-modal-btn px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100">बंद करा</button>
-        <button id="btn-print-receipt" type="button" class="px-4 py-2 rounded-xl text-sm font-semibold bg-teal-700 hover:bg-teal-800 text-white inline-flex items-center gap-1.5">
-          प्रिंट / PDF सेव्ह करा
-        </button>
+        <button id="btn-print-receipt" type="button" class="px-4 py-2 rounded-xl text-sm font-semibold bg-teal-700 hover:bg-teal-800 text-white">प्रिंट / PDF सेव्ह करा</button>
       </div>
     </div>
   </div>
@@ -1211,6 +1350,90 @@
         <div class="flex justify-end gap-2 pt-3">
           <button type="button" data-close="modal-complaint" class="close-modal-btn px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100">रद्द करा</button>
           <button type="submit" class="px-4 py-2 rounded-xl text-sm font-semibold bg-amber-500 hover:bg-amber-600 text-slate-950">तक्रार नोंदवा</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Add Manual Maintenance Bill -->
+  <div id="modal-manual-maint" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs hidden items-center justify-center p-4 z-50 overflow-y-auto">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl my-auto">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-bold text-slate-900">मॅन्युअल देखभाल बिल जोडा</h3>
+        <button data-close="modal-manual-maint" class="close-modal-btn text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+      </div>
+      <form id="form-manual-maint" class="space-y-3">
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">फ्लॅट व सभासद निवडा *</label>
+          <select id="man-maint-flat" required class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm bg-white focus:ring-2 focus:ring-teal-500 outline-none"></select>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">महिना *</label>
+          <input id="man-maint-month" type="text" required placeholder="उदा. नोव्हेंबर २०२६" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-teal-500 outline-none" />
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">मागील बाकी (₹)</label>
+            <input id="man-maint-prev" type="number" step="0.01" value="0" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-teal-500 outline-none" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">चालू शुल्क (₹) *</label>
+            <input id="man-maint-amt" type="number" step="0.01" required value="1557" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-teal-500 outline-none" />
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">भरलेली रक्कम (₹)</label>
+            <input id="man-maint-paid" type="number" min="0" step="0.01" value="0" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-teal-500 outline-none" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">पेमेंट माध्यम</label>
+            <select id="man-maint-mode" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm bg-white focus:ring-2 focus:ring-teal-500 outline-none">
+              <option value="ऑनलाइन">ऑनलाइन</option>
+              <option value="कॅश">कॅश</option>
+              <option value="बँक ट्रान्सफर">बँक ट्रान्सफर</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">भरणा दिनांक</label>
+          <input id="man-maint-date" type="date" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-teal-500 outline-none" />
+        </div>
+        <div class="flex justify-end gap-2 pt-3">
+          <button type="button" data-close="modal-manual-maint" class="close-modal-btn px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100">रद्द करा</button>
+          <button type="submit" class="px-4 py-2 rounded-xl text-sm font-semibold bg-teal-700 hover:bg-teal-800 text-white">बिल जतन करा</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Add Extra Charge to Bills -->
+  <div id="modal-extra-charge" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs hidden items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-bold text-slate-900">अतिरिक्त शुल्क लावा (Extra Charge)</h3>
+        <button data-close="modal-extra-charge" class="close-modal-btn text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+      </div>
+      <form id="form-extra-charge" class="space-y-3.5">
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">महिना निवडा *</label>
+          <select id="extra-month" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm bg-white focus:ring-2 focus:ring-amber-500 outline-none"></select>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">फ्लॅट निवडा *</label>
+          <select id="extra-flat" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm bg-white focus:ring-2 focus:ring-amber-500 outline-none"></select>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">अतिरिक्त शुल्काचे नाव / कारण *</label>
+          <input id="extra-label" type="text" required placeholder="उदा. Water Charges / Parking / Special Repair" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-amber-500 outline-none" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">रक्कम (₹) *</label>
+          <input id="extra-amount" type="number" step="0.01" required placeholder="उदा. 250" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-amber-500 outline-none" />
+        </div>
+        <div class="flex justify-end gap-2 pt-3">
+          <button type="button" data-close="modal-extra-charge" class="close-modal-btn px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100">रद्द करा</button>
+          <button type="submit" class="px-4 py-2 rounded-xl text-sm font-semibold bg-amber-600 hover:bg-amber-700 text-white">शुल्कात जोडा</button>
         </div>
       </form>
     </div>
@@ -7875,12 +8098,13 @@
             </td>
             <td class="py-3 px-3 text-slate-500 text-xs whitespace-nowrap">${m.paidDate ? escapeHtml(m.paidDate) : '—'}</td>
             <td class="py-3 px-3 text-right whitespace-nowrap space-x-1.5">
-              ${m.status === 'थकीत'
-                ? (isAdmin()
+              ${`<button data-receipt-id="${m.id}" class="receipt-btn bg-slate-100 hover:bg-slate-200 text-slate-800 px-2.5 py-1 rounded-lg text-xs font-semibold">बिल / पावती</button>`}
+              ${isAdmin()
+                ? (m.status === 'थकीत'
                   ? `<button data-pay-id="${m.id}" class="pay-maint-btn bg-teal-700 hover:bg-teal-800 text-white px-2.5 py-1 rounded-lg text-xs font-semibold">रक्कम भरा</button>`
-                  : `<span class="text-xs text-slate-400">प्रलंबित</span>`)
-                : `<button data-receipt-id="${m.id}" class="receipt-btn bg-slate-100 hover:bg-slate-200 text-slate-800 px-2.5 py-1 rounded-lg text-xs font-semibold">पावती पहा</button>`
-              }
+                  : `<button data-pay-id="${m.id}" class="pay-maint-btn bg-amber-100 hover:bg-amber-200 text-amber-800 px-2.5 py-1 rounded-lg text-xs font-semibold">पेमेंट बदला</button>`)
+                  + ` <button data-del-maint="${m.id}" class="del-maint-btn bg-rose-50 hover:bg-rose-100 text-rose-700 px-2 py-1 rounded-lg text-xs font-semibold">काढा</button>`
+                : (m.status === 'थकीत' ? `<span class="text-xs text-slate-400">प्रलंबित</span>` : '')}
               ${isAdmin() ? `
                 <button data-edit-maint="${m.id}" class="edit-maint-btn text-xs font-semibold text-teal-700 hover:underline ml-1">संपादित</button>
                 <button data-del-maint="${m.id}" class="del-maint-btn text-xs font-semibold text-rose-600 hover:underline">काढा</button>
@@ -7994,6 +8218,105 @@
           </tr>
         `).join('')
         : `<tr><td colspan="${isAdmin() ? 7 : 6}" class="py-6 text-center text-slate-500">कोणतेही व्यवहार आढळले नाहीत.</td></tr>`;
+      renderAnnualPnL();
+    }
+
+    function getFinancialYear(dateStr) {
+      if (!dateStr || dateStr.length < 7) return '2026-27';
+      const y = Number(dateStr.slice(0, 4));
+      const m = Number(dateStr.slice(5, 7));
+      if (!y || !m) return '2026-27';
+      const startYear = m >= 4 ? y : y - 1;
+      return `${startYear}-${String(startYear + 1).slice(-2)}`;
+    }
+
+    function renderAnnualPnL() {
+      const fySel = document.getElementById('pnl-fy-select');
+      if (!fySel) return;
+      const fys = [...new Set(state.transactions.map(t => getFinancialYear(t.date)))];
+      const currFY = getFinancialYear(new Date().toISOString().slice(0, 10));
+      if (!fys.includes(currFY)) fys.push(currFY);
+      fys.sort().reverse();
+      const prevVal = fySel.value;
+      fySel.innerHTML = fys.map(fy => {
+        const sy = Number(fy.split('-')[0]);
+        return `<option value="${escapeHtml(fy)}">आर्थिक वर्ष ${escapeHtml(fy)} (01/04/${sy} - 31/03/${sy + 1})</option>`;
+      }).join('');
+      fySel.value = (prevVal && fys.includes(prevVal)) ? prevVal : currFY;
+
+      const selectedFY = fySel.value;
+      const sy = Number(selectedFY.split('-')[0]);
+      document.getElementById('pnl-subtitle').textContent =
+        `SHIV SAI SANKUL 'B' WING CO-OP. HSG. SOCIETY LTD. — आर्थिक वर्ष ${selectedFY} (01/04/${sy} ते 31/03/${sy + 1})`;
+
+      const fyTx = state.transactions.filter(t => getFinancialYear(t.date) === selectedFY);
+      const expMap = {};
+      const incMap = {};
+      let totExpCash = 0, totExpBank = 0;
+      let totIncCash = 0, totIncBank = 0;
+
+      fyTx.forEach(t => {
+        const amt = Number(t.amount || 0);
+        const cat = t.category || 'इतर';
+        const isCash = (t.mode || '').trim() === 'कॅश';
+        if (t.type === 'खर्च') {
+          if (!expMap[cat]) expMap[cat] = { cash: 0, bank: 0, total: 0 };
+          if (isCash) { expMap[cat].cash += amt; totExpCash += amt; }
+          else { expMap[cat].bank += amt; totExpBank += amt; }
+          expMap[cat].total += amt;
+        } else {
+          if (!incMap[cat]) incMap[cat] = { cash: 0, bank: 0, total: 0 };
+          if (isCash) { incMap[cat].cash += amt; totIncCash += amt; }
+          else { incMap[cat].bank += amt; totIncBank += amt; }
+          incMap[cat].total += amt;
+        }
+      });
+
+      const totExp = totExpCash + totExpBank;
+      const totInc = totIncCash + totIncBank;
+      document.getElementById('pnl-total-exp').textContent = formatINR(totExp);
+      document.getElementById('pnl-total-inc').textContent = formatINR(totInc);
+      document.getElementById('pnl-exp-split').innerHTML = `<span>कॅश खर्च: ${formatINR(totExpCash)}</span><span>बँक खर्च: ${formatINR(totExpBank)}</span>`;
+      document.getElementById('pnl-inc-split').innerHTML = `<span>कॅश उत्पन्न: ${formatINR(totIncCash)}</span><span>बँक उत्पन्न: ${formatINR(totIncBank)}</span>`;
+
+      const expRows = Object.entries(expMap).sort((a, b) => b[1].total - a[1].total);
+      const incRows = Object.entries(incMap).sort((a, b) => b[1].total - a[1].total);
+
+      document.getElementById('pnl-exp-body').innerHTML = expRows.length
+        ? expRows.map(([cat, v]) => `
+            <tr>
+              <td class="py-2 px-3 text-slate-700">${escapeHtml(cat)}</td>
+              <td class="py-2 px-3 text-right text-amber-700 tabular-nums">${formatINR(v.cash)}</td>
+              <td class="py-2 px-3 text-right text-slate-700 tabular-nums">${formatINR(v.bank)}</td>
+              <td class="py-2 px-3 text-right font-semibold text-rose-700 tabular-nums">${formatINR(v.total)}</td>
+            </tr>`).join('')
+        : '<tr><td colspan="4" class="py-4 px-4 text-center text-slate-400 text-xs">या आर्थिक वर्षात खर्च नोंद नाही.</td></tr>';
+
+      document.getElementById('pnl-inc-body').innerHTML = incRows.length
+        ? incRows.map(([cat, v]) => `
+            <tr>
+              <td class="py-2 px-3 text-slate-700">${escapeHtml(cat)}</td>
+              <td class="py-2 px-3 text-right text-amber-700 tabular-nums">${formatINR(v.cash)}</td>
+              <td class="py-2 px-3 text-right text-teal-700 tabular-nums">${formatINR(v.bank)}</td>
+              <td class="py-2 px-3 text-right font-semibold text-emerald-700 tabular-nums">${formatINR(v.total)}</td>
+            </tr>`).join('')
+        : '<tr><td colspan="4" class="py-4 px-4 text-center text-slate-400 text-xs">या आर्थिक वर्षात उत्पन्न नोंद नाही.</td></tr>';
+
+      const net = totInc - totExp;
+      const banner = document.getElementById('pnl-net-banner');
+      if (net >= 0) {
+        banner.className = 'rounded-xl p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border bg-emerald-50 border-emerald-200';
+        banner.innerHTML = `
+          <span class="text-sm font-bold text-emerald-900">निव्वळ नफा / शिल्लक (Net Surplus / Excess of Income over Expenditure)</span>
+          <span class="text-lg font-extrabold text-emerald-700 tabular-nums">${formatINR(net)}</span>
+        `;
+      } else {
+        banner.className = 'rounded-xl p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border bg-rose-50 border-rose-200';
+        banner.innerHTML = `
+          <span class="text-sm font-bold text-rose-900">निव्वळ तोटा / तूट (Net Deficit / Excess of Expenditure over Income)</span>
+          <span class="text-lg font-extrabold text-rose-700 tabular-nums">${formatINR(Math.abs(net))}</span>
+        `;
+      }
     }
 
     function renderCommunity() {
@@ -8113,54 +8436,162 @@
     function openPayMaintenanceModal(id) {
       if (!isAdmin()) return;
       const item = state.maintenance.find(m => m.id === id);
-      if (!item || item.status === 'भरलेले') return;
+      if (!item) return;
       const payable = Number(item.totalPayable != null ? item.totalPayable : item.amount);
       document.getElementById('pay-maint-id').value = item.id;
       document.getElementById('pay-maint-info').textContent = `${item.flat} — ${item.name} (${item.month}) | देय रक्कम: ${formatINR(payable)}`;
-      document.getElementById('pay-maint-amount').value = payable;
+      document.getElementById('pay-maint-amount').value = item.status === 'भरलेले' ? Number(item.paidAmount || payable) : payable;
+      const modeSel = document.getElementById('pay-maint-mode');
+      if (modeSel && item.paymentMode) modeSel.value = item.paymentMode;
       openModal('modal-pay-maint');
     }
 
     function markMaintenancePaid(id, mode, customPaid) {
       if (!isAdmin()) return;
       const item = state.maintenance.find(m => m.id === id);
-      if (!item || item.status === 'भरलेले') return;
+      if (!item) return;
       const today = new Date().toISOString().slice(0, 10);
       const payable = Number(item.totalPayable != null ? item.totalPayable : item.amount);
       const paidNow = customPaid != null ? Number(customPaid) : payable;
       const remaining = Math.max(0, payable - paidNow);
 
       item.paymentMode = mode || 'ऑनलाइन';
-      item.paidDate = today;
+      item.paidDate = paidNow > 0 ? today : '';
       item.paidAmount = paidNow;
       item.balance = remaining;
-      item.status = remaining === 0 ? 'भरलेले' : 'थकीत';
+      item.status = remaining === 0 && paidNow > 0 ? 'भरलेले' : 'थकीत';
 
-      state.transactions.push({
-        id: Date.now(),
-        date: today,
-        type: 'जमा',
-        mode: item.paymentMode,
-        category: 'देखभाल शुल्क',
-        desc: `${item.flat} (${item.name}) - ${item.month}`,
-        amount: paidNow
-      });
+      const txDesc = `${item.flat} (${item.name}) - ${item.month}`;
+      const existingTx = state.transactions.find(t => t.category === 'देखभाल शुल्क' && t.desc === txDesc);
+      if (paidNow > 0) {
+        if (existingTx) {
+          existingTx.date = today;
+          existingTx.mode = item.paymentMode;
+          existingTx.amount = paidNow;
+        } else {
+          state.transactions.push({
+            id: Date.now(),
+            date: today,
+            type: 'जमा',
+            mode: item.paymentMode,
+            category: 'देखभाल शुल्क',
+            desc: txDesc,
+            amount: paidNow
+          });
+        }
+      } else if (existingTx) {
+        state.transactions = state.transactions.filter(t => t.id !== existingTx.id);
+      }
 
       saveState();
       renderAll();
-      showToast(`${item.flat} ची ${formatINR(paidNow)} (${item.paymentMode}) जमा नोंदवली!`);
+      showToast(`${item.flat} चे पेमेंट (${formatINR(paidNow)} - ${item.paymentMode}) अपडेट केले!`);
+    }
+
+    function numberToEnglishWords(num) {
+      num = Math.round(Math.abs(Number(num) || 0));
+      if (num === 0) return 'Zero';
+      const a = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten',
+        'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+      const b = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+      function twoDigits(n) {
+        if (n < 20) return a[n];
+        return b[Math.floor(n / 10)] + (n % 10 ? ' ' + a[n % 10] : '');
+      }
+      function threeDigits(n) {
+        if (n >= 100) return a[Math.floor(n / 100)] + ' Hundred' + (n % 100 ? ' ' + twoDigits(n % 100) : '');
+        return twoDigits(n);
+      }
+      let out = '';
+      if (num >= 100000) { out += twoDigits(Math.floor(num / 100000)) + ' Lakh '; num %= 100000; }
+      if (num >= 1000) { out += twoDigits(Math.floor(num / 1000)) + ' Thousand '; num %= 1000; }
+      if (num > 0) out += threeDigits(num);
+      return out.trim();
     }
 
     function openReceipt(id) {
       const item = state.maintenance.find(m => m.id === id);
       if (!item) return;
-      document.getElementById('rec-no').textContent = 'SS-' + item.id;
-      document.getElementById('rec-flat').textContent = item.flat;
-      document.getElementById('rec-name').textContent = item.name;
-      document.getElementById('rec-month').textContent = item.month;
-      document.getElementById('rec-date').textContent = item.paidDate || '—';
-      document.getElementById('rec-mode').textContent = item.paymentMode || 'ऑनलाइन';
-      document.getElementById('rec-amount').textContent = formatINR(item.totalPayable != null ? item.totalPayable : item.amount);
+
+      const ym = marathiMonthToYYYYMM(item.month) || getCurrentYYYYMM();
+      const [yrStr, moStr] = ym.split('-');
+      const lastDay = new Date(Number(yrStr), Number(moStr), 0).getDate();
+      const billDateStr = `01/${moStr}/${yrStr}`;
+      const periodStr = `01/${moStr}/${yrStr} To ${String(lastDay).padStart(2, '0')}/${moStr}/${yrStr}`;
+      const dueDateStr = `15/${moStr}/${yrStr}`;
+
+      const billSeq = String(item.id).slice(-5).padStart(5, '0');
+      document.getElementById('rec-no').textContent = billSeq;
+      document.getElementById('rec-bill-date').textContent = billDateStr;
+      document.getElementById('rec-period').textContent = periodStr;
+      document.getElementById('rec-flat').textContent = 'B/' + String(item.flat).padStart(3, '0');
+      document.getElementById('rec-due-date').textContent = dueDateStr;
+      document.getElementById('rec-name').textContent = item.name || '';
+
+      const mem = state.members.find(x => x.id === item.memberId || x.flat === item.flat);
+      document.getElementById('rec-area').textContent = (mem && mem.billableArea) ? mem.billableArea : '';
+
+      const currAmt = Number(item.amount || 0);
+      const cb = (mem && mem.chargeBreakdown) ? mem.chargeBreakdown : {
+        service: 120, sinking: 78, repair: 234, festival: 80, federation: 15, na: 30,
+        buildingRepair: Math.max(0, (mem ? Number(mem.monthlyRate || currAmt) : currAmt) - 557)
+      };
+      const baseHeads = [
+        ['Service Charges', Number(cb.service || 0)],
+        ['Sinking Fund', Number(cb.sinking || 0)],
+        ['Repair Fund', Number(cb.repair || 0)],
+        ['Festival Fund', Number(cb.festival || 0)],
+        ['Federation Charges', Number(cb.federation || 0)],
+        ['N/A Charges', Number(cb.na || 0)],
+        ['Building Repair Fund', Number(cb.buildingRepair || 0)]
+      ];
+      const rows = baseHeads.filter(h => h[1] > 0).map(h => [h[0], h[1]]);
+      const extras = Array.isArray(item.extraCharges) ? item.extraCharges : [];
+      extras.forEach(ex => rows.push([ex.label || 'Additional Charge', Number(ex.amount || 0)]));
+      const rowSum = rows.reduce((acc, r) => acc + r[1], 0);
+      const diff = currAmt - rowSum;
+      if (Math.abs(diff) > 0.01) {
+        rows.push(['Other / Adjustment', diff]);
+      }
+
+      document.getElementById('rec-particulars-body').innerHTML = rows.map((r, idx) => `
+        <tr>
+          <td class="py-1 px-2 text-center border-r border-slate-800">${idx + 1}</td>
+          <td class="py-1 px-2.5 border-r border-slate-800">${escapeHtml(r[0])}</td>
+          <td class="py-1 px-2.5 text-right tabular-nums">${Number(r[1]).toFixed(2)}</td>
+        </tr>
+      `).join('');
+
+      const oldOut = Number(item.prevBalance || 0);
+      const paidAmt = Number(item.paidAmount || 0);
+      const totalPay = item.totalPayable != null ? Number(item.totalPayable) : (currAmt + oldOut);
+      const netBalance = item.balance != null ? Number(item.balance) : (totalPay - paidAmt);
+      const advanceCr = paidAmt > totalPay ? (paidAmt - totalPay) : 0;
+
+      document.getElementById('rec-curr-charges').textContent = currAmt.toFixed(2);
+      document.getElementById('rec-old-out').textContent = oldOut.toFixed(2);
+      document.getElementById('rec-advance').textContent = advanceCr > 0 ? `${advanceCr.toFixed(2)} CR` : '0.00';
+
+      const finalVal = item.status === 'भरलेले' ? (advanceCr > 0 ? advanceCr : paidAmt) : netBalance;
+      document.getElementById('rec-amount').textContent = advanceCr > 0
+        ? `${advanceCr.toFixed(2)} CR`
+        : `${Math.max(0, finalVal).toFixed(2)}`;
+
+      document.getElementById('rec-amount-words').textContent =
+        `Rupees ${numberToEnglishWords(finalVal)} Only`;
+
+      const payRowEl = document.getElementById('rec-payment-row');
+      if (item.status === 'भरलेले' && paidAmt > 0) {
+        payRowEl.innerHTML = `
+          <span>R-${billSeq}</span>
+          <span>${escapeHtml(item.paidDate || '—')}</span>
+          <span>${escapeHtml(item.paymentMode || 'Online')}</span>
+          <span class="text-right font-semibold">${paidAmt.toFixed(2)}</span>
+        `;
+      } else {
+        payRowEl.innerHTML = `<span class="col-span-4 text-slate-400 italic">Unpaid / Pending</span>`;
+      }
+
       openModal('modal-receipt');
     }
 
@@ -8343,6 +8774,45 @@
       document.getElementById('tx-filter-type').addEventListener('change', renderAccounting);
       document.getElementById('dash-filter-month').addEventListener('change', renderDashboard);
       document.getElementById('acc-filter-month').addEventListener('change', renderAccounting);
+      document.getElementById('pnl-fy-select').addEventListener('change', renderAnnualPnL);
+      document.getElementById('btn-print-pnl').addEventListener('click', () => {
+        const fy = document.getElementById('pnl-fy-select').value;
+        const area = document.getElementById('pnl-print-area');
+        if (!area) return;
+        const w = window.open('', '_blank', 'width=900,height=700');
+        if (!w) { window.print(); return; }
+        w.document.write(`<!DOCTYPE html><html lang="mr"><head><meta charset="UTF-8"><title>P&L Account ${fy}</title>
+          <style>
+            body{font-family:Arial,sans-serif;padding:24px;color:#0f172a;}
+            h1{text-align:center;margin:0;font-size:16px;text-transform:uppercase;}
+            p.sub{text-align:center;margin:4px 0 16px;font-size:12px;color:#334155;}
+            .grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+            table{width:100%;border-collapse:collapse;font-size:13px;}
+            th,td{border:1px solid #cbd5e1;padding:8px 10px;}
+            .hdr{background:#f1f5f9;font-weight:bold;}
+            .net{margin-top:16px;padding:12px;border:1px solid #0f766e;font-weight:bold;display:flex;justify-content:space-between;}
+            .sig{margin-top:44px;text-align:right;font-size:12px;font-weight:bold;}
+            .no-print{display:none!important;}
+          </style></head><body>
+          <h1>SHIV SAI SANKUL 'B' WING CO-OP. HSG. SOCIETY LTD.</h1>
+          <p class="sub">Regd. No. TNA/VSI/HSG/(TC)/26019/2014 | Annual Income &amp; Expenditure (P&amp;L) Account — FY ${fy}</p>
+          <div class="grid">
+            <div><table>
+              <tr class="hdr"><td>Expenditure (खर्च)</td><td style="text-align:right">कॅश</td><td style="text-align:right">बँक</td><td style="text-align:right">${document.getElementById('pnl-total-exp').textContent}</td></tr>
+              ${document.getElementById('pnl-exp-body').innerHTML}
+            </table><p style="font-size:12px;font-weight:bold;margin-top:6px;">${document.getElementById('pnl-exp-split').innerText}</p></div>
+            <div><table>
+              <tr class="hdr"><td>Income (उत्पन्न)</td><td style="text-align:right">कॅश</td><td style="text-align:right">बँक</td><td style="text-align:right">${document.getElementById('pnl-total-inc').textContent}</td></tr>
+              ${document.getElementById('pnl-inc-body').innerHTML}
+            </table><p style="font-size:12px;font-weight:bold;margin-top:6px;">${document.getElementById('pnl-inc-split').innerText}</p></div>
+          </div>
+          <div class="net">${document.getElementById('pnl-net-banner').innerHTML}</div>
+          <div class="sig">For SHIV SAI SANKUL 'B' WING CO-OP. HSG. SOCIETY LTD.<br><br><br>Hon. Secretary / Treasurer</div>
+          </body></html>`);
+        w.document.close();
+        w.focus();
+        setTimeout(() => w.print(), 250);
+      });
       document.getElementById('tx-filter-mode').addEventListener('change', renderAccounting);
       document.getElementById('maint-filter-mode').addEventListener('change', renderMaintenance);
       document.getElementById('tx-search').addEventListener('input', renderAccounting);
@@ -8382,10 +8852,160 @@
       });
 
       // Member Modal (Admin only)
+      function setMemberChargeInputs(cb, fallbackRate) {
+        const def = cb || {
+          service: 120, sinking: 78, repair: 234, festival: 80, federation: 15, na: 30,
+          buildingRepair: Math.max(0, (Number(fallbackRate) || 1557) - 557)
+        };
+        document.getElementById('chg-service').value = def.service ?? 120;
+        document.getElementById('chg-sinking').value = def.sinking ?? 78;
+        document.getElementById('chg-repair').value = def.repair ?? 234;
+        document.getElementById('chg-festival').value = def.festival ?? 80;
+        document.getElementById('chg-federation').value = def.federation ?? 15;
+        document.getElementById('chg-na').value = def.na ?? 30;
+        document.getElementById('chg-building').value = def.buildingRepair ?? 1000;
+      }
+
+      document.querySelectorAll('.mem-charge-input').forEach(inp => {
+        inp.addEventListener('input', () => {
+          const sum = ['chg-service','chg-sinking','chg-repair','chg-festival','chg-federation','chg-na','chg-building']
+            .reduce((acc, id) => acc + (Number(document.getElementById(id).value) || 0), 0);
+          document.getElementById('member-rate').value = Math.round(sum * 100) / 100;
+        });
+      });
+
+      // Clear All Maintenance Data (Admin only)
+      document.getElementById('btn-clear-all-maint').addEventListener('click', () => {
+        if (!isAdmin()) return;
+        askConfirm('सर्व देखभाल डेटा डिलीट करायचा?', 'सर्व फ्लॅट्सची सर्व महिन्यांची देखभाल शुल्क बिले आणि संबंधित देखभाल जमा नोंदी कायमच्या काढून टाकल्या जातील. त्यानंतर तुम्ही मॅन्युअली नवीन बिले टाकू शकता.', () => {
+          state.maintenance = [];
+          state.transactions = state.transactions.filter(t => t.category !== 'देखभाल शुल्क');
+          saveState();
+          renderAll();
+          showToast('सर्व देखभाल शुल्क डेटा डिलीट केला!');
+        });
+      });
+
+      // Add Manual Maintenance Bill (Admin only)
+      document.getElementById('btn-add-manual-maint').addEventListener('click', () => {
+        if (!isAdmin()) return;
+        const fSel = document.getElementById('man-maint-flat');
+        fSel.innerHTML = state.members.map(m => `<option value="${escapeHtml(m.flat)}">फ्लॅट ${escapeHtml(m.flat)} — ${escapeHtml(m.name)}</option>`).join('');
+        const firstMem = state.members[0];
+        document.getElementById('man-maint-month').value = getCurrentMarathiMonth();
+        document.getElementById('man-maint-prev').value = 0;
+        document.getElementById('man-maint-amt').value = firstMem ? (firstMem.monthlyRate || 1557) : 1557;
+        document.getElementById('man-maint-paid').value = 0;
+        document.getElementById('man-maint-date').value = new Date().toISOString().slice(0, 10);
+        openModal('modal-manual-maint');
+      });
+
+      document.getElementById('man-maint-flat').addEventListener('change', (e) => {
+        const mem = state.members.find(m => m.flat === e.target.value);
+        if (mem) document.getElementById('man-maint-amt').value = mem.monthlyRate || 1557;
+      });
+
+      document.getElementById('form-manual-maint').addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (!isAdmin()) return;
+        const flat = document.getElementById('man-maint-flat').value;
+        const mem = state.members.find(m => m.flat === flat);
+        const month = document.getElementById('man-maint-month').value.trim();
+        const prevBalance = Number(document.getElementById('man-maint-prev').value) || 0;
+        const amount = Number(document.getElementById('man-maint-amt').value) || 0;
+        const paidAmount = Number(document.getElementById('man-maint-paid').value) || 0;
+        const paymentMode = document.getElementById('man-maint-mode').value;
+        const paidDate = paidAmount > 0 ? (document.getElementById('man-maint-date').value || new Date().toISOString().slice(0, 10)) : '';
+        const totalPayable = prevBalance + amount;
+        const balance = Math.max(0, totalPayable - paidAmount);
+        const status = balance === 0 && paidAmount > 0 ? 'भरलेले' : 'थकीत';
+
+        state.maintenance.unshift({
+          id: Date.now(),
+          memberId: mem ? mem.id : null,
+          flat,
+          name: mem ? mem.name : '',
+          month,
+          prevBalance,
+          amount,
+          totalPayable,
+          paidAmount,
+          balance,
+          status,
+          paymentMode: paidAmount > 0 ? paymentMode : '',
+          paidDate
+        });
+
+        if (paidAmount > 0) {
+          state.transactions.push({
+            id: Date.now() + 1,
+            date: paidDate,
+            type: 'जमा',
+            mode: paymentMode,
+            category: 'देखभाल शुल्क',
+            desc: `${flat} (${mem ? mem.name : ''}) - ${month}`,
+            amount: paidAmount
+          });
+        }
+
+        saveState();
+        closeModal('modal-manual-maint');
+        renderAll();
+        showToast(`फ्लॅट ${flat} चे ${month} चे मॅन्युअल बिल जोडले!`);
+      });
+
+      // Extra Charge Modal (Admin only)
+      document.getElementById('btn-open-extra-charge').addEventListener('click', () => {
+        if (!isAdmin()) return;
+        const mSel = document.getElementById('extra-month');
+        const months = [...new Set(state.maintenance.map(m => m.month))];
+        if (!months.length) months.push(getCurrentMarathiMonth());
+        mSel.innerHTML = months.map(mo => `<option value="${escapeHtml(mo)}">${escapeHtml(mo)}</option>`).join('');
+        const currF = document.getElementById('maint-filter-month').value;
+        if (currF && currF !== 'all' && months.includes(currF)) mSel.value = currF;
+
+        const fSel = document.getElementById('extra-flat');
+        fSel.innerHTML = '<option value="ALL">सर्व फ्लॅट्स (All Flats)</option>' +
+          state.members.map(m => `<option value="${escapeHtml(m.flat)}">फ्लॅट ${escapeHtml(m.flat)} — ${escapeHtml(m.name)}</option>`).join('');
+        document.getElementById('extra-label').value = '';
+        document.getElementById('extra-amount').value = '';
+        openModal('modal-extra-charge');
+      });
+
+      document.getElementById('form-extra-charge').addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (!isAdmin()) return;
+        const mo = document.getElementById('extra-month').value;
+        const fl = document.getElementById('extra-flat').value;
+        const label = document.getElementById('extra-label').value.trim();
+        const amt = Number(document.getElementById('extra-amount').value) || 0;
+        if (!label || amt === 0) return;
+
+        let count = 0;
+        state.maintenance.forEach(item => {
+          if (item.month === mo && (fl === 'ALL' || item.flat === fl)) {
+            if (!Array.isArray(item.extraCharges)) item.extraCharges = [];
+            item.extraCharges.push({ label, amount: amt });
+            item.amount = Number(item.amount || 0) + amt;
+            item.totalPayable = Number(item.amount) + Number(item.prevBalance || 0);
+            item.balance = Math.max(0, item.totalPayable - Number(item.paidAmount || 0));
+            if (item.balance > 0) item.status = 'थकीत';
+            count++;
+          }
+        });
+        saveState();
+        closeModal('modal-extra-charge');
+        renderAll();
+        showToast(count ? `${count} बिलांमध्ये "${label}" (₹${amt}) जोडले!` : 'निवडलेल्या महिन्याचे बिल आढळले नाही.');
+      });
+
       document.getElementById('btn-open-member-modal').addEventListener('click', () => {
         if (!isAdmin()) return;
         document.getElementById('form-member').reset();
         document.getElementById('member-id').value = '';
+        document.getElementById('member-area').value = '';
+        setMemberChargeInputs(null, 1557);
+        document.getElementById('member-rate').value = 1557;
         document.getElementById('modal-member-title').textContent = 'नवीन सभासद जोडा';
         openModal('modal-member');
       });
@@ -8398,16 +9018,41 @@
         const name = document.getElementById('member-name').value.trim();
         const phone = document.getElementById('member-phone').value.trim();
         const vehicle = document.getElementById('member-vehicle').value.trim() || 'नाही';
-        const monthlyRate = Number(document.getElementById('member-rate').value) || 1616;
+        const monthlyRate = Number(document.getElementById('member-rate').value) || 1557;
+        const billableArea = document.getElementById('member-area').value.trim();
+        const chargeBreakdown = {
+          service: Number(document.getElementById('chg-service').value) || 0,
+          sinking: Number(document.getElementById('chg-sinking').value) || 0,
+          repair: Number(document.getElementById('chg-repair').value) || 0,
+          festival: Number(document.getElementById('chg-festival').value) || 0,
+          federation: Number(document.getElementById('chg-federation').value) || 0,
+          na: Number(document.getElementById('chg-na').value) || 0,
+          buildingRepair: Number(document.getElementById('chg-building').value) || 0
+        };
 
         if (idVal) {
           const idx = state.members.findIndex(m => m.id === Number(idVal));
           if (idx !== -1) {
-            state.members[idx] = { id: Number(idVal), flat, name, phone, vehicle, monthlyRate };
-            showToast('सभासदाची माहिती अद्ययावत केली!');
+            const oldFlat = state.members[idx].flat;
+            state.members[idx] = { ...state.members[idx], id: Number(idVal), flat, name, phone, vehicle, monthlyRate, billableArea, chargeBreakdown };
+            // Auto-sync owner (Tenants) and name (Maintenance) across records
+            state.tenants.forEach(t => {
+              if (t.flat === oldFlat || t.flat === flat) {
+                t.flat = flat;
+                t.owner = name;
+              }
+            });
+            state.maintenance.forEach(m => {
+              if (m.memberId === Number(idVal) || m.flat === oldFlat || m.flat === flat) {
+                m.flat = flat;
+                m.name = name;
+              }
+            });
+            populateMemberLoginDropdown();
+            showToast('सभासद, भाडेकरू व देखभाल शुल्कातील नाव अद्ययावत केले!');
           }
         } else {
-          state.members.push({ id: Date.now(), flat, name, phone, vehicle, monthlyRate });
+          state.members.push({ id: Date.now(), flat, name, phone, vehicle, monthlyRate, billableArea, chargeBreakdown });
           showToast('नवीन सभासद यशस्वीरित्या जोडला!');
         }
         saveState();
@@ -8657,7 +9302,9 @@
             document.getElementById('member-name').value = m.name;
             document.getElementById('member-phone').value = m.phone;
             document.getElementById('member-vehicle').value = m.vehicle;
-            document.getElementById('member-rate').value = m.monthlyRate || 1616;
+            document.getElementById('member-rate').value = m.monthlyRate || 1557;
+            document.getElementById('member-area').value = m.billableArea || '';
+            setMemberChargeInputs(m.chargeBreakdown, m.monthlyRate || 1557);
             document.getElementById('modal-member-title').textContent = 'सभासद माहिती संपादित करा';
             openModal('modal-member');
           }
