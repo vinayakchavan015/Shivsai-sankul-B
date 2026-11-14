@@ -515,8 +515,8 @@
             <button id="btn-add-manual-maint" type="button" class="admin-only hidden bg-teal-700 hover:bg-teal-800 text-white px-3.5 py-2 rounded-xl text-sm font-semibold transition items-center gap-1.5">
               + मॅन्युअल बिल जोडा
             </button>
-            <button id="btn-clear-all-maint" type="button" class="admin-only hidden bg-rose-600 hover:bg-rose-700 text-white px-3.5 py-2 rounded-xl text-sm font-semibold transition items-center gap-1.5">
-              सर्व देखभाल डेटा डिलीट करा
+            <button id="btn-apply-interest" type="button" class="admin-only hidden bg-rose-700 hover:bg-rose-800 text-white px-3.5 py-2 rounded-xl text-sm font-semibold transition items-center gap-1.5">
+              % थकीत व्याज लावा
             </button>
           </div>
         </div>
@@ -586,6 +586,7 @@
         <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80">
           <p class="text-xs font-medium text-slate-500">एकूण खर्च (Expense)</p>
           <p id="acc-total-expense" class="text-xl font-bold text-rose-600 mt-1">₹0</p>
+          <p id="acc-expense-split" class="text-[11px] font-semibold text-slate-500 mt-1">कॅश: ₹0 | बँक: ₹0</p>
         </div>
         <div class="admin-only bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80">
           <p class="text-xs font-medium text-slate-500">ऑनलाइन शिल्लक (Online)</p>
@@ -615,6 +616,9 @@
               <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
               नवीन व्यवहार नोंदवा
             </button>
+            <button id="btn-print-ledger" type="button" class="bg-slate-800 hover:bg-slate-900 text-white px-4 py-2 rounded-xl text-sm font-semibold transition inline-flex items-center gap-1.5">
+              मासिक लेजर PDF / प्रिंट
+            </button>
           </div>
         </div>
 
@@ -633,6 +637,7 @@
           <input id="tx-search" type="text" placeholder="तपशील किंवा श्रेणी शोधा..." class="flex-1 px-3.5 py-2 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500" />
         </div>
 
+        <div id="tx-ledger-summary" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-4"></div>
         <div class="overflow-x-auto">
           <table class="w-full text-left border-collapse">
             <thead>
@@ -1026,6 +1031,10 @@
           <input id="pay-maint-amount" type="number" min="0" step="0.01" required class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-teal-500 outline-none" />
         </div>
         <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">भरणा दिनांक (Payment Date) *</label>
+          <input id="pay-maint-date" type="date" required class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-teal-500 outline-none" />
+        </div>
+        <div>
           <label class="block text-xs font-semibold text-slate-700 mb-1">पेमेंट माध्यम निवडा *</label>
           <select id="pay-maint-mode" class="w-full px-3 py-2.5 rounded-xl border border-slate-300 text-sm bg-white focus:ring-2 focus:ring-teal-500 outline-none">
             <option value="ऑनलाइन">ऑनलाइन (UPI / बँक ट्रान्सफर)</option>
@@ -1099,8 +1108,8 @@
             <div class="sm:col-span-6 p-2.5 space-y-1 text-[11px]">
               <div class="flex justify-between"><span>Current Charges:</span><span id="rec-curr-charges" class="font-medium tabular-nums"></span></div>
               <div class="flex justify-between"><span>Old Outstanding:</span><span id="rec-old-out" class="font-medium tabular-nums"></span></div>
-              <div class="flex justify-between"><span>Old Int. Amt:</span><span class="font-medium tabular-nums">0.00</span></div>
-              <div class="flex justify-between"><span>Interest on Late Payment:</span><span class="font-medium tabular-nums">0.00</span></div>
+              <div class="flex justify-between"><span>Old Int. Amt:</span><span id="rec-old-int" class="font-medium tabular-nums">0.00</span></div>
+              <div class="flex justify-between"><span>Interest on Late Payment:</span><span id="rec-late-int" class="font-medium tabular-nums">0.00</span></div>
               <div class="flex justify-between"><span>Advance:</span><span id="rec-advance" class="font-medium tabular-nums"></span></div>
               <div class="flex justify-between border-t border-slate-300 pt-1 font-bold text-slate-900"><span>Total Payable:</span><span id="rec-amount" class="tabular-nums"></span></div>
             </div>
@@ -1350,6 +1359,46 @@
         <div class="flex justify-end gap-2 pt-3">
           <button type="button" data-close="modal-complaint" class="close-modal-btn px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100">रद्द करा</button>
           <button type="submit" class="px-4 py-2 rounded-xl text-sm font-semibold bg-amber-500 hover:bg-amber-600 text-slate-950">तक्रार नोंदवा</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: Apply Interest on Pending Maintenance -->
+  <div id="modal-apply-interest" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs hidden items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-bold text-slate-900">थकीत मेंटेनन्सवर व्याज लावा (Interest)</h3>
+        <button data-close="modal-apply-interest" class="close-modal-btn text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+      </div>
+      <form id="form-apply-interest" class="space-y-3.5">
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">महिना निवडा *</label>
+          <select id="int-month" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm bg-white focus:ring-2 focus:ring-rose-500 outline-none"></select>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">फ्लॅट निवडा *</label>
+          <select id="int-flat" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm bg-white focus:ring-2 focus:ring-rose-500 outline-none"></select>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">वार्षिक व्याज दर (% P.A.) *</label>
+            <input id="int-rate" type="number" step="0.1" min="0" required value="21" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-rose-500 outline-none" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">कशावर लावायचे?</label>
+            <select id="int-base" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm bg-white focus:ring-2 focus:ring-rose-500 outline-none">
+              <option value="balance">एकूण थकीत बाकी (Balance)</option>
+              <option value="prevBalance">फक्त मागील बाकी (Old Out.)</option>
+            </select>
+          </div>
+        </div>
+        <p class="text-[11px] text-slate-500 bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+          टीप: वार्षिक २१% दराने १ महिन्याचे व्याज = थकीत रकमेच्या <strong>१.७५%</strong> (२१% ÷ १२) आपोआप मोजले जाईल व बिलात <em>Interest on Late Payment</em> मध्ये दिसेल.
+        </p>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" data-close="modal-apply-interest" class="close-modal-btn px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100">रद्द करा</button>
+          <button type="submit" class="px-4 py-2 rounded-xl text-sm font-semibold bg-rose-700 hover:bg-rose-800 text-white">व्याज लागू करा</button>
         </div>
       </form>
     </div>
@@ -8173,6 +8222,8 @@
 
       document.getElementById('acc-total-income').textContent = formatINR(totalIncome);
       document.getElementById('acc-total-expense').textContent = formatINR(totalExpense);
+      const expSplitEl = document.getElementById('acc-expense-split');
+      if (expSplitEl) expSplitEl.textContent = `कॅश: ${formatINR(cashExp)} | बँक: ${formatINR(onlineExp)}`;
       document.getElementById('acc-online-balance').textContent = formatINR(onlineInc - onlineExp);
       document.getElementById('acc-cash-balance').textContent = formatINR(cashInc - cashExp);
       document.getElementById('acc-net-balance').textContent = formatINR(totalIncome - totalExpense);
@@ -8218,7 +8269,59 @@
           </tr>
         `).join('')
         : `<tr><td colspan="${isAdmin() ? 7 : 6}" class="py-6 text-center text-slate-500">कोणतेही व्यवहार आढळले नाहीत.</td></tr>`;
+      renderMonthlyLedgerSummary(selYM, baseTx);
       renderAnnualPnL();
+    }
+
+    function renderMonthlyLedgerSummary(selYM, baseTx) {
+      const sumEl = document.getElementById('tx-ledger-summary');
+      if (!sumEl) return;
+      let openingCash = 0, openingBank = 0;
+      let monthIncCash = 0, monthIncBank = 0;
+      let monthExpCash = 0, monthExpBank = 0;
+      baseTx.forEach(t => {
+        const amt = Number(t.amount || 0);
+        const ym = (t.date || '').slice(0, 7);
+        const isCash = (t.mode || '').trim() === 'कॅश';
+        const signed = t.type === 'जमा' ? amt : -amt;
+        if (selYM !== 'all' && ym && ym < selYM) {
+          if (isCash) openingCash += signed; else openingBank += signed;
+        } else if (selYM === 'all' || ym === selYM) {
+          if (t.type === 'जमा') {
+            if (isCash) monthIncCash += amt; else monthIncBank += amt;
+          } else {
+            if (isCash) monthExpCash += amt; else monthExpBank += amt;
+          }
+        }
+      });
+      const opening = openingCash + openingBank;
+      const monthInc = monthIncCash + monthIncBank;
+      const monthExp = monthExpCash + monthExpBank;
+      const closingCash = openingCash + monthIncCash - monthExpCash;
+      const closingBank = openingBank + monthIncBank - monthExpBank;
+      const closing = closingCash + closingBank;
+      sumEl.innerHTML = `
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-3">
+          <p class="text-[11px] font-semibold text-slate-500">मागील शिल्लक (Opening)</p>
+          <p class="text-sm font-bold text-slate-800 mt-0.5 tabular-nums">${formatINR(opening)}</p>
+          <p class="text-[10px] font-medium text-slate-600 mt-0.5">कॅश: ${formatINR(openingCash)} | बँक: ${formatINR(openingBank)}</p>
+        </div>
+        <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-3">
+          <p class="text-[11px] font-semibold text-emerald-700">महिन्याची जमा (Credit)</p>
+          <p class="text-sm font-bold text-emerald-800 mt-0.5 tabular-nums">${formatINR(monthInc)}</p>
+          <p class="text-[10px] font-medium text-emerald-700 mt-0.5">कॅश: ${formatINR(monthIncCash)} | बँक: ${formatINR(monthIncBank)}</p>
+        </div>
+        <div class="bg-rose-50 border border-rose-200 rounded-xl p-3">
+          <p class="text-[11px] font-semibold text-rose-700">महिन्याचा खर्च (Debit)</p>
+          <p class="text-sm font-bold text-rose-800 mt-0.5 tabular-nums">${formatINR(monthExp)}</p>
+          <p class="text-[10px] font-medium text-rose-700 mt-0.5">कॅश: ${formatINR(monthExpCash)} | बँक: ${formatINR(monthExpBank)}</p>
+        </div>
+        <div class="bg-teal-50 border border-teal-200 rounded-xl p-3">
+          <p class="text-[11px] font-semibold text-teal-700">आजची / अखेरची शिल्लक (Closing)</p>
+          <p class="text-sm font-bold text-teal-900 mt-0.5 tabular-nums">${formatINR(closing)}</p>
+          <p class="text-[10px] font-medium text-teal-800 mt-0.5">कॅश: ${formatINR(closingCash)} | बँक: ${formatINR(closingBank)}</p>
+        </div>
+      `;
     }
 
     function getFinancialYear(dateStr) {
@@ -8443,20 +8546,32 @@
       document.getElementById('pay-maint-amount').value = item.status === 'भरलेले' ? Number(item.paidAmount || payable) : payable;
       const modeSel = document.getElementById('pay-maint-mode');
       if (modeSel && item.paymentMode) modeSel.value = item.paymentMode;
+      const dateInp = document.getElementById('pay-maint-date');
+      if (dateInp) {
+        let iso = new Date().toISOString().slice(0, 10);
+        if (item.paidDate && /^\d{4}-\d{2}-\d{2}$/.test(item.paidDate)) {
+          iso = item.paidDate;
+        } else if (item.paidDate && /^\d{1,2}\/\d{1,2}\/\d{2,4}$/.test(item.paidDate)) {
+          const [dd, mm, yy] = item.paidDate.split('/');
+          const yyyy = yy.length === 2 ? '20' + yy : yy;
+          iso = `${yyyy}-${mm.padStart(2, '0')}-${dd.padStart(2, '0')}`;
+        }
+        dateInp.value = iso;
+      }
       openModal('modal-pay-maint');
     }
 
-    function markMaintenancePaid(id, mode, customPaid) {
+    function markMaintenancePaid(id, mode, customPaid, customDate) {
       if (!isAdmin()) return;
       const item = state.maintenance.find(m => m.id === id);
       if (!item) return;
-      const today = new Date().toISOString().slice(0, 10);
+      const useDate = customDate || new Date().toISOString().slice(0, 10);
       const payable = Number(item.totalPayable != null ? item.totalPayable : item.amount);
       const paidNow = customPaid != null ? Number(customPaid) : payable;
       const remaining = Math.max(0, payable - paidNow);
 
       item.paymentMode = mode || 'ऑनलाइन';
-      item.paidDate = paidNow > 0 ? today : '';
+      item.paidDate = paidNow > 0 ? useDate : '';
       item.paidAmount = paidNow;
       item.balance = remaining;
       item.status = remaining === 0 && paidNow > 0 ? 'भरलेले' : 'थकीत';
@@ -8465,13 +8580,13 @@
       const existingTx = state.transactions.find(t => t.category === 'देखभाल शुल्क' && t.desc === txDesc);
       if (paidNow > 0) {
         if (existingTx) {
-          existingTx.date = today;
+          existingTx.date = useDate;
           existingTx.mode = item.paymentMode;
           existingTx.amount = paidNow;
         } else {
           state.transactions.push({
             id: Date.now(),
-            date: today,
+            date: useDate,
             type: 'जमा',
             mode: item.paymentMode,
             category: 'देखभाल शुल्क',
@@ -8563,8 +8678,14 @@
       `).join('');
 
       const oldOut = Number(item.prevBalance || 0);
+      const oldInt = Number(item.oldInterest || 0);
+      const lateInt = Number(item.lateInterest || 0);
       const paidAmt = Number(item.paidAmount || 0);
-      const totalPay = item.totalPayable != null ? Number(item.totalPayable) : (currAmt + oldOut);
+      const totalPay = item.totalPayable != null ? Number(item.totalPayable) : (currAmt + oldOut + oldInt + lateInt);
+      const oldIntEl = document.getElementById('rec-old-int');
+      const lateIntEl = document.getElementById('rec-late-int');
+      if (oldIntEl) oldIntEl.textContent = oldInt.toFixed(2);
+      if (lateIntEl) lateIntEl.textContent = lateInt.toFixed(2);
       const netBalance = item.balance != null ? Number(item.balance) : (totalPay - paidAmt);
       const advanceCr = paidAmt > totalPay ? (paidAmt - totalPay) : 0;
 
@@ -8775,6 +8896,84 @@
       document.getElementById('dash-filter-month').addEventListener('change', renderDashboard);
       document.getElementById('acc-filter-month').addEventListener('change', renderAccounting);
       document.getElementById('pnl-fy-select').addEventListener('change', renderAnnualPnL);
+            document.getElementById('btn-print-ledger').addEventListener('click', () => {
+        const selYM = document.getElementById('acc-filter-month').value;
+        const monthLabel = selYM === 'all' ? 'सर्व महिने (एकूण लेजर)' : formatYYYYMMToMarathi(selYM);
+        const baseTx = (!isAdmin() && loggedInFlat)
+          ? state.transactions.filter(t => t.type === 'खर्च' || (t.desc || '').startsWith(loggedInFlat + ' ') || (t.desc || '').startsWith(loggedInFlat + '('))
+          : state.transactions;
+
+        let openingCash = 0, openingBank = 0;
+        const monthRows = [];
+        baseTx.slice().sort((a, b) => (a.date || '').localeCompare(b.date || '')).forEach(t => {
+          const amt = Number(t.amount || 0);
+          const ym = (t.date || '').slice(0, 7);
+          const isCash = (t.mode || '').trim() === 'कॅश';
+          const signed = t.type === 'जमा' ? amt : -amt;
+          if (selYM !== 'all' && ym && ym < selYM) {
+            if (isCash) openingCash += signed; else openingBank += signed;
+          } else if (selYM === 'all' || ym === selYM) {
+            monthRows.push(t);
+          }
+        });
+        const opening = openingCash + openingBank;
+
+        let running = opening;
+        let totCr = 0, totDr = 0, crCash = 0, crBank = 0, drCash = 0, drBank = 0;
+        const rowsHtml = monthRows.map(t => {
+          const amt = Number(t.amount || 0);
+          const isCr = t.type === 'जमा';
+          const isCash = (t.mode || '').trim() === 'कॅश';
+          if (isCr) { totCr += amt; running += amt; if (isCash) crCash += amt; else crBank += amt; }
+          else { totDr += amt; running -= amt; if (isCash) drCash += amt; else drBank += amt; }
+          return `<tr>
+            <td>${escapeHtml(t.date || '—')}</td>
+            <td>${escapeHtml(t.desc || '')}</td>
+            <td>${escapeHtml(t.category || '')}</td>
+            <td>${escapeHtml(t.mode || 'ऑनलाइन')}</td>
+            <td style="text-align:right;color:#047857;">${isCr ? formatINR(amt) : '—'}</td>
+            <td style="text-align:right;color:#be123c;">${!isCr ? formatINR(amt) : '—'}</td>
+            <td style="text-align:right;font-weight:bold;">${formatINR(running)}</td>
+          </tr>`;
+        }).join('') || '<tr><td colspan="7" style="text-align:center;padding:16px;color:#64748b;">या महिन्यात व्यवहार नाहीत.</td></tr>';
+
+        const w = window.open('', '_blank', 'width=960,height=720');
+        if (!w) { window.print(); return; }
+        w.document.write(`<!DOCTYPE html><html lang="mr"><head><meta charset="UTF-8"><title>Monthly Ledger - ${monthLabel}</title>
+          <style>
+            body{font-family:Arial,sans-serif;padding:24px;color:#0f172a;font-size:12px;}
+            h1{text-align:center;margin:0;font-size:16px;text-transform:uppercase;}
+            p.sub{text-align:center;margin:4px 0 14px;font-size:12px;color:#334155;}
+            .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;}
+            .card{border:1px solid #cbd5e1;padding:8px 10px;border-radius:6px;}
+            table{width:100%;border-collapse:collapse;}
+            th,td{border:1px solid #cbd5e1;padding:6px 8px;text-align:left;}
+            th{background:#f1f5f9;}
+            .sig{margin-top:40px;text-align:right;font-weight:bold;}
+          </style></head><body>
+          <h1>SHIV SAI SANKUL 'B' WING CO-OP. HSG. SOCIETY LTD.</h1>
+          <p class="sub">Regd. No. TNA/VSI/HSG/(TC)/26019/2014 | मासिक लेजर (Monthly Ledger) — ${escapeHtml(monthLabel)}</p>
+          <div class="cards">
+            <div class="card"><div>मागील शिल्लक (Opening)</div><strong>${formatINR(opening)}</strong><div style="font-size:10px;color:#475569;">कॅश: ${formatINR(openingCash)} | बँक: ${formatINR(openingBank)}</div></div>
+            <div class="card"><div>एकूण जमा (Credit)</div><strong>${formatINR(totCr)}</strong><div style="font-size:10px;color:#475569;">कॅश: ${formatINR(crCash)} | बँक: ${formatINR(crBank)}</div></div>
+            <div class="card"><div>एकूण खर्च (Debit)</div><strong>${formatINR(totDr)}</strong><div style="font-size:10px;color:#475569;">कॅश: ${formatINR(drCash)} | बँक: ${formatINR(drBank)}</div></div>
+            <div class="card"><div>आजची / अखेरची शिल्लक</div><strong>${formatINR(running)}</strong><div style="font-size:10px;color:#475569;">कॅश: ${formatINR(openingCash + crCash - drCash)} | बँक: ${formatINR(openingBank + crBank - drBank)}</div></div>
+          </div>
+          <table>
+            <thead><tr><th>दिनांक</th><th>तपशील</th><th>श्रेणी</th><th>माध्यम</th><th style="text-align:right">जमा (Credit)</th><th style="text-align:right">खर्च (Debit)</th><th style="text-align:right">शिल्लक (Balance)</th></tr></thead>
+            <tbody>
+              <tr style="background:#f8fafc;font-weight:bold;"><td colspan="6">मागील शिल्लक पुढे आणली (Opening Balance B/F)</td><td style="text-align:right">${formatINR(opening)}</td></tr>
+              ${rowsHtml}
+              <tr style="background:#f1f5f9;font-weight:bold;"><td colspan="4">एकूण व अखेरची शिल्लक (Closing Balance C/F)</td><td style="text-align:right">${formatINR(totCr)}</td><td style="text-align:right">${formatINR(totDr)}</td><td style="text-align:right">${formatINR(running)}</td></tr>
+            </tbody>
+          </table>
+          <div class="sig">For SHIV SAI SANKUL 'B' WING CO-OP. HSG. SOCIETY LTD.<br><br><br>Hon. Secretary / Treasurer</div>
+          </body></html>`);
+        w.document.close();
+        w.focus();
+        setTimeout(() => w.print(), 250);
+      });
+
       document.getElementById('btn-print-pnl').addEventListener('click', () => {
         const fy = document.getElementById('pnl-fy-select').value;
         const area = document.getElementById('pnl-print-area');
@@ -8874,16 +9073,50 @@
         });
       });
 
-      // Clear All Maintenance Data (Admin only)
-      document.getElementById('btn-clear-all-maint').addEventListener('click', () => {
+      // Apply Interest on Pending Maintenance (Admin only)
+      document.getElementById('btn-apply-interest').addEventListener('click', () => {
         if (!isAdmin()) return;
-        askConfirm('सर्व देखभाल डेटा डिलीट करायचा?', 'सर्व फ्लॅट्सची सर्व महिन्यांची देखभाल शुल्क बिले आणि संबंधित देखभाल जमा नोंदी कायमच्या काढून टाकल्या जातील. त्यानंतर तुम्ही मॅन्युअली नवीन बिले टाकू शकता.', () => {
-          state.maintenance = [];
-          state.transactions = state.transactions.filter(t => t.category !== 'देखभाल शुल्क');
-          saveState();
-          renderAll();
-          showToast('सर्व देखभाल शुल्क डेटा डिलीट केला!');
+        const mSel = document.getElementById('int-month');
+        const months = [...new Set(state.maintenance.map(m => m.month))];
+        if (!months.length) months.push(getCurrentMarathiMonth());
+        mSel.innerHTML = months.map(mo => `<option value="${escapeHtml(mo)}">${escapeHtml(mo)}</option>`).join('');
+        const currF = document.getElementById('maint-filter-month').value;
+        if (currF && currF !== 'all' && months.includes(currF)) mSel.value = currF;
+
+        const fSel = document.getElementById('int-flat');
+        fSel.innerHTML = '<option value="ALL">सर्व थकीत फ्लॅट्स (All Pending)</option>' +
+          state.members.map(m => `<option value="${escapeHtml(m.flat)}">फ्लॅट ${escapeHtml(m.flat)} — ${escapeHtml(m.name)}</option>`).join('');
+        openModal('modal-apply-interest');
+      });
+
+      document.getElementById('form-apply-interest').addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (!isAdmin()) return;
+        const mo = document.getElementById('int-month').value;
+        const fl = document.getElementById('int-flat').value;
+        const annualRate = Number(document.getElementById('int-rate').value) || 0;
+        const baseType = document.getElementById('int-base').value;
+        if (annualRate <= 0) return;
+
+        let count = 0;
+        state.maintenance.forEach(item => {
+          if (item.month === mo && item.status === 'थकीत' && (fl === 'ALL' || item.flat === fl)) {
+            const baseAmt = baseType === 'prevBalance'
+              ? Number(item.prevBalance || 0)
+              : Number(item.balance != null ? item.balance : ((item.totalPayable || item.amount) - (item.paidAmount || 0)));
+            if (baseAmt > 0) {
+              const interestAmt = Math.round((baseAmt * (annualRate / 100) / 12) * 100) / 100;
+              item.lateInterest = Number(item.lateInterest || 0) + interestAmt;
+              item.totalPayable = Number(item.amount || 0) + Number(item.prevBalance || 0) + Number(item.oldInterest || 0) + item.lateInterest;
+              item.balance = Math.max(0, Math.round((item.totalPayable - Number(item.paidAmount || 0)) * 100) / 100);
+              count++;
+            }
+          }
         });
+        saveState();
+        closeModal('modal-apply-interest');
+        renderAll();
+        showToast(count ? `${count} थकीत बिलांवर ${annualRate}% वार्षिक दराने व्याज लावले!` : 'व्याज लावण्यासाठी थकीत बिल आढळले नाही.');
       });
 
       // Add Manual Maintenance Bill (Admin only)
@@ -9248,8 +9481,9 @@
         const id = Number(document.getElementById('pay-maint-id').value);
         const mode = document.getElementById('pay-maint-mode').value;
         const amt = Number(document.getElementById('pay-maint-amount').value);
+        const dt = document.getElementById('pay-maint-date').value;
         closeModal('modal-pay-maint');
-        markMaintenancePaid(id, mode, amt);
+        markMaintenancePaid(id, mode, amt, dt);
       });
 
       // Transaction Modal (Admin only)
