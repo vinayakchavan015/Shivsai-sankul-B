@@ -469,6 +469,8 @@
                 <th class="py-3 px-3">मालकाचे नाव</th>
                 <th class="py-3 px-3">मोबाइल क्र.</th>
                 <th class="py-3 px-3">वाहन / पार्किंग</th>
+                <th class="py-3 px-3">शेअर सर्टिफिकेट</th>
+                <th class="py-3 px-3">वारसदार (Nominee)</th>
                 <th class="py-3 px-3">मासिक शुल्क</th>
                 <th class="py-3 px-3 text-right rounded-tr-lg admin-col hidden">कृती</th>
               </tr>
@@ -869,7 +871,49 @@
             <div class="col-span-2 sm:col-span-3"><label class="text-[11px] text-slate-600">Building Repair Fund</label><input id="chg-building" type="number" step="0.01" value="1000" class="mem-charge-input w-full px-2 py-1.5 rounded-lg border border-slate-300 bg-white" /></div>
           </div>
         </div>
-        <div class="flex justify-end gap-2 pt-3">
+                <div class="p-3 rounded-xl bg-amber-50/70 border border-amber-200 space-y-2.5">
+          <p class="text-xs font-bold text-amber-900">शेअर सर्टिफिकेट व वारसदार (Nominee) तपशील</p>
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">सर्टिफिकेट क्र. (Cert No.)</label>
+              <input id="mem-cert-no" type="text" placeholder="उदा. 06" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs bg-white" />
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">रजिस्टर क्र. (Reg No.)</label>
+              <input id="mem-reg-no" type="text" placeholder="उदा. 6" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs bg-white" />
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">शेअर संख्या (Shares)</label>
+              <input id="mem-share-count" type="text" value="TEN" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs bg-white" />
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">शेअर क्र. पासून (From)</label>
+              <input id="mem-share-from" type="text" placeholder="उदा. 051" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs bg-white" />
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">शेअर क्र. पर्यंत (To)</label>
+              <input id="mem-share-to" type="text" placeholder="उदा. 060" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs bg-white" />
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">सर्टिफिकेट दिनांक</label>
+              <input id="mem-cert-date" type="date" value="2014-07-02" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs bg-white" />
+            </div>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1 border-t border-amber-200/70">
+            <div class="sm:col-span-2">
+              <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">वारसदाराचे नाव (Nominee Name)</label>
+              <input id="mem-nominee-name" type="text" placeholder="वारसदाराचे पूर्ण नाव" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs bg-white" />
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-600 mb-0.5">नाते व हिस्सा (%)</label>
+              <div class="flex gap-1">
+                <input id="mem-nominee-rel" type="text" placeholder="नाते" class="w-2/3 px-2 py-1.5 rounded-lg border border-slate-300 text-xs bg-white" />
+                <input id="mem-nominee-pct" type="text" value="100%" class="w-1/3 px-1.5 py-1.5 rounded-lg border border-slate-300 text-xs bg-white text-center" />
+              </div>
+            </div>
+          </div>
+        </div>
+<div class="flex justify-end gap-2 pt-3">
           <button type="button" data-close="modal-member" class="close-modal-btn px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100">रद्द करा</button>
           <button type="submit" class="px-4 py-2 rounded-xl text-sm font-semibold bg-teal-700 hover:bg-teal-800 text-white">जतन करा</button>
         </div>
@@ -8271,6 +8315,15 @@
             <td class="py-3 px-3 font-medium text-slate-900">${escapeHtml(m.name)}</td>
             <td class="py-3 px-3 text-slate-600">${m.phone ? `<a href="tel:${escapeHtml(m.phone)}" class="text-teal-700 font-medium hover:underline">${escapeHtml(m.phone)}</a>` : '<span class="text-xs text-slate-400">अपडेट बाकी</span>'}</td>
             <td class="py-3 px-3 text-slate-600">${escapeHtml(m.vehicle || 'नाही')}</td>
+            <td class="py-3 px-3 text-xs">
+              <div class="font-bold text-amber-800">क्र. ${escapeHtml(m.certNo || String(parseInt(m.flat, 10) || m.flat).padStart(2,'0'))}</div>
+              <div class="text-[11px] text-slate-500 mb-1">शेअर्स: ${escapeHtml(m.shareFrom || String(((parseInt(m.flat,10)||1)-1)*10+1).padStart(3,'0'))} ते ${escapeHtml(m.shareTo || String((parseInt(m.flat,10)||1)*10).padStart(3,'0'))}</div>
+              <button data-id="${m.id}" class="view-cert-btn text-[11px] bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 px-2 py-0.5 rounded-md font-semibold">📜 सर्टिफिकेट पहा</button>
+            </td>
+            <td class="py-3 px-3 text-xs">
+              <span class="font-semibold text-slate-800">${escapeHtml(m.nomineeName || '—')}</span>
+              ${m.nomineeRelation ? `<div class="text-[11px] text-slate-500">${escapeHtml(m.nomineeRelation)} (${escapeHtml(m.nomineeSharePct || '100%')})</div>` : ''}
+            </td>
             <td class="py-3 px-3 font-semibold text-teal-800">${formatINR(m.monthlyRate || 1616)}</td>
             ${isAdmin() ? `
               <td class="py-3 px-3 text-right space-x-2 whitespace-nowrap">
@@ -9394,7 +9447,21 @@
             <tbody>${rowsHtml}</tbody>
           </table>
           <div class="sig">For SHIV SAI SANKUL 'B' WING CO-OP. HSG. SOCIETY LTD.<br><br><br>Hon. Secretary / Treasurer</div>
-          </body></html>`);
+          
+  <!-- MODAL: SHARE CERTIFICATE VIEW & PRINT -->
+  <div id="modal-share-cert" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs hidden items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-2xl max-w-4xl w-full p-5 shadow-2xl max-h-[92vh] flex flex-col">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-base font-bold text-slate-900">शेअर सर्टिफिकेट (Share Certificate &amp; Nominee)</h3>
+        <div class="flex items-center gap-2">
+          <button id="btn-print-share-cert" type="button" class="px-4 py-1.5 rounded-xl text-xs font-semibold bg-teal-700 hover:bg-teal-800 text-white">PDF / प्रिंट करा</button>
+          <button data-close="modal-share-cert" class="close-modal-btn text-slate-400 hover:text-slate-600 text-2xl font-bold px-2">&times;</button>
+        </div>
+      </div>
+      <div id="share-cert-preview" class="overflow-y-auto p-2 bg-slate-100 rounded-xl"></div>
+    </div>
+  </div>
+</body></html>`);
         w.document.close();
         w.focus();
         setTimeout(() => w.print(), 250);
@@ -10176,7 +10243,77 @@
 
       document.getElementById('btn-open-member-modal').addEventListener('click', () => {
         if (!isAdmin()) return;
-        document.getElementById('form-member').reset();
+        function buildShareCertificateHTML(m) {
+        const fNum = parseInt(m.flat, 10) || 1;
+        const certNo = m.certNo || String(fNum).padStart(2, '0');
+        const regNo = m.regNo || String(fNum);
+        const shareCount = m.shareCount || 'TEN';
+        const shareFrom = m.shareFrom || String((fNum - 1) * 10 + 1).padStart(3, '0');
+        const shareTo = m.shareTo || String(fNum * 10).padStart(3, '0');
+        const flatPadded = String(m.flat).padStart(3, '0');
+        const dtIso = normalizeToISO(m.certDate || '2014-07-02') || '2014-07-02';
+        const [yr, mo, dy] = dtIso.split('-');
+        const EN_MONTHS = ['JANUARY','FEBRUARY','MARCH','APRIL','MAY','JUNE','JULY','AUGUST','SEPTEMBER','OCTOBER','NOVEMBER','DECEMBER'];
+        const moName = EN_MONTHS[parseInt(mo, 10) - 1] || 'JULY';
+        const nomName = m.nomineeName || '—';
+        const nomRel = m.nomineeRelation || '—';
+        const nomPct = m.nomineeSharePct || '100%';
+        return `
+          <div style="border:6px double #0f766e; padding:18px; background:#fffdf7; color:#1e293b; font-family:Georgia, serif; max-width:780px; margin:0 auto;">
+            <div style="border:2px solid #0f766e; padding:18px;">
+              <div style="display:flex; justify-content:space-between; font-size:13px; font-weight:700; color:#b91c1c; margin-bottom:10px;">
+                <span>Share Certificate No. <u style="color:#0f172a">${escapeHtml(certNo)}</u></span>
+                <span>Member's Register No. <u style="color:#0f172a">${escapeHtml(regNo)}</u></span>
+                <span>No. of Shares <u style="color:#0f172a">${escapeHtml(shareCount)}</u></span>
+              </div>
+              <div style="text-align:center; margin:10px 0 14px;">
+                <span style="display:inline-block; border:2px solid #b91c1c; color:#b91c1c; padding:5px 28px; font-size:22px; font-weight:700; letter-spacing:1px; background:#fff5f5;">Share Certificate</span>
+              </div>
+              <p style="text-align:center; font-weight:700; font-size:15px; margin:4px 0;">SHIV SAI SANKUL "B" WING Co-operative Housing Society Ltd.</p>
+              <p style="text-align:center; font-size:12px; font-weight:600; margin:2px 0;">S. NO. 226, H. NO. 4 (PART), MANVELPADA ROAD, SANT NAGAR, VIRAR (E).</p>
+              <p style="text-align:center; font-size:11px; color:#475569; margin:4px 0;">(Registered under the Maharashtra Co-operative Societies Act, 1960)</p>
+              <p style="text-align:center; font-size:12px; font-weight:700; color:#b91c1c; margin:6px 0 14px;">
+                Registration No. <u style="color:#0f172a">TNA/VSI/HSG/(TC)/26019/2014</u> &nbsp;&nbsp; Date <u style="color:#0f172a">10/01/2014</u>
+              </p>
+              <div style="font-size:13.5px; line-height:1.9;">
+                <p>This is to certify that Shri / Smt. / M/s. <strong style="border-bottom:1px solid #334155; padding:0 8px;">${escapeHtml(m.name)}</strong></p>
+                <p><strong>FLAT NO.: ${escapeHtml(flatPadded)}</strong> is the Registered Holder of <strong style="border-bottom:1px solid #334155; padding:0 8px;">${escapeHtml(shareCount)}</strong> fully paid up share of <strong>Rs. FIFTY</strong> each numbered from <strong style="border-bottom:1px solid #334155; padding:0 8px;">${escapeHtml(shareFrom)}</strong> to <strong style="border-bottom:1px solid #334155; padding:0 8px;">${escapeHtml(shareTo)}</strong> both inclusive, in <strong>SHIV SAI SANKUL "B" WING Co-operative Housing Society Ltd., VIRAR (E)</strong> Subject to Bye-laws of the Said Society.</p>
+                <p style="margin-top:8px;">Given under the Common Seal of the Said Society at <strong>VIRAR (EAST)</strong> on this <strong style="border-bottom:1px solid #334155; padding:0 6px;">${escapeHtml(dy)}</strong> day of <strong style="border-bottom:1px solid #334155; padding:0 6px;">${moName}</strong> <strong style="border-bottom:1px solid #334155; padding:0 6px;">${escapeHtml(yr)}</strong>.</p>
+              </div>
+              <div style="margin-top:16px; padding:10px 12px; border:1px dashed #b45309; background:#fffbeb; font-size:12px;">
+                <strong style="color:#92400e;">NOMINEE DETAILS (वारसदार नोंद):</strong>
+                Nominee Name: <strong>${escapeHtml(nomName)}</strong> &nbsp;|&nbsp;
+                Relation: <strong>${escapeHtml(nomRel)}</strong> &nbsp;|&nbsp;
+                Share: <strong>${escapeHtml(nomPct)}</strong>
+              </div>
+              <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:34px; font-size:12px; font-weight:700; color:#b91c1c; text-align:center;">
+                <div style="width:90px; height:90px; border:2px dashed #1e3a8a; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:9px; color:#1e3a8a; padding:6px;">COMMON SEAL<br/>SHIV SAI SANKUL "B" WING</div>
+                <div><div style="border-top:1px solid #334155; width:130px; margin-bottom:4px;"></div>Authorised M. C. Member</div>
+                <div><div style="border-top:1px solid #334155; width:110px; margin-bottom:4px;"></div>Secretary</div>
+                <div><div style="border-top:1px solid #334155; width:110px; margin-bottom:4px;"></div>Chairman</div>
+              </div>
+            </div>
+          </div>`;
+      }
+
+      document.getElementById('members-table-body').addEventListener('click', (e) => {
+        const btn = e.target.closest('.view-cert-btn');
+        if (!btn) return;
+        const m = state.members.find(x => x.id === Number(btn.dataset.id));
+        if (!m) return;
+        document.getElementById('share-cert-preview').innerHTML = buildShareCertificateHTML(m);
+        openModal('modal-share-cert');
+      });
+
+      document.getElementById('btn-print-share-cert').addEventListener('click', () => {
+        const html = document.getElementById('share-cert-preview').innerHTML;
+        const w = window.open('', '_blank', 'width=900,height=700');
+        if (!w) { window.print(); return; }
+        w.document.write(`<!DOCTYPE html><html><head><meta charset="utf-8"><title>Share Certificate</title></head><body style="margin:20px;background:#fff;">${html}<script>window.onload=function(){window.print();}<\/script></body></html>`);
+        w.document.close();
+      });
+
+      document.getElementById('form-member').reset();
         document.getElementById('member-id').value = '';
         document.getElementById('member-area').value = '';
         setMemberChargeInputs(null, 1557);
@@ -10210,7 +10347,16 @@
           const idx = state.members.findIndex(m => m.id === Number(idVal));
           if (idx !== -1) {
             const oldFlat = state.members[idx].flat;
-            state.members[idx] = { ...state.members[idx], id: Number(idVal), flat, name, phone, vehicle, monthlyRate, pin, billableArea, chargeBreakdown };
+            const certNo = document.getElementById('mem-cert-no').value.trim();
+          const regNo = document.getElementById('mem-reg-no').value.trim();
+          const shareCount = document.getElementById('mem-share-count').value.trim() || 'TEN';
+          const shareFrom = document.getElementById('mem-share-from').value.trim();
+          const shareTo = document.getElementById('mem-share-to').value.trim();
+          const certDate = document.getElementById('mem-cert-date').value.trim() || '2014-07-02';
+          const nomineeName = document.getElementById('mem-nominee-name').value.trim();
+          const nomineeRelation = document.getElementById('mem-nominee-rel').value.trim();
+          const nomineeSharePct = document.getElementById('mem-nominee-pct').value.trim() || '100%';
+          state.members[idx] = { ...state.members[idx], id: Number(idVal), flat, name, phone, vehicle, monthlyRate, pin, billableArea, chargeBreakdown, certNo, regNo, shareCount, shareFrom, shareTo, certDate, nomineeName, nomineeRelation, nomineeSharePct };
             // Auto-sync owner (Tenants) and name (Maintenance) across records
             state.tenants.forEach(t => {
               if (t.flat === oldFlat || t.flat === flat) {
@@ -10228,7 +10374,16 @@
             showToast('सभासद, भाडेकरू व देखभाल शुल्कातील नाव अद्ययावत केले!');
           }
         } else {
-          state.members.push({ id: Date.now(), flat, name, phone, vehicle, monthlyRate, pin, billableArea, chargeBreakdown });
+          const certNo = document.getElementById('mem-cert-no').value.trim();
+          const regNo = document.getElementById('mem-reg-no').value.trim();
+          const shareCount = document.getElementById('mem-share-count').value.trim() || 'TEN';
+          const shareFrom = document.getElementById('mem-share-from').value.trim();
+          const shareTo = document.getElementById('mem-share-to').value.trim();
+          const certDate = document.getElementById('mem-cert-date').value.trim() || '2014-07-02';
+          const nomineeName = document.getElementById('mem-nominee-name').value.trim();
+          const nomineeRelation = document.getElementById('mem-nominee-rel').value.trim();
+          const nomineeSharePct = document.getElementById('mem-nominee-pct').value.trim() || '100%';
+          state.members.push({ id: Date.now(), flat, name, phone, vehicle, monthlyRate, pin, billableArea, chargeBreakdown, certNo, regNo, shareCount, shareFrom, shareTo, certDate, nomineeName, nomineeRelation, nomineeSharePct });
           showToast('नवीन सभासद यशस्वीरित्या जोडला!');
         }
         saveState();
@@ -10492,6 +10647,16 @@
             document.getElementById('member-vehicle').value = m.vehicle;
             document.getElementById('member-rate').value = m.monthlyRate || 1557;
             document.getElementById('member-pin').value = m.pin || '';
+        const fNum = parseInt(m.flat, 10) || 1;
+        document.getElementById('mem-cert-no').value = m.certNo || String(fNum).padStart(2, '0');
+        document.getElementById('mem-reg-no').value = m.regNo || String(fNum);
+        document.getElementById('mem-share-count').value = m.shareCount || 'TEN';
+        document.getElementById('mem-share-from').value = m.shareFrom || String((fNum - 1) * 10 + 1).padStart(3, '0');
+        document.getElementById('mem-share-to').value = m.shareTo || String(fNum * 10).padStart(3, '0');
+        document.getElementById('mem-cert-date').value = normalizeToISO(m.certDate || '2014-07-02') || '2014-07-02';
+        document.getElementById('mem-nominee-name').value = m.nomineeName || '';
+        document.getElementById('mem-nominee-rel').value = m.nomineeRelation || '';
+        document.getElementById('mem-nominee-pct').value = m.nomineeSharePct || '100%';
             document.getElementById('member-area').value = m.billableArea || '';
             setMemberChargeInputs(m.chargeBreakdown, m.monthlyRate || 1557);
             document.getElementById('modal-member-title').textContent = 'सभासद माहिती संपादित करा';
