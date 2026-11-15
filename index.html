@@ -1086,9 +1086,13 @@
       <form id="form-pay-maint" class="space-y-4">
         <input type="hidden" id="pay-maint-id" />
         <div id="pay-maint-info" class="text-xs font-semibold text-teal-900 bg-teal-50 p-3 rounded-xl"></div>
+        <label class="flex items-center gap-2 text-xs font-semibold text-indigo-800 bg-indigo-50 px-3 py-2 rounded-xl cursor-pointer">
+          <input id="pay-maint-append" type="checkbox" class="rounded border-indigo-300 text-indigo-700 focus:ring-indigo-500" />
+          <span>हा अतिरिक्त हप्ता म्हणून जोडा (कॅश + ऑनलाईन एकत्र ठेवण्यासाठी)</span>
+        </label>
         <div>
           <label class="block text-xs font-semibold text-slate-700 mb-1">भरलेली रक्कम (₹) *</label>
-          <input id="pay-maint-amount" type="number" min="0" step="0.01" required class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-teal-500 outline-none" />
+          <input id="pay-maint-amount" type="number" step="0.01" required class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-teal-500 outline-none" />
         </div>
         <div>
           <label class="block text-xs font-semibold text-slate-700 mb-1">भरणा दिनांक (Payment Date) *</label>
@@ -8354,7 +8358,15 @@
         const payAmt = Number(m.totalPayable != null ? m.totalPayable : m.amount) || 0;
         const paid = Number(m.paidAmount != null ? m.paidAmount : (m.status === 'भरलेले' ? payAmt : 0)) || 0;
         const bal = m.balance != null ? Number(m.balance) : (payAmt - paid);
-        if (paid > 0) {
+        if (Array.isArray(m.payments) && m.payments.length) {
+          m.payments.forEach(p => {
+            const pa = Number(p.amount || 0);
+            if (pa > 0) {
+              if ((p.mode || 'ऑनलाइन') === 'कॅश') cashSum += pa;
+              else onlineSum += pa;
+            }
+          });
+        } else if (paid > 0) {
           if ((m.paymentMode || 'ऑनलाइन') === 'कॅश') cashSum += paid;
           else onlineSum += paid;
         }
@@ -8835,16 +8847,21 @@
       // Remove stale auto-synced maintenance transactions that no longer match a paid bill, and upsert all paid bills into their exact bill month
       const validDescs = new Set();
       state.maintenance.forEach(item => {
-        const paid = Number(item.paidAmount || 0);
-        const desc = `${item.flat} (${item.name}) - ${item.month}`;
         const ym = marathiMonthToYYYYMM(item.month) || new Date().toISOString().slice(0, 7);
-        const isoDt = normalizeToISO(item.paidDate) || `${ym}-01`;
-        if (paid > 0) {
+        const baseDesc = `${item.flat} (${item.name}) - ${item.month}`;
+        const parts = (Array.isArray(item.payments) && item.payments.length)
+          ? item.payments
+          : (Number(item.paidAmount || 0) > 0 ? [{ amount: Number(item.paidAmount), mode: item.paymentMode || 'ऑनलाइन', date: item.paidDate }] : []);
+        parts.forEach((p, idx) => {
+          const amt = Number(p.amount || 0);
+          if (amt <= 0) return;
+          const desc = parts.length > 1 ? `${baseDesc} [हप्ता ${idx + 1}]` : baseDesc;
+          const isoDt = normalizeToISO(p.date) || `${ym}-01`;
           validDescs.add(desc);
           const existing = state.transactions.find(t => t.category === 'देखभाल शुल्क' && t.desc === desc);
           if (existing) {
-            existing.amount = paid;
-            existing.mode = item.paymentMode || 'ऑनलाइन';
+            existing.amount = amt;
+            existing.mode = p.mode || 'ऑनलाइन';
             existing.date = isoDt;
             existing.maintMonthYM = ym;
           } else {
@@ -8855,11 +8872,11 @@
               type: 'जमा',
               category: 'देखभाल शुल्क',
               desc,
-              mode: item.paymentMode || 'ऑनलाइन',
-              amount: paid
+              mode: p.mode || 'ऑनलाइन',
+              amount: amt
             });
           }
-        }
+        });
       });
       // Remove any 'देखभाल शुल्क' auto-entry whose paidAmount is now 0 or deleted
       state.transactions = state.transactions.filter(t => {
@@ -8926,6 +8943,7 @@
       document.getElementById('pay-maint-amount').value = item.status === 'भरलेले' ? Number(item.paidAmount || payable) : payable;
       const modeSel = document.getElementById('pay-maint-mode');
       if (modeSel && item.paymentMode) modeSel.value = item.paymentMode;
+      const appChk = document.getElementById('pay-maint-append'); if (appChk) appChk.checked = false;
       const dateInp = document.getElementById('pay-maint-date');
       if (dateInp) {
         let iso = new Date().toISOString().slice(0, 10);
@@ -8941,16 +8959,28 @@
       openModal('modal-pay-maint');
     }
 
-    function markMaintenancePaid(id, mode, customPaid, customDate) {
+    function markMaintenancePaid(id, mode, customPaid, customDate, appendMode = false) {
       if (!isAdmin()) return;
       const item = state.maintenance.find(m => m.id === id);
       if (!item) return;
       const useDate = customDate || new Date().toISOString().slice(0, 10);
       const payable = Number(item.totalPayable != null ? item.totalPayable : item.amount);
-      const paidNow = customPaid != null ? Number(customPaid) : payable;
+      const enteredAmt = customPaid != null ? Number(customPaid) : payable;
+      const useMode = mode || 'ऑनलाइन';
+      if (appendMode && enteredAmt !== 0) {
+        if (!Array.isArray(item.payments) || !item.payments.length) {
+          const prevPaid = Number(item.paidAmount || 0);
+          item.payments = prevPaid > 0 ? [{ amount: prevPaid, mode: item.paymentMode || 'ऑनलाइन', date: item.paidDate || useDate }] : [];
+        }
+        item.payments.push({ amount: enteredAmt, mode: useMode, date: useDate });
+      } else {
+        item.payments = enteredAmt !== 0 ? [{ amount: enteredAmt, mode: useMode, date: useDate }] : [];
+      }
+      const paidNow = Math.round(item.payments.reduce((acc, p) => acc + Number(p.amount || 0), 0) * 100) / 100;
       const remaining = Math.round((payable - paidNow) * 100) / 100;
+      const uniqueModes = [...new Set(item.payments.map(p => p.mode))];
 
-      item.paymentMode = mode || 'ऑनलाइन';
+      item.paymentMode = uniqueModes.length > 1 ? uniqueModes.join(' + ') : (uniqueModes[0] || useMode);
       item.paidDate = paidNow > 0 ? useDate : '';
       item.paidAmount = paidNow;
       item.balance = remaining;
@@ -10399,7 +10429,8 @@
         const amt = Number(document.getElementById('pay-maint-amount').value);
         const dt = document.getElementById('pay-maint-date').value;
         closeModal('modal-pay-maint');
-        markMaintenancePaid(id, mode, amt, dt);
+        const isAppend = Boolean(document.getElementById('pay-maint-append') && document.getElementById('pay-maint-append').checked);
+        markMaintenancePaid(id, mode, amt, dt, isAppend);
       });
 
       // Transaction Modal (Admin only)
