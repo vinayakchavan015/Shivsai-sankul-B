@@ -8305,7 +8305,7 @@
         m.flat.toLowerCase().includes(query) ||
         m.name.toLowerCase().includes(query) ||
         m.phone.toLowerCase().includes(query)
-      );
+      ).sort((a, b) => String(a.flat).localeCompare(String(b.flat), undefined, { numeric: true }));
 
       const tbody = document.getElementById('members-table-body');
       tbody.innerHTML = filtered.length
@@ -8445,7 +8445,7 @@
         const matchMode = modeFilter === 'all' || modeVal === modeFilter;
         const matchQuery = !query || m.flat.toLowerCase().includes(query) || m.name.toLowerCase().includes(query);
         return matchStatus && matchMode && matchQuery;
-      });
+      }).sort((a, b) => String(a.flat).localeCompare(String(b.flat), undefined, { numeric: true }) || (marathiMonthToYYYYMM(a.month) || '').localeCompare(marathiMonthToYYYYMM(b.month) || ''));
 
       const tbody = document.getElementById('maint-table-body');
       tbody.innerHTML = filtered.length
@@ -8894,6 +8894,7 @@
           cur.status = (cur.balance <= 0 && (paid > 0 || cur.totalPayable <= 0)) ? 'भरलेले' : 'थकीत';
         }
       });
+      state.maintenance.sort((a, b) => String(a.flat).localeCompare(String(b.flat), undefined, { numeric: true }) || (marathiMonthToYYYYMM(a.month) || '').localeCompare(marathiMonthToYYYYMM(b.month) || ''));
     }
 
     function syncMaintToTransactions() {
