@@ -452,10 +452,13 @@
             <h2 class="text-lg font-bold text-slate-900">सभासद नोंदवही (फ्लॅट मालक)</h2>
             <p class="text-xs text-slate-500">सोसायटीतील सर्व मूळ फ्लॅट धारकांची माहिती</p>
           </div>
-          <button id="btn-open-member-modal" type="button" class="admin-only hidden bg-teal-700 hover:bg-teal-800 text-white px-4 py-2 rounded-xl text-sm font-semibold transition items-center gap-2 self-start sm:self-auto">
+          <div class="flex flex-wrap items-center gap-2">
+            <button id="btn-top-view-cert" type="button" class="px-3.5 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs sm:text-sm font-semibold transition">📜 शेअर सर्टिफिकेट पहा</button>
+            <button id="btn-open-member-modal" type="button" class="admin-only hidden bg-teal-700 hover:bg-teal-800 text-white px-4 py-2 rounded-xl text-sm font-semibold transition items-center gap-2 self-start sm:self-auto">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
             नवीन सभासद जोडा
           </button>
+          </div>
         </div>
 
         <div class="flex flex-col sm:flex-row gap-3 mb-4">
@@ -9454,6 +9457,7 @@
     <div class="bg-white rounded-2xl max-w-5xl w-full p-5 shadow-2xl max-h-[92vh] flex flex-col">
       <div class="flex items-center justify-between mb-3">
         <h3 class="text-base font-bold text-slate-900">शेअर सर्टिफिकेट (Share Certificate &amp; Nominee)</h3>
+        <select id="cert-flat-select" class="px-2.5 py-1.5 rounded-lg border border-slate-300 text-xs font-semibold bg-white"></select>
         <div class="flex items-center gap-2">
           <button id="btn-download-share-cert" type="button" class="px-4 py-1.5 rounded-xl text-xs font-semibold bg-indigo-700 hover:bg-indigo-800 text-white">⬇️ PDF डाउनलोड करा</button>
           <button id="btn-print-share-cert" type="button" class="px-4 py-1.5 rounded-xl text-xs font-semibold bg-teal-700 hover:bg-teal-800 text-white">PDF / प्रिंट करा</button>
@@ -10386,20 +10390,46 @@
         }
       }
 
+      function openShareCertForMember(m) {
+        const list = (!isAdmin() && loggedInFlat)
+          ? state.members.filter(x => x.flat === loggedInFlat)
+          : [...state.members].sort((a, b) => String(a.flat).localeCompare(String(b.flat), undefined, { numeric: true }));
+        const sel = document.getElementById('cert-flat-select');
+        if (sel) {
+          sel.innerHTML = list.map(x => `<option value="${escapeHtml(x.id)}">फ्लॅट ${escapeHtml(x.flat)} — ${escapeHtml(x.name)}</option>`).join('');
+          if (m) sel.value = String(m.id);
+        }
+        const target = m || list[0];
+        if (!target) return;
+        currentCertMember = target;
+        document.getElementById('share-cert-preview').innerHTML = buildShareCertificateHTML(target);
+        openModal('modal-share-cert');
+      }
+
+      document.getElementById('btn-top-view-cert').addEventListener('click', () => {
+        openShareCertForMember(null);
+      });
+
+      document.getElementById('cert-flat-select').addEventListener('change', (e) => {
+        const m = state.members.find(x => String(x.id) === String(e.target.value));
+        if (m) {
+          currentCertMember = m;
+          document.getElementById('share-cert-preview').innerHTML = buildShareCertificateHTML(m);
+        }
+      });
+
       document.getElementById('members-table-body').addEventListener('click', (e) => {
         const dlBtn = e.target.closest('.dl-cert-btn');
         if (dlBtn) {
-          const m = state.members.find(x => x.id === Number(dlBtn.dataset.id));
+          const m = state.members.find(x => String(x.id) === String(dlBtn.dataset.id));
           downloadShareCertificatePDF(m);
           return;
         }
         const btn = e.target.closest('.view-cert-btn');
         if (!btn) return;
-        const m = state.members.find(x => x.id === Number(btn.dataset.id));
+        const m = state.members.find(x => String(x.id) === String(btn.dataset.id));
         if (!m) return;
-        currentCertMember = m;
-        document.getElementById('share-cert-preview').innerHTML = buildShareCertificateHTML(m);
-        openModal('modal-share-cert');
+        openShareCertForMember(m);
       });
 
       document.getElementById('btn-download-share-cert').addEventListener('click', () => {
