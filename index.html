@@ -1439,6 +1439,9 @@
           <button id="btn-audit-init-month" type="button" class="px-3 py-1.5 rounded-xl bg-teal-700 hover:bg-teal-800 text-white text-xs font-semibold transition">
             + या महिन्याचे सर्व फ्लॅट्स आणा
           </button>
+          <button id="btn-init-all-months" type="button" class="px-3 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-semibold transition">
+            + एप्रिल २०२६ पासून सर्व महिने तयार करा
+          </button>
           <button data-close="modal-maint-audit" class="close-modal-btn text-slate-400 hover:text-slate-600 text-2xl font-bold px-2">&times;</button>
         </div>
       </div>
@@ -1471,8 +1474,10 @@
         <p class="text-[11px] text-amber-700 font-medium">* पिवळ्या रंगातील ओळी म्हणजे सभासदाच्या मूळ मासिक दरापेक्षा वेगळी रक्कम किंवा प्रलंबित बाकी.</p>
         <div class="flex justify-end gap-2">
           <button type="button" data-close="modal-maint-audit" class="close-modal-btn px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100">बंद करा</button>
+          <button id="btn-zero-all-maint" type="button" class="px-3.5 py-2 rounded-xl text-xs font-semibold bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200">सर्व आकडे ० करा</button>
           <button id="btn-recalc-all" type="button" class="px-4 py-2 rounded-xl text-sm font-semibold bg-emerald-700 hover:bg-emerald-800 text-white">पुढील महिने आपोआप अपडेट करा</button>
           <button id="btn-save-audit" type="button" class="px-5 py-2 rounded-xl text-sm font-semibold bg-indigo-700 hover:bg-indigo-800 text-white">सर्व बदल सेव्ह करा</button>
+          <button id="btn-save-audit-next" type="button" class="px-4 py-2 rounded-xl text-sm font-semibold bg-teal-700 hover:bg-teal-800 text-white">सेव्ह करा आणि पुढचा →</button>
         </div>
       </div>
     </div>
@@ -7838,6 +7843,7 @@
           });
         });
         recalculateMaintenanceChain();
+        syncMaintToTransactions();
         saveState();
       }
     }
@@ -8090,9 +8096,23 @@
         : state.maintenance;
       const scopedMaint = selMonth === 'all' ? baseMaint : baseMaint.filter(m => m.month === selMonth);
       const paidMaint = scopedMaint.filter(m => m.status === 'भरलेले');
-      const pendingMaint = scopedMaint.filter(m => m.status === 'थकीत');
-      const collectedSum = paidMaint.reduce((s, m) => s + Number(m.totalPayable != null ? m.totalPayable : m.amount), 0);
-      const pendingSum = pendingMaint.reduce((s, m) => s + Number(m.balance != null ? m.balance : (m.totalPayable != null ? m.totalPayable : m.amount)), 0);
+      let pendingSource = scopedMaint;
+      if (selMonth === 'all') {
+        const latestByFlat = {};
+        baseMaint.forEach(m => {
+          const ym = marathiMonthToYYYYMM(m.month) || '0000-00';
+          if (!latestByFlat[m.flat] || ym >= (marathiMonthToYYYYMM(latestByFlat[m.flat].month) || '0000-00')) {
+            latestByFlat[m.flat] = m;
+          }
+        });
+        pendingSource = Object.values(latestByFlat);
+      }
+      const pendingMaint = pendingSource.filter(m => {
+        const b = Number(m.balance != null ? m.balance : (m.totalPayable != null ? m.totalPayable : m.amount)) || 0;
+        return b > 0;
+      });
+      const collectedSum = scopedMaint.reduce((s, m) => s + Number(m.paidAmount != null ? m.paidAmount : (m.status === 'भरलेले' ? (m.totalPayable != null ? m.totalPayable : m.amount) : 0)), 0);
+      const pendingSum = pendingMaint.reduce((s, m) => s + (Number(m.balance != null ? m.balance : (m.totalPayable != null ? m.totalPayable : m.amount)) || 0), 0);
 
       const selYM = marathiMonthToYYYYMM(selMonth);
       const scopedTx = (selYM && selYM !== 'all')
@@ -8133,8 +8153,13 @@
         : '<p class="text-sm text-slate-500">सध्या कोणतीही सूचना नाही.</p>';
 
       // Pending dues (visible to all members & admin)
-      const allPendingMaint = (selMonth === 'all' ? state.maintenance : state.maintenance.filter(m => m.month === selMonth))
-        .filter(m => m.status === 'थकीत')
+      let dashPendBase = selMonth === 'all' ? Object.values(state.maintenance.reduce((acc, m) => {
+        const ym = marathiMonthToYYYYMM(m.month) || '0000-00';
+        if (!acc[m.flat] || ym >= (marathiMonthToYYYYMM(acc[m.flat].month) || '0000-00')) acc[m.flat] = m;
+        return acc;
+      }, {})) : state.maintenance.filter(m => m.month === selMonth);
+      const allPendingMaint = dashPendBase
+        .filter(m => (Number(m.balance != null ? m.balance : (m.totalPayable != null ? m.totalPayable : m.amount)) || 0) > 0)
         .slice()
         .sort((a, b) => String(a.flat).localeCompare(String(b.flat), undefined, { numeric: true }) || (marathiMonthToYYYYMM(a.month) || '').localeCompare(marathiMonthToYYYYMM(b.month) || ''));
       const dashPending = document.getElementById('dash-pending-list');
@@ -8320,6 +8345,7 @@
         : state.maintenance;
       const monthFiltered = maintSource.filter(m => selectedMonth === 'all' || m.month === selectedMonth);
       let onlineSum = 0, cashSum = 0, pendSum = 0;
+      const latestMaintByFlat = {};
       monthFiltered.forEach(m => {
         const payAmt = Number(m.totalPayable != null ? m.totalPayable : m.amount) || 0;
         const paid = Number(m.paidAmount != null ? m.paidAmount : (m.status === 'भरलेले' ? payAmt : 0)) || 0;
@@ -8328,10 +8354,18 @@
           if ((m.paymentMode || 'ऑनलाइन') === 'कॅश') cashSum += paid;
           else onlineSum += paid;
         }
-        if (bal > 0) {
+        if (selectedMonth === 'all') {
+          const ym = marathiMonthToYYYYMM(m.month) || '0000-00';
+          if (!latestMaintByFlat[m.flat] || ym >= (marathiMonthToYYYYMM(latestMaintByFlat[m.flat].month) || '0000-00')) {
+            latestMaintByFlat[m.flat] = bal;
+          }
+        } else if (bal > 0) {
           pendSum += bal;
         }
       });
+      if (selectedMonth === 'all') {
+        Object.values(latestMaintByFlat).forEach(b => { if (b > 0) pendSum += b; });
+      }
       document.getElementById('maint-online-total').textContent = formatINR(onlineSum);
       document.getElementById('maint-cash-total').textContent = formatINR(cashSum);
       document.getElementById('maint-pending-total').textContent = formatINR(pendSum);
@@ -8428,7 +8462,7 @@
             return true;
           })
         : state.transactions;
-      const monthTx = selYM === 'all' ? baseTx : baseTx.filter(t => (t.date || '').startsWith(selYM));
+      const monthTx = selYM === 'all' ? baseTx : baseTx.filter(t => t.maintMonthYM ? t.maintMonthYM === selYM : (normalizeToISO(t.date) || '').startsWith(selYM));
 
       const totalIncome = monthTx.filter(t => t.type === 'जमा').reduce((s, t) => s + Number(t.amount), 0);
       const totalExpense = monthTx.filter(t => t.type === 'खर्च').reduce((s, t) => s + Number(t.amount), 0);
@@ -8793,6 +8827,43 @@
       });
     }
 
+    function syncMaintToTransactions() {
+      // Remove stale auto-synced maintenance transactions that no longer match a paid bill, and upsert all paid bills into their exact bill month
+      const validDescs = new Set();
+      state.maintenance.forEach(item => {
+        const paid = Number(item.paidAmount || 0);
+        const desc = `${item.flat} (${item.name}) - ${item.month}`;
+        const ym = marathiMonthToYYYYMM(item.month) || new Date().toISOString().slice(0, 7);
+        const isoDt = normalizeToISO(item.paidDate) || `${ym}-01`;
+        if (paid > 0) {
+          validDescs.add(desc);
+          const existing = state.transactions.find(t => t.category === 'देखभाल शुल्क' && t.desc === desc);
+          if (existing) {
+            existing.amount = paid;
+            existing.mode = item.paymentMode || 'ऑनलाइन';
+            existing.date = isoDt;
+            existing.maintMonthYM = ym;
+          } else {
+            state.transactions.push({
+              id: Date.now() + Math.floor(Math.random() * 1000000),
+              date: isoDt,
+              maintMonthYM: ym,
+              type: 'जमा',
+              category: 'देखभाल शुल्क',
+              desc,
+              mode: item.paymentMode || 'ऑनलाइन',
+              amount: paid
+            });
+          }
+        }
+      });
+      // Remove any 'देखभाल शुल्क' auto-entry whose paidAmount is now 0 or deleted
+      state.transactions = state.transactions.filter(t => {
+        if (t.category !== 'देखभाल शुल्क' || !t.maintMonthYM) return true;
+        return validDescs.has(t.desc);
+      });
+    }
+
     function renderWaterTaxInfo() {
       const wt = state.waterTax || {};
       const hist = Array.isArray(wt.history) ? wt.history : [];
@@ -8881,6 +8952,7 @@
       item.balance = remaining;
       item.status = (remaining <= 0 && (paidNow > 0 || payable <= 0)) ? 'भरलेले' : 'थकीत';
       recalculateMaintenanceChain(item.flat);
+      syncMaintToTransactions();
 
       const txDesc = `${item.flat} (${item.name}) - ${item.month}`;
       const existingTx = state.transactions.find(t => t.category === 'देखभाल शुल्क' && t.desc === txDesc);
@@ -9089,6 +9161,7 @@
           document.getElementById('login-screen').classList.add('hidden');
           document.getElementById('login-admin-pin').value = '';
           ensureCurrentMonthBills();
+      if (isAdmin()) syncMaintToTransactions();
           renderAll();
           showToast('ॲडमिन लॉगिन यशस्वी!');
         } catch (err) {
@@ -9573,7 +9646,7 @@
             <td class="py-1.5 px-2 text-right"><input type="number" step="0.01" class="audit-input audit-amt w-20 px-1.5 py-1 border border-slate-300 rounded text-right bg-white" value="${Number(m.amount || 0)}" /></td>
             <td class="py-1.5 px-2 text-right"><input type="number" step="0.01" class="audit-input audit-int w-16 px-1.5 py-1 border border-slate-300 rounded text-right bg-white" value="${totInt}" /></td>
             <td class="audit-total py-1.5 px-2 text-right font-semibold text-slate-800 whitespace-nowrap">${formatINR(payable)}</td>
-            <td class="py-1.5 px-2 text-right"><input type="number" step="0.01" class="audit-input audit-paid w-20 px-1.5 py-1 border border-slate-300 rounded text-right bg-white" value="${paid}" /></td>
+            <td class="py-1.5 px-2 text-right whitespace-nowrap"><div class="inline-flex items-center gap-1"><input type="number" step="0.01" class="audit-input audit-paid w-20 px-1.5 py-1 border border-slate-300 rounded text-right bg-white" value="${paid}" /><button type="button" title="पूर्ण रक्कम भरा" class="audit-full-btn px-1.5 py-1 rounded bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 text-[10px] font-bold">✓</button></div></td>
             <td class="py-1.5 px-2">
               <select class="audit-mode px-1.5 py-1 border border-slate-300 rounded bg-white">
                 <option value="ऑनलाइन" ${(m.paymentMode || 'ऑनलाइन') === 'ऑनलाइन' ? 'selected' : ''}>ऑनलाइन</option>
@@ -9676,6 +9749,77 @@
       document.getElementById('audit-filter-month').addEventListener('change', renderAuditTable);
       document.getElementById('audit-filter-flat').addEventListener('change', renderAuditTable);
 
+      document.getElementById('btn-init-all-months').addEventListener('click', () => {
+        if (!isAdmin()) return;
+        const months = getMonthsSinceApril2024Marathi();
+        const currYm = marathiMonthToYYYYMM(getCurrentMarathiMonth()) || '2026-11';
+        const targetMonths = months.filter(mo => {
+          const ym = marathiMonthToYYYYMM(mo);
+          return ym && ym <= currYm;
+        });
+        let added = 0;
+        targetMonths.forEach(mo => {
+          state.members.forEach(mem => {
+            if (!state.maintenance.some(m => m.month === mo && m.flat === mem.flat)) {
+              const amt = Number(mem.monthlyRate) || 1557;
+              state.maintenance.push({
+                id: Date.now() + Math.floor(Math.random() * 1000000),
+                memberId: mem.id,
+                flat: mem.flat,
+                name: mem.name,
+                month: mo,
+                prevBalance: 0,
+                amount: amt,
+                oldInterest: 0,
+                lateInterest: 0,
+                totalPayable: amt,
+                paidAmount: 0,
+                balance: amt,
+                status: 'थकीत',
+                paymentMode: '',
+                paidDate: ''
+              });
+              added++;
+            }
+          });
+        });
+        recalculateMaintenanceChain();
+        syncMaintToTransactions();
+        saveState();
+        renderAuditTable();
+        renderAll();
+        showToast(added > 0 ? `एप्रिल २०२६ पासून ${added} नवीन नोंदी तयार केल्या!` : 'सर्व महिने आणि सर्व फ्लॅट्स आधीच तयार आहेत.');
+      });
+
+      document.getElementById('audit-tbody').addEventListener('click', (e) => {
+        const btn = e.target.closest('.audit-full-btn');
+        if (!btn) return;
+        const tr = btn.closest('tr[data-audit-id]');
+        if (!tr) return;
+        const prev = Number(tr.querySelector('.audit-prev').value) || 0;
+        const amt = Number(tr.querySelector('.audit-amt').value) || 0;
+        const intr = Number(tr.querySelector('.audit-int').value) || 0;
+        const tot = Math.max(0, Math.round((prev + amt + intr) * 100) / 100);
+        const paidEl = tr.querySelector('.audit-paid');
+        if (paidEl) {
+          paidEl.value = Number(paidEl.value) === tot ? 0 : tot;
+          paidEl.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+      });
+
+      document.getElementById('btn-save-audit-next').addEventListener('click', () => {
+        if (!isAdmin()) return;
+        document.getElementById('btn-save-audit').click();
+        const fSel = document.getElementById('audit-filter-flat');
+        const mSel = document.getElementById('audit-filter-month');
+        if (fSel && fSel.value !== 'ALL' && fSel.selectedIndex < fSel.options.length - 1) {
+          fSel.selectedIndex += 1;
+        } else if (mSel && mSel.value !== 'ALL' && mSel.selectedIndex < mSel.options.length - 1) {
+          mSel.selectedIndex += 1;
+        }
+        renderAuditTable();
+      });
+
       document.getElementById('btn-audit-init-month').addEventListener('click', () => {
         if (!isAdmin()) return;
         const moVal = document.getElementById('audit-filter-month').value;
@@ -9707,6 +9851,7 @@
         });
         if (added > 0) {
           recalculateMaintenanceChain();
+          syncMaintToTransactions();
           saveState();
           renderAuditTable();
           renderAll();
@@ -9768,6 +9913,7 @@
           }
         });
         recalculateMaintenanceChain();
+        syncMaintToTransactions();
         saveState();
         if (anyMonthChanged) {
           const mSel = document.getElementById('audit-filter-month');
@@ -9778,9 +9924,32 @@
         showToast('सर्व बदल सेव्ह केले व पुढील महिने आपोआप अपडेट झाले!');
       });
 
+      document.getElementById('btn-zero-all-maint').addEventListener('click', () => {
+        if (!isAdmin()) return;
+        openConfirm('सर्व महिन्यांचे मागील बाकी, चालू शुल्क, व्याज व भरलेले आकडे ० (शून्य) करायचे का?', () => {
+          state.maintenance.forEach(m => {
+            m.prevBalance = 0;
+            m.amount = 0;
+            m.oldInterest = 0;
+            m.lateInterest = 0;
+            m.totalPayable = 0;
+            m.paidAmount = 0;
+            m.balance = 0;
+            m.status = 'भरलेले';
+            m.paidDate = '';
+          });
+          syncMaintToTransactions();
+          saveState();
+          renderAuditTable();
+          renderAll();
+          showToast('सर्व मेंटेनन्स आकडे ० केले आहेत!');
+        });
+      });
+
       document.getElementById('btn-recalc-all').addEventListener('click', () => {
         if (!isAdmin()) return;
         recalculateMaintenanceChain();
+        syncMaintToTransactions();
         saveState();
         renderAuditTable();
         renderAll();
@@ -9849,6 +10018,7 @@
           }
         });
         recalculateMaintenanceChain();
+        syncMaintToTransactions();
         saveState();
         closeModal('modal-apply-interest');
         renderAll();
@@ -10157,6 +10327,7 @@
           }
         });
         recalculateMaintenanceChain();
+        syncMaintToTransactions();
         saveState();
         closeModal('modal-bill');
         renderAll();
@@ -10184,6 +10355,7 @@
           item.balance = item.totalPayable;
         }
         recalculateMaintenanceChain();
+        syncMaintToTransactions();
         saveState();
         closeModal('modal-edit-maint');
         renderAll();
