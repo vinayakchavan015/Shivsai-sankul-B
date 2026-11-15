@@ -7876,7 +7876,8 @@
     function ensureCurrentMonthBills() {
       if (!isAdmin()) return;
       const currMonth = getCurrentMarathiMonth();
-      const existsAny = state.maintenance.some(x => x.month === currMonth);
+      const delKeys = Array.isArray(state.deletedMaintKeys) ? state.deletedMaintKeys : [];
+      const existsAny = state.maintenance.some(x => x.month === currMonth) || state.members.some(m => delKeys.includes(`${m.flat}__${currMonth}`));
       if (!existsAny && state.members.length > 0) {
         state.members.forEach((m, i) => {
           const prevRecords = state.maintenance.filter(x => x.memberId === m.id || x.flat === m.flat);
@@ -10938,12 +10939,20 @@
         }
         const delMaintBtn = e.target.closest('.del-maint-btn');
         if (delMaintBtn) {
-          const id = Number(delMaintBtn.dataset.delMaint);
+          const idStr = String(delMaintBtn.dataset.delMaint);
           askConfirm('देखभाल नोंद काढा', 'ही देखभाल शुल्क नोंद कायमची काढून टाकायची का?', () => {
-            state.maintenance = state.maintenance.filter(x => x.id !== id);
+            const target = state.maintenance.find(x => String(x.id) === idStr);
+            if (target) {
+              if (!Array.isArray(state.deletedMaintKeys)) state.deletedMaintKeys = [];
+              const delKey = `${target.flat}__${target.month}`;
+              if (!state.deletedMaintKeys.includes(delKey)) state.deletedMaintKeys.push(delKey);
+            }
+            state.maintenance = state.maintenance.filter(x => String(x.id) !== idStr);
+            if (target) recalculateMaintenanceChain(target.flat);
+            syncMaintToTransactions();
             saveState();
             renderAll();
-            showToast('देखभाल नोंद काढून टाकली.');
+            showToast('देखभाल नोंद कायमची काढून टाकली.');
           });
           return;
         }
@@ -10974,12 +10983,33 @@
         }
         const delTxBtn = e.target.closest('.del-tx-btn');
         if (delTxBtn) {
-          const id = Number(delTxBtn.dataset.delTx);
+          const idStr = String(delTxBtn.dataset.delTx);
           askConfirm('व्यवहार काढा', 'हा आर्थिक व्यवहार नोंदवहीतून काढून टाकायचा का?', () => {
-            state.transactions = state.transactions.filter(x => x.id !== id);
+            const tx = state.transactions.find(x => String(x.id) === idStr);
+            if (tx && tx.category === 'देखभाल शुल्क') {
+              const baseDesc = (tx.desc || '').replace(/\s*\[हप्ता \d+\]$/, '');
+              const mItem = state.maintenance.find(m => `${m.flat} (${m.name}) - ${m.month}` === baseDesc);
+              if (mItem) {
+                const txAmt = Number(tx.amount || 0);
+                if (Array.isArray(mItem.payments) && mItem.payments.length) {
+                  const pIdx = mItem.payments.findIndex(p => Number(p.amount) === txAmt && (p.mode || 'ऑनलाइन') === (tx.mode || 'ऑनलाइन'));
+                  if (pIdx !== -1) mItem.payments.splice(pIdx, 1);
+                  else mItem.payments = [];
+                  mItem.paidAmount = Math.round(mItem.payments.reduce((a, p) => a + Number(p.amount || 0), 0) * 100) / 100;
+                } else {
+                  mItem.paidAmount = Math.max(0, Math.round(((Number(mItem.paidAmount || 0)) - txAmt) * 100) / 100);
+                }
+                const tot = Number(mItem.totalPayable != null ? mItem.totalPayable : mItem.amount) || 0;
+                mItem.balance = Math.round((tot - mItem.paidAmount) * 100) / 100;
+                mItem.status = (mItem.balance <= 0 && (mItem.paidAmount > 0 || tot <= 0)) ? 'भरलेले' : 'थकीत';
+                if (mItem.paidAmount <= 0) mItem.paidDate = '';
+                recalculateMaintenanceChain(mItem.flat);
+              }
+            }
+            state.transactions = state.transactions.filter(x => String(x.id) !== idStr);
             saveState();
             renderAll();
-            showToast('व्यवहार काढून टाकला.');
+            showToast('व्यवहार कायमचा काढून टाकला.');
           });
         }
       });
