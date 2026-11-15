@@ -1339,7 +1339,14 @@
             <input id="tx-desc" type="text" required placeholder="उदा. कॉमन मीटर वीज बिल भरणा" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-teal-500 outline-none" />
           </div>
         </div>
-        <div class="flex justify-end gap-2 pt-3">
+                <div id="tx-maint-link-box" class="hidden p-3 rounded-xl bg-teal-50 border border-teal-200 space-y-2">
+          <p class="text-[11px] font-bold text-teal-900">देखभाल शुल्कात आपोआप जोडण्यासाठी फ्लॅट व महिना निवडा:</p>
+          <div class="grid grid-cols-2 gap-2">
+            <select id="tx-maint-flat" class="w-full px-2.5 py-1.5 rounded-lg border border-teal-300 text-xs bg-white"></select>
+            <select id="tx-maint-month" class="w-full px-2.5 py-1.5 rounded-lg border border-teal-300 text-xs bg-white"></select>
+          </div>
+        </div>
+<div class="flex justify-end gap-2 pt-3">
           <button type="button" data-close="modal-tx" class="close-modal-btn px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100">रद्द करा</button>
           <button type="submit" class="px-4 py-2 rounded-xl text-sm font-semibold bg-teal-700 hover:bg-teal-800 text-white">नोंद जतन करा</button>
         </div>
@@ -10731,20 +10738,86 @@
         if (!isAdmin()) return;
         document.getElementById('form-tx').reset();
         document.getElementById('tx-date').value = new Date().toISOString().slice(0, 10);
+        const txf = document.getElementById('tx-maint-flat');
+        const txm = document.getElementById('tx-maint-month');
+        if (txf) {
+          txf.innerHTML = '<option value="">-- फ्लॅट निवडा --</option>' + [...state.members].sort((a,b)=>String(a.flat).localeCompare(String(b.flat),undefined,{numeric:true})).map(m => `<option value="${escapeHtml(m.flat)}">${escapeHtml(m.flat)} — ${escapeHtml(m.name)}</option>`).join('');
+        }
+        if (txm) {
+          const mos = getMonthsSinceApril2024Marathi();
+          txm.innerHTML = mos.map(mo => `<option value="${escapeHtml(mo)}">${escapeHtml(mo)}</option>`).join('');
+          txm.value = getCurrentMarathiMonth();
+        }
+        toggleTxMaintBox();
         openModal('modal-tx');
       });
+
+      function toggleTxMaintBox() {
+        const box = document.getElementById('tx-maint-link-box');
+        if (!box) return;
+        const tp = document.getElementById('tx-type').value;
+        const cat = (document.getElementById('tx-category').value || '').trim();
+        if (tp === 'जमा' && cat === 'देखभाल शुल्क') box.classList.remove('hidden');
+        else box.classList.add('hidden');
+      }
+      document.getElementById('tx-type').addEventListener('change', toggleTxMaintBox);
+      document.getElementById('tx-category').addEventListener('input', toggleTxMaintBox);
+      document.getElementById('tx-category').addEventListener('change', toggleTxMaintBox);
 
       document.getElementById('form-tx').addEventListener('submit', (e) => {
         e.preventDefault();
         if (!isAdmin()) return;
+        const tp = document.getElementById('tx-type').value;
+        const mode = document.getElementById('tx-mode').value;
+        const dt = document.getElementById('tx-date').value;
+        const cat = document.getElementById('tx-category').value.trim();
+        const amt = Number(document.getElementById('tx-amount').value) || 0;
+        const desc = document.getElementById('tx-desc').value.trim();
+        const selFlat = document.getElementById('tx-maint-flat') ? document.getElementById('tx-maint-flat').value : '';
+        const selMo = document.getElementById('tx-maint-month') ? document.getElementById('tx-maint-month').value : '';
+
+        if (tp === 'जमा' && cat === 'देखभाल शुल्क' && selFlat && selMo) {
+          let mItem = state.maintenance.find(m => m.flat === selFlat && m.month === selMo);
+          if (!mItem) {
+            const mem = state.members.find(x => x.flat === selFlat);
+            if (mem) {
+              mItem = {
+                id: Date.now() + Math.floor(Math.random() * 10000),
+                memberId: mem.id,
+                flat: mem.flat,
+                name: mem.name,
+                month: selMo,
+                prevBalance: 0,
+                amount: Number(mem.monthlyRate) || 1557,
+                oldInterest: 0,
+                lateInterest: 0,
+                totalPayable: Number(mem.monthlyRate) || 1557,
+                paidAmount: 0,
+                balance: Number(mem.monthlyRate) || 1557,
+                status: 'थकीत',
+                paymentMode: mode,
+                paidDate: dt
+              };
+              state.maintenance.push(mItem);
+              recalculateMaintenanceChain(mem.flat);
+            }
+          }
+          if (mItem) {
+            markMaintenancePaid(mItem.id, mode, amt, dt, true);
+            closeModal('modal-tx');
+            showToast(`फ्लॅट ${selFlat} (${selMo}) चे ${mode} पेमेंट देखभाल शुल्कात व आर्थिक अहवालात जोडले!`);
+            return;
+          }
+        }
+
         state.transactions.push({
           id: Date.now(),
-          type: document.getElementById('tx-type').value,
-          mode: document.getElementById('tx-mode').value,
-          date: document.getElementById('tx-date').value,
-          category: document.getElementById('tx-category').value,
-          amount: Number(document.getElementById('tx-amount').value),
-          desc: document.getElementById('tx-desc').value.trim()
+          type: tp,
+          mode,
+          date: dt,
+          category: cat,
+          amount: amt,
+          desc
         });
         saveState();
         closeModal('modal-tx');
