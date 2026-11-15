@@ -1463,6 +1463,7 @@
             </tr>
           </thead>
           <tbody id="audit-tbody" class="divide-y divide-slate-200"></tbody>
+          <tfoot id="audit-tfoot" class="bg-slate-100 border-t-2 border-slate-300 font-bold text-slate-900"></tfoot>
         </table>
       </div>
 
@@ -7715,14 +7716,19 @@
         : 'inline-flex items-center gap-1 bg-white/15 text-teal-100 px-2.5 py-0.5 rounded-full font-medium';
     }
 
+    let lastLocalSaveAt = 0;
+
     function saveState() {
+      lastLocalSaveAt = Date.now();
+      const cleanState = JSON.parse(JSON.stringify(state));
+      state = cleanState;
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-        if (state.waterTax) localStorage.setItem(WATER_BACKUP_KEY, JSON.stringify(state.waterTax));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(cleanState));
+        if (cleanState.waterTax) localStorage.setItem(WATER_BACKUP_KEY, JSON.stringify(cleanState.waterTax));
       } catch (e) {}
       if (firestoreDocRef) {
         try {
-          firestoreDocRef.set(state, { merge: false })
+          firestoreDocRef.set(cleanState, { merge: false })
             .then(() => updateSyncBadge(true, 'क्लाउड सिंक सक्रिय'))
             .catch(() => updateSyncBadge(false, 'लोकल मोड (Firestore नियम तपासा)'));
         } catch (e) {}
@@ -7737,6 +7743,7 @@
       try {
         firestoreDocRef.onSnapshot((doc) => {
           if (doc.exists) {
+            if (Date.now() - lastLocalSaveAt < 4000) return;
             const remote = doc.data();
             if (remote && Array.isArray(remote.members)) {
               if (!Array.isArray(remote.polls)) remote.polls = DEFAULT_DATA.polls;
@@ -7830,6 +7837,7 @@
             paidDate: ''
           });
         });
+        recalculateMaintenanceChain();
         saveState();
       }
     }
@@ -8314,11 +8322,14 @@
       let onlineSum = 0, cashSum = 0, pendSum = 0;
       monthFiltered.forEach(m => {
         const payAmt = Number(m.totalPayable != null ? m.totalPayable : m.amount) || 0;
-        if (m.status === 'भरलेले') {
-          if ((m.paymentMode || 'ऑनलाइन') === 'कॅश') cashSum += payAmt;
-          else onlineSum += payAmt;
-        } else {
-          pendSum += Number(m.balance != null ? m.balance : payAmt) || 0;
+        const paid = Number(m.paidAmount != null ? m.paidAmount : (m.status === 'भरलेले' ? payAmt : 0)) || 0;
+        const bal = m.balance != null ? Number(m.balance) : (payAmt - paid);
+        if (paid > 0) {
+          if ((m.paymentMode || 'ऑनलाइन') === 'कॅश') cashSum += paid;
+          else onlineSum += paid;
+        }
+        if (bal > 0) {
+          pendSum += bal;
         }
       });
       document.getElementById('maint-online-total').textContent = formatINR(onlineSum);
@@ -8738,8 +8749,11 @@
       if (!dt) return '';
       const str = String(dt).trim();
       if (/^\d{4}-\d{2}-\d{2}$/.test(str)) return str;
-      const m = str.match(/^(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})$/);
-      if (m) return `${m[3]}-${m[2].padStart(2, '0')}-${m[1].padStart(2, '0')}`;
+      const m = str.match(/^(\d{1,2})[-\/](\d{1,2})[-\/](\d{2,4})$/);
+      if (m) {
+        const yr = m[3].length === 2 ? '20' + m[3] : m[3];
+        return `${yr}-${m[2].padStart(2, '0')}-${m[1].padStart(2, '0')}`;
+      }
       return '';
     }
 
@@ -8859,13 +8873,14 @@
       const useDate = customDate || new Date().toISOString().slice(0, 10);
       const payable = Number(item.totalPayable != null ? item.totalPayable : item.amount);
       const paidNow = customPaid != null ? Number(customPaid) : payable;
-      const remaining = Math.max(0, payable - paidNow);
+      const remaining = Math.round((payable - paidNow) * 100) / 100;
 
       item.paymentMode = mode || 'ऑनलाइन';
       item.paidDate = paidNow > 0 ? useDate : '';
       item.paidAmount = paidNow;
       item.balance = remaining;
-      item.status = remaining === 0 && paidNow > 0 ? 'भरलेले' : 'थकीत';
+      item.status = (remaining <= 0 && (paidNow > 0 || payable <= 0)) ? 'भरलेले' : 'थकीत';
+      recalculateMaintenanceChain(item.flat);
 
       const txDesc = `${item.flat} (${item.name}) - ${item.month}`;
       const existingTx = state.transactions.find(t => t.category === 'देखभाल शुल्क' && t.desc === txDesc);
@@ -9543,7 +9558,7 @@
           const rateDiff = mem && Math.abs(Number(m.amount || 0) - Number(mem.monthlyRate || 0)) > 0.5;
           const payable = Number(m.totalPayable != null ? m.totalPayable : m.amount);
           const paid = Number(m.paidAmount || 0);
-          const bal = Math.max(0, payable - paid);
+          const bal = Math.round((payable - paid) * 100) / 100;
           const rowCls = (rateDiff || bal > 0) ? 'bg-amber-50/70' : 'bg-white';
           const totInt = Number(m.oldInterest || 0) + Number(m.lateInterest || 0);
           return `<tr class="${rowCls}" data-audit-id="${m.id}">
@@ -9569,7 +9584,17 @@
             <td class="py-1.5 px-2"><input type="date" class="audit-date px-1.5 py-1 border border-slate-300 rounded bg-white text-xs" value="${escapeHtml(normalizeToISO(m.paidDate || ''))}" /></td>
             <td class="audit-bal py-1.5 px-2 text-right font-bold whitespace-nowrap ${bal > 0 ? 'text-rose-600' : 'text-emerald-700'}">${bal < 0 ? 'अ‍ॅडव्हान्स ' + formatINR(Math.abs(bal)) : formatINR(bal)}</td>
           </tr>`;
-        }).join('') : '<tr><td colspan="10" class="py-6 text-center text-slate-400">कोणत्याही नोंदी आढळल्या नाहीत.</td></tr>';
+        }).join('') : '<tr><td colspan="11" class="py-6 text-center text-slate-400">कोणत्याही नोंदी आढळल्या नाहीत.</td></tr>';
+        const tf = document.getElementById('audit-tfoot');
+        if (tf) {
+          tf.innerHTML = rows.length ? `<tr>
+            <td colspan="6" class="py-2 px-2 text-right">एकूण बेरीज (Total):</td>
+            <td id="tfoot-pay" class="py-2 px-2 text-right">${formatINR(totBilled)}</td>
+            <td id="tfoot-paid" class="py-2 px-2 text-right text-emerald-700">${formatINR(totPaid)}</td>
+            <td colspan="2"></td>
+            <td id="tfoot-bal" class="py-2 px-2 text-right ${totBal > 0 ? 'text-rose-600' : 'text-emerald-700'}">${totBal < 0 ? 'अ‍ॅडव्हान्स ' + formatINR(Math.abs(totBal)) : formatINR(totBal)}</td>
+          </tr>` : '';
+        }
       }
 
       document.getElementById('btn-maint-audit').addEventListener('click', () => {
@@ -9586,6 +9611,19 @@
           state.members.map(m => `<option value="${escapeHtml(m.flat)}">फ्लॅट ${escapeHtml(m.flat)} — ${escapeHtml(m.name)}</option>`).join('');
         renderAuditTable();
         openModal('modal-maint-audit');
+      });
+
+      document.getElementById('audit-tbody').addEventListener('change', (e) => {
+        if (!e.target.classList.contains('audit-month')) return;
+        const tr = e.target.closest('tr[data-audit-id]');
+        if (!tr) return;
+        const paidEl = tr.querySelector('.audit-paid');
+        const dateEl = tr.querySelector('.audit-date');
+        if (paidEl) {
+          paidEl.value = 0;
+          paidEl.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+        if (dateEl) dateEl.value = '';
       });
 
       document.getElementById('audit-tbody').addEventListener('input', (e) => {
@@ -9623,6 +9661,15 @@
           if (strongs[1]) strongs[1].textContent = formatINR(sumPay);
           if (strongs[2]) strongs[2].textContent = formatINR(sumPaid);
           if (strongs[3]) strongs[3].textContent = formatINR(sumBal);
+        }
+        const tp = document.getElementById('tfoot-pay');
+        const td = document.getElementById('tfoot-paid');
+        const tb = document.getElementById('tfoot-bal');
+        if (tp) tp.textContent = formatINR(sumPay);
+        if (td) td.textContent = formatINR(sumPaid);
+        if (tb) {
+          tb.textContent = sumBal < 0 ? ('अ‍ॅडव्हान्स ' + formatINR(Math.abs(sumBal))) : formatINR(sumBal);
+          tb.className = `py-2 px-2 text-right ${sumBal > 0 ? 'text-rose-600' : 'text-emerald-700'}`;
         }
       });
 
@@ -9672,11 +9719,13 @@
       document.getElementById('btn-save-audit').addEventListener('click', () => {
         if (!isAdmin()) return;
         const trs = document.querySelectorAll('#audit-tbody tr[data-audit-id]');
+        let anyMonthChanged = false;
         trs.forEach(tr => {
-          const mid = Number(tr.dataset.auditId);
-          const item = state.maintenance.find(m => m.id === mid);
+          const mid = String(tr.dataset.auditId);
+          const item = state.maintenance.find(m => String(m.id) === mid);
           if (!item) return;
           const newMo = tr.querySelector('.audit-month') ? tr.querySelector('.audit-month').value : item.month;
+          if (newMo !== item.month) anyMonthChanged = true;
           item.month = newMo;
           const prevBal = Number(tr.querySelector('.audit-prev').value) || 0;
           const amt = Number(tr.querySelector('.audit-amt').value) || 0;
@@ -9720,6 +9769,10 @@
         });
         recalculateMaintenanceChain();
         saveState();
+        if (anyMonthChanged) {
+          const mSel = document.getElementById('audit-filter-month');
+          if (mSel) mSel.value = 'ALL';
+        }
         renderAuditTable();
         renderAll();
         showToast('सर्व बदल सेव्ह केले व पुढील महिने आपोआप अपडेट झाले!');
@@ -9790,7 +9843,7 @@
               const interestAmt = Math.round((baseAmt * (annualRate / 100) / 12) * 100) / 100;
               item.lateInterest = Number(item.lateInterest || 0) + interestAmt;
               item.totalPayable = Number(item.amount || 0) + Number(item.prevBalance || 0) + Number(item.oldInterest || 0) + item.lateInterest;
-              item.balance = Math.max(0, Math.round((item.totalPayable - Number(item.paidAmount || 0)) * 100) / 100);
+              item.balance = Math.round((item.totalPayable - Number(item.paidAmount || 0)) * 100) / 100;
               count++;
             }
           }
@@ -9836,7 +9889,7 @@
         const paymentMode = document.getElementById('man-maint-mode').value;
         const paidDate = paidAmount > 0 ? (document.getElementById('man-maint-date').value || new Date().toISOString().slice(0, 10)) : '';
         const totalPayable = prevBalance + amount;
-        const balance = Math.max(0, totalPayable - paidAmount);
+        const balance = Math.round((totalPayable - paidAmount) * 100) / 100;
         const status = balance === 0 && paidAmount > 0 ? 'भरलेले' : 'थकीत';
 
         state.maintenance.unshift({
@@ -9906,7 +9959,7 @@
             item.extraCharges.push({ label, amount: amt });
             item.amount = Number(item.amount || 0) + amt;
             item.totalPayable = Number(item.amount) + Number(item.prevBalance || 0);
-            item.balance = Math.max(0, item.totalPayable - Number(item.paidAmount || 0));
+            item.balance = Math.round((item.totalPayable - Number(item.paidAmount || 0)) * 100) / 100;
             if (item.balance > 0) item.status = 'थकीत';
             count++;
           }
@@ -10103,6 +10156,7 @@
             added++;
           }
         });
+        recalculateMaintenanceChain();
         saveState();
         closeModal('modal-bill');
         renderAll();
