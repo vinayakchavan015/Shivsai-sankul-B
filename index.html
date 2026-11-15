@@ -9450,7 +9450,7 @@
           
   <!-- MODAL: SHARE CERTIFICATE VIEW & PRINT -->
   <div id="modal-share-cert" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs hidden items-center justify-center p-4 z-50">
-    <div class="bg-white rounded-2xl max-w-4xl w-full p-5 shadow-2xl max-h-[92vh] flex flex-col">
+    <div class="bg-white rounded-2xl max-w-5xl w-full p-5 shadow-2xl max-h-[92vh] flex flex-col">
       <div class="flex items-center justify-between mb-3">
         <h3 class="text-base font-bold text-slate-900">शेअर सर्टिफिकेट (Share Certificate &amp; Nominee)</h3>
         <div class="flex items-center gap-2">
@@ -10256,42 +10256,107 @@
         const [yr, mo, dy] = dtIso.split('-');
         const EN_MONTHS = ['JANUARY','FEBRUARY','MARCH','APRIL','MAY','JUNE','JULY','AUGUST','SEPTEMBER','OCTOBER','NOVEMBER','DECEMBER'];
         const moName = EN_MONTHS[parseInt(mo, 10) - 1] || 'JULY';
+        const yrShort = yr.slice(-2);
         const nomName = m.nomineeName || '—';
         const nomRel = m.nomineeRelation || '—';
         const nomPct = m.nomineeSharePct || '100%';
+        const marathiSealSVG = `
+          <svg viewBox="0 0 120 120" width="84" height="84" style="display:block; margin:0 auto;">
+            <defs><path id="sealTop" d="M 16,60 A 44,44 0 1,1 104,60" /><path id="sealBot" d="M 104,60 A 44,44 0 1,1 16,60" /></defs>
+            <circle cx="60" cy="60" r="54" fill="none" stroke="#1e3a8a" stroke-width="2"/>
+            <circle cx="60" cy="60" r="36" fill="none" stroke="#1e3a8a" stroke-width="1.2"/>
+            <text fill="#1e3a8a" font-size="8.2" font-weight="700"><textPath href="#sealTop" startOffset="50%" text-anchor="middle">शिव साई संकुल "बी" विंग</textPath></text>
+            <text fill="#1e3a8a" font-size="7.5" font-weight="700"><textPath href="#sealBot" startOffset="50%" text-anchor="middle">को-ऑप. हौसिंग सोसायटी लि.</textPath></text>
+            <text x="60" y="51" text-anchor="middle" fill="#1e3a8a" font-size="6.5" font-weight="700">नोंदणी क्र.</text>
+            <text x="60" y="60" text-anchor="middle" fill="#1e3a8a" font-size="6" font-weight="700">TNA/VSI/HSG/(TC)</text>
+            <text x="60" y="69" text-anchor="middle" fill="#1e3a8a" font-size="6.5" font-weight="700">26019 / 2014</text>
+          </svg>`;
+        const ribbonSVG = `
+          <svg viewBox="0 0 360 66" width="310" height="58" style="display:block; margin:2px auto 6px;">
+            <path d="M 28,26 Q 180,4 332,26 L 320,56 Q 180,34 40,56 Z" fill="#fff5f5" stroke="#b91c1c" stroke-width="2"/>
+            <path d="M 34,30 Q 180,9 326,30" fill="none" stroke="#b91c1c" stroke-width="0.9"/>
+            <path d="M 43,52 Q 180,31 317,52" fill="none" stroke="#b91c1c" stroke-width="0.9"/>
+            <text x="180" y="38" text-anchor="middle" fill="#b91c1c" font-family="Georgia, 'Times New Roman', serif" font-size="23" font-weight="700" font-style="italic">Share Certificate</text>
+          </svg>`;
+
         return `
-          <div style="border:6px double #0f766e; padding:18px; background:#fffdf7; color:#1e293b; font-family:Georgia, serif; max-width:780px; margin:0 auto;">
-            <div style="border:2px solid #0f766e; padding:18px;">
-              <div style="display:flex; justify-content:space-between; font-size:13px; font-weight:700; color:#b91c1c; margin-bottom:10px;">
-                <span>Share Certificate No. <u style="color:#0f172a">${escapeHtml(certNo)}</u></span>
-                <span>Member's Register No. <u style="color:#0f172a">${escapeHtml(regNo)}</u></span>
-                <span>No. of Shares <u style="color:#0f172a">${escapeHtml(shareCount)}</u></span>
+          <div style="background:#fbf8ef; color:#1e293b; font-family:Georgia, 'Times New Roman', serif; max-width:940px; margin:0 auto; border:1px solid #cbd5e1; box-shadow:0 4px 14px rgba(0,0,0,0.08); display:flex; align-items:stretch;">
+            <!-- LEFT COUNTERFOIL (STUB) -->
+            <div style="width:27%; padding:14px 12px; border-right:2px dashed #64748b; font-size:10.2px; line-height:1.55; display:flex; flex-direction:column; justify-content:space-between; background:#f8f5ec;">
+              <div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:4px;">
+                  <span>Share Certificate No. <strong style="font-size:12px;">${escapeHtml(certNo)}</strong></span>
+                </div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                  <span>Mem. Reg. No. <u>&nbsp;${escapeHtml(regNo)}&nbsp;</u></span>
+                  <span>Shares <u>&nbsp;${escapeHtml(shareCount)}&nbsp;</u></span>
+                </div>
+                <div style="text-align:center; font-weight:700; text-decoration:underline; color:#0f766e; margin:4px 0 6px; font-size:11px;">SHARE CERTIFICATE</div>
+                <p style="margin:2px 0;"><strong>SHIV SAI SANKUL "B" WING</strong> Co-op. Hsg. Society Ltd., MANVELPADA ROAD, VIRAR (E)</p>
+                <p style="margin:2px 0; font-size:9.5px;">Registered under the M.C.S. Act, 1960</p>
+                <p style="margin:2px 0 6px;">Reg. No. <u>TNA/VSI/HSG/(TC)/26019/2014</u> Date <u>10/01/2014</u></p>
+                <p style="margin:2px 0;">This is to certify that Shri / Smt. / M/s.<br/><strong style="border-bottom:1px solid #475569;">${escapeHtml(m.name)}</strong></p>
+                <p style="margin:2px 0;"><strong>FLAT NO.: ${escapeHtml(flatPadded)}</strong></p>
+                <p style="margin:2px 0;">is Registered Holder of <u>&nbsp;${escapeHtml(shareCount)}&nbsp;</u> fully paid up share of <strong>Rs. FIFTY</strong> each numbered from <u>&nbsp;${escapeHtml(shareFrom)}&nbsp;</u> to <u>&nbsp;${escapeHtml(shareTo)}&nbsp;</u> both inclusive, in <strong>SHIV SAI SANKUL "B" WING</strong> Co-op. Hsg. Soc. Ltd., VIRAR (E)</p>
+                <p style="margin:2px 0;">Subject to the Bye-laws of the Said Society.</p>
+                <p style="margin:4px 0;">Given under the Common Seal at <u>VIRAR (EAST)</u> on this <u>${escapeHtml(dy)}</u> day of <u>${escapeHtml(moName)}</u> 20<u>${escapeHtml(yrShort)}</u>.</p>
               </div>
-              <div style="text-align:center; margin:10px 0 14px;">
-                <span style="display:inline-block; border:2px solid #b91c1c; color:#b91c1c; padding:5px 28px; font-size:22px; font-weight:700; letter-spacing:1px; background:#fff5f5;">Share Certificate</span>
+              <div>
+                <div style="display:flex; justify-content:space-between; font-size:8.8px; font-weight:700; margin-top:16px; text-align:center;">
+                  <span>Authorised<br/>M.C. Member</span>
+                  <span>Secretary</span>
+                  <span>Chairman</span>
+                </div>
+                <div style="border-top:1px solid #94a3b8; margin-top:8px; padding-top:5px; font-size:9.5px;">
+                  Received the Share Certificate<br/>Date: _________ 20___
+                </div>
               </div>
-              <p style="text-align:center; font-weight:700; font-size:15px; margin:4px 0;">SHIV SAI SANKUL "B" WING Co-operative Housing Society Ltd.</p>
-              <p style="text-align:center; font-size:12px; font-weight:600; margin:2px 0;">S. NO. 226, H. NO. 4 (PART), MANVELPADA ROAD, SANT NAGAR, VIRAR (E).</p>
-              <p style="text-align:center; font-size:11px; color:#475569; margin:4px 0;">(Registered under the Maharashtra Co-operative Societies Act, 1960)</p>
-              <p style="text-align:center; font-size:12px; font-weight:700; color:#b91c1c; margin:6px 0 14px;">
-                Registration No. <u style="color:#0f172a">TNA/VSI/HSG/(TC)/26019/2014</u> &nbsp;&nbsp; Date <u style="color:#0f172a">10/01/2014</u>
-              </p>
-              <div style="font-size:13.5px; line-height:1.9;">
-                <p>This is to certify that Shri / Smt. / M/s. <strong style="border-bottom:1px solid #334155; padding:0 8px;">${escapeHtml(m.name)}</strong></p>
-                <p><strong>FLAT NO.: ${escapeHtml(flatPadded)}</strong> is the Registered Holder of <strong style="border-bottom:1px solid #334155; padding:0 8px;">${escapeHtml(shareCount)}</strong> fully paid up share of <strong>Rs. FIFTY</strong> each numbered from <strong style="border-bottom:1px solid #334155; padding:0 8px;">${escapeHtml(shareFrom)}</strong> to <strong style="border-bottom:1px solid #334155; padding:0 8px;">${escapeHtml(shareTo)}</strong> both inclusive, in <strong>SHIV SAI SANKUL "B" WING Co-operative Housing Society Ltd., VIRAR (E)</strong> Subject to Bye-laws of the Said Society.</p>
-                <p style="margin-top:8px;">Given under the Common Seal of the Said Society at <strong>VIRAR (EAST)</strong> on this <strong style="border-bottom:1px solid #334155; padding:0 6px;">${escapeHtml(dy)}</strong> day of <strong style="border-bottom:1px solid #334155; padding:0 6px;">${moName}</strong> <strong style="border-bottom:1px solid #334155; padding:0 6px;">${escapeHtml(yr)}</strong>.</p>
-              </div>
-              <div style="margin-top:16px; padding:10px 12px; border:1px dashed #b45309; background:#fffbeb; font-size:12px;">
-                <strong style="color:#92400e;">NOMINEE DETAILS (वारसदार नोंद):</strong>
-                Nominee Name: <strong>${escapeHtml(nomName)}</strong> &nbsp;|&nbsp;
-                Relation: <strong>${escapeHtml(nomRel)}</strong> &nbsp;|&nbsp;
-                Share: <strong>${escapeHtml(nomPct)}</strong>
-              </div>
-              <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:34px; font-size:12px; font-weight:700; color:#b91c1c; text-align:center;">
-                <div style="width:90px; height:90px; border:2px dashed #1e3a8a; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:9px; color:#1e3a8a; padding:6px;">COMMON SEAL<br/>SHIV SAI SANKUL "B" WING</div>
-                <div><div style="border-top:1px solid #334155; width:130px; margin-bottom:4px;"></div>Authorised M. C. Member</div>
-                <div><div style="border-top:1px solid #334155; width:110px; margin-bottom:4px;"></div>Secretary</div>
-                <div><div style="border-top:1px solid #334155; width:110px; margin-bottom:4px;"></div>Chairman</div>
+            </div>
+
+            <!-- RIGHT MAIN ORNAMENTAL CERTIFICATE -->
+            <div style="width:73%; padding:12px;">
+              <div style="border:6px double #0e7490; padding:4px; background:#fffdf6;">
+                <div style="border:2px solid #0e7490; padding:14px 18px; position:relative;">
+                  <div style="display:flex; justify-content:space-between; font-size:12px; font-weight:700; color:#b91c1c; margin-bottom:2px;">
+                    <span>Share Certificate No. <strong style="color:#0f172a; font-size:14px;">${escapeHtml(certNo)}</strong></span>
+                    <span>Member's Register No. <u style="color:#0f172a">&nbsp;&nbsp;${escapeHtml(regNo)}&nbsp;&nbsp;</u></span>
+                    <span>No. of Shares <u style="color:#0f172a">&nbsp;&nbsp;${escapeHtml(shareCount)}&nbsp;&nbsp;</u></span>
+                  </div>
+
+                  ${ribbonSVG}
+
+                  <p style="text-align:center; font-size:14px; font-weight:700; margin:2px 0;">
+                    <span style="border-bottom:1px solid #334155; padding:0 14px; letter-spacing:0.6px;">SHIV SAI SANKUL "B" WING</span> Co-operative Housing Society Ltd.
+                  </p>
+                  <p style="text-align:center; font-size:11.5px; font-weight:700; margin:4px 0; border-bottom:1px solid #475569; display:inline-block; width:100%; padding-bottom:2px;">
+                    S. NO. 226, H. NO. 4 (PART), MANVELPADA ROAD, SANT NAGAR, VIRAR (E).
+                  </p>
+                  <p style="text-align:center; font-size:10.5px; color:#334155; margin:4px 0;">(Registered under the Maharashtra Co-operative Societies Act, 1960)</p>
+                  <p style="text-align:center; font-size:11.5px; font-weight:700; color:#b91c1c; margin:4px 0 12px;">
+                    Registration No. <u style="color:#0f172a">TNA/VSI/HSG/(TC)/26019/2014</u> &nbsp;&nbsp; Date <u style="color:#0f172a">10/01/2014</u>
+                  </p>
+
+                  <div style="font-size:13px; line-height:1.95; color:#0f172a;">
+                    <p style="margin:2px 0;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;This is to certify that Shri / Smt. / M/s. <strong style="border-bottom:1px solid #334155; padding:0 12px; letter-spacing:0.4px;">${escapeHtml(m.name)}</strong></p>
+                    <p style="margin:2px 0;"><strong style="border-bottom:1px solid #334155; padding-right:16px;">FLAT NO.:- ${escapeHtml(flatPadded)}</strong> is the Registered Holder of <strong style="border-bottom:1px solid #334155; padding:0 12px;">${escapeHtml(shareCount)}</strong> fully paid up share</p>
+                    <p style="margin:2px 0;">of <strong>Rs. FIFTY</strong> each numbered from <strong style="border-bottom:1px solid #334155; padding:0 12px;">${escapeHtml(shareFrom)}</strong> to <strong style="border-bottom:1px solid #334155; padding:0 12px;">${escapeHtml(shareTo)}</strong> both inclusive, in <strong style="border-bottom:1px solid #334155; padding:0 6px;">SHIV SAI SANKUL "B" WING</strong></p>
+                    <p style="margin:2px 0;">Co-operative Housing Society Ltd., <strong style="border-bottom:1px solid #334155; padding:0 8px;">VIRAR (E)</strong> Subject to Bye-laws of the Said Society.</p>
+                    <p style="margin:6px 0 2px;">Given under the Common Seal of the Said Society at <strong style="border-bottom:1px solid #334155; padding:0 10px;">VIRAR (EAST)</strong></p>
+                    <p style="margin:2px 0;">on this <strong style="border-bottom:1px solid #334155; padding:0 10px;">${escapeHtml(dy)}</strong> day of <strong style="border-bottom:1px solid #334155; padding:0 10px;">${escapeHtml(moName)}</strong> 20<strong style="border-bottom:1px solid #334155; padding:0 6px;">${escapeHtml(yrShort)}</strong>.</p>
+                  </div>
+
+                  <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-top:16px; font-size:11.5px; font-weight:700; color:#b91c1c; text-align:center;">
+                    <div style="width:105px;">${marathiSealSVG}</div>
+                    <div><div style="border-top:1px solid #64748b; width:125px; margin-bottom:4px;"></div>Authorised<br/>M. C. Member</div>
+                    <div><div style="border-top:1px solid #64748b; width:105px; margin-bottom:4px;"></div>Secretary</div>
+                    <div><div style="border-top:1px solid #64748b; width:105px; margin-bottom:4px;"></div>Chairman</div>
+                  </div>
+
+                  <div style="margin-top:10px; padding:6px 10px; border:1px dashed #b45309; background:#fffbeb; font-size:11px; display:flex; justify-content:space-between; align-items:center;">
+                    <span><strong style="color:#92400e;">वारसदार नोंद (Nominee):</strong> <strong>${escapeHtml(nomName)}</strong> (${escapeHtml(nomRel)} — ${escapeHtml(nomPct)})</span>
+                    <span style="font-size:10px; color:#64748b;">(P.T.O.)</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>`;
