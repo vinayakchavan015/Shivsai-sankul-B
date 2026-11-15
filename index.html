@@ -1469,6 +1469,7 @@
         <p class="text-[11px] text-amber-700 font-medium">* पिवळ्या रंगातील ओळी म्हणजे सभासदाच्या मूळ मासिक दरापेक्षा वेगळी रक्कम किंवा प्रलंबित बाकी.</p>
         <div class="flex justify-end gap-2">
           <button type="button" data-close="modal-maint-audit" class="close-modal-btn px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100">बंद करा</button>
+          <button id="btn-recalc-all" type="button" class="px-4 py-2 rounded-xl text-sm font-semibold bg-emerald-700 hover:bg-emerald-800 text-white">पुढील महिने आपोआप अपडेट करा</button>
           <button id="btn-save-audit" type="button" class="px-5 py-2 rounded-xl text-sm font-semibold bg-indigo-700 hover:bg-indigo-800 text-white">सर्व बदल सेव्ह करा</button>
         </div>
       </div>
@@ -8732,6 +8733,32 @@
       }
     }
 
+    function recalculateMaintenanceChain(targetFlat = null) {
+      const flats = targetFlat
+        ? [targetFlat]
+        : [...new Set(state.maintenance.map(m => m.flat))];
+      flats.forEach(fl => {
+        const list = state.maintenance
+          .filter(m => m.flat === fl)
+          .sort((a, b) => (marathiMonthToYYYYMM(a.month) || '9999-99').localeCompare(marathiMonthToYYYYMM(b.month) || '9999-99'));
+        for (let i = 0; i < list.length; i++) {
+          const cur = list[i];
+          if (i > 0) {
+            cur.prevBalance = Number(list[i - 1].balance || 0);
+          } else {
+            cur.prevBalance = Number(cur.prevBalance || 0);
+          }
+          const amt = Number(cur.amount || 0);
+          const oldInt = Number(cur.oldInterest || 0);
+          const lateInt = Number(cur.lateInterest || 0);
+          const paid = Number(cur.paidAmount || 0);
+          cur.totalPayable = Math.round((cur.prevBalance + amt + oldInt + lateInt) * 100) / 100;
+          cur.balance = Math.round((cur.totalPayable - paid) * 100) / 100;
+          cur.status = (cur.balance <= 0 && (paid > 0 || cur.totalPayable <= 0)) ? 'भरलेले' : 'थकीत';
+        }
+      });
+    }
+
     function renderWaterTaxInfo() {
       const wt = state.waterTax || {};
       const hist = Array.isArray(wt.history) ? wt.history : [];
@@ -9477,7 +9504,7 @@
           const mem = state.members.find(x => x.id === m.memberId || x.flat === m.flat);
           const payable = Number(m.totalPayable != null ? m.totalPayable : m.amount);
           const paid = Number(m.paidAmount || 0);
-          const bal = Math.max(0, payable - paid);
+          const bal = Math.round((payable - paid) * 100) / 100;
           totBilled += payable;
           totPaid += paid;
           totBal += bal;
@@ -9573,6 +9600,7 @@
           }
         });
         if (added > 0) {
+          recalculateMaintenanceChain();
           saveState();
           renderAuditTable();
           renderAll();
@@ -9602,10 +9630,10 @@
           item.amount = amt;
           item.oldInterest = 0;
           item.lateInterest = intr;
-          item.totalPayable = prevBal + amt + intr;
+          item.totalPayable = Math.round((prevBal + amt + intr) * 100) / 100;
           item.paidAmount = paid;
-          item.balance = Math.max(0, item.totalPayable - paid);
-          item.status = item.balance === 0 && paid > 0 ? 'भरलेले' : 'थकीत';
+          item.balance = Math.round((item.totalPayable - paid) * 100) / 100;
+          item.status = (item.balance <= 0 && (paid > 0 || item.totalPayable <= 0)) ? 'भरलेले' : 'थकीत';
           item.paymentMode = paid > 0 ? mode : '';
           item.paidDate = paid > 0 ? dt : '';
 
@@ -9631,10 +9659,20 @@
             state.transactions = state.transactions.filter(t => t.id !== existingTx.id);
           }
         });
+        recalculateMaintenanceChain();
         saveState();
         renderAuditTable();
         renderAll();
-        showToast('सर्व पडताळणी बदल यशस्वीरित्या सेव्ह केले!');
+        showToast('सर्व बदल सेव्ह केले व पुढील महिने आपोआप अपडेट झाले!');
+      });
+
+      document.getElementById('btn-recalc-all').addEventListener('click', () => {
+        if (!isAdmin()) return;
+        recalculateMaintenanceChain();
+        saveState();
+        renderAuditTable();
+        renderAll();
+        showToast('एप्रिल २०२६ पासून सर्व महिन्यांची शिल्लक पुढील महिन्यांत अपडेट केली!');
       });
 
       document.getElementById('btn-export-maint-csv').addEventListener('click', () => {
@@ -9698,6 +9736,7 @@
             }
           }
         });
+        recalculateMaintenanceChain();
         saveState();
         closeModal('modal-apply-interest');
         renderAll();
@@ -10031,6 +10070,7 @@
           item.paidAmount = 0;
           item.balance = item.totalPayable;
         }
+        recalculateMaintenanceChain();
         saveState();
         closeModal('modal-edit-maint');
         renderAll();
