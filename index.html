@@ -49,6 +49,7 @@
       }
     }
   </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body class="min-h-screen flex flex-col">
 
@@ -468,7 +469,6 @@
                 <th class="py-3 px-3 rounded-tl-lg">फ्लॅट क्र.</th>
                 <th class="py-3 px-3">मालकाचे नाव</th>
                 <th class="py-3 px-3">मोबाइल क्र.</th>
-                <th class="py-3 px-3">वाहन / पार्किंग</th>
                 <th class="py-3 px-3">शेअर सर्टिफिकेट</th>
                 <th class="py-3 px-3">वारसदार (Nominee)</th>
                 <th class="py-3 px-3">मासिक शुल्क</th>
@@ -8314,11 +8314,11 @@
             <td class="py-3 px-3 font-bold text-teal-800">${escapeHtml(m.flat)}</td>
             <td class="py-3 px-3 font-medium text-slate-900">${escapeHtml(m.name)}</td>
             <td class="py-3 px-3 text-slate-600">${m.phone ? `<a href="tel:${escapeHtml(m.phone)}" class="text-teal-700 font-medium hover:underline">${escapeHtml(m.phone)}</a>` : '<span class="text-xs text-slate-400">अपडेट बाकी</span>'}</td>
-            <td class="py-3 px-3 text-slate-600">${escapeHtml(m.vehicle || 'नाही')}</td>
             <td class="py-3 px-3 text-xs">
               <div class="font-bold text-amber-800">क्र. ${escapeHtml(m.certNo || String(parseInt(m.flat, 10) || m.flat).padStart(2,'0'))}</div>
               <div class="text-[11px] text-slate-500 mb-1">शेअर्स: ${escapeHtml(m.shareFrom || String(((parseInt(m.flat,10)||1)-1)*10+1).padStart(3,'0'))} ते ${escapeHtml(m.shareTo || String((parseInt(m.flat,10)||1)*10).padStart(3,'0'))}</div>
               <button data-id="${m.id}" class="view-cert-btn text-[11px] bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-200 px-2 py-0.5 rounded-md font-semibold">📜 सर्टिफिकेट पहा</button>
+              <button data-id="${m.id}" class="dl-cert-btn text-[11px] bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-200 px-2 py-0.5 rounded-md font-semibold">⬇️ डाउनलोड</button>
             </td>
             <td class="py-3 px-3 text-xs">
               <span class="font-semibold text-slate-800">${escapeHtml(m.nomineeName || '—')}</span>
@@ -9454,6 +9454,7 @@
       <div class="flex items-center justify-between mb-3">
         <h3 class="text-base font-bold text-slate-900">शेअर सर्टिफिकेट (Share Certificate &amp; Nominee)</h3>
         <div class="flex items-center gap-2">
+          <button id="btn-download-share-cert" type="button" class="px-4 py-1.5 rounded-xl text-xs font-semibold bg-indigo-700 hover:bg-indigo-800 text-white">⬇️ PDF डाउनलोड करा</button>
           <button id="btn-print-share-cert" type="button" class="px-4 py-1.5 rounded-xl text-xs font-semibold bg-teal-700 hover:bg-teal-800 text-white">PDF / प्रिंट करा</button>
           <button data-close="modal-share-cert" class="close-modal-btn text-slate-400 hover:text-slate-600 text-2xl font-bold px-2">&times;</button>
         </div>
@@ -10296,13 +10297,47 @@
           </div>`;
       }
 
+      let currentCertMember = null;
+
+      function downloadShareCertificatePDF(m) {
+        if (!m) return;
+        const filename = `Share_Certificate_Flat_${String(m.flat).padStart(3, '0')}.pdf`;
+        const wrap = document.createElement('div');
+        wrap.innerHTML = buildShareCertificateHTML(m);
+        if (typeof html2pdf !== 'undefined') {
+          html2pdf().set({
+            margin: 8,
+            filename,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+          }).from(wrap.firstElementChild).save();
+          showToast(`${filename} डाउनलोड होत आहे...`);
+        } else {
+          document.getElementById('share-cert-preview').innerHTML = buildShareCertificateHTML(m);
+          openModal('modal-share-cert');
+          document.getElementById('btn-print-share-cert').click();
+        }
+      }
+
       document.getElementById('members-table-body').addEventListener('click', (e) => {
+        const dlBtn = e.target.closest('.dl-cert-btn');
+        if (dlBtn) {
+          const m = state.members.find(x => x.id === Number(dlBtn.dataset.id));
+          downloadShareCertificatePDF(m);
+          return;
+        }
         const btn = e.target.closest('.view-cert-btn');
         if (!btn) return;
         const m = state.members.find(x => x.id === Number(btn.dataset.id));
         if (!m) return;
+        currentCertMember = m;
         document.getElementById('share-cert-preview').innerHTML = buildShareCertificateHTML(m);
         openModal('modal-share-cert');
+      });
+
+      document.getElementById('btn-download-share-cert').addEventListener('click', () => {
+        downloadShareCertificatePDF(currentCertMember);
       });
 
       document.getElementById('btn-print-share-cert').addEventListener('click', () => {
