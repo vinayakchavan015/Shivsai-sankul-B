@@ -1433,8 +1433,12 @@
           <h3 class="text-lg font-bold text-slate-900">सभासद-निहाय मेंटेनन्स पडताळणी व बल्क अपडेट</h3>
           <p class="text-xs text-slate-500">फ्लॅट निवडून सर्व महिन्यांचा डेटा एकाच ठिकाणी तपासा, दुरुस्त करा व सेव्ह करा</p>
         </div>
-        <div class="flex items-center gap-2">
+        <div class="flex flex-wrap items-center gap-2">
+          <select id="audit-filter-month" class="px-3 py-1.5 rounded-xl border border-slate-300 text-sm bg-white font-semibold text-indigo-800 focus:ring-2 focus:ring-indigo-500 outline-none"></select>
           <select id="audit-filter-flat" class="px-3 py-1.5 rounded-xl border border-slate-300 text-sm bg-white font-semibold focus:ring-2 focus:ring-indigo-500 outline-none"></select>
+          <button id="btn-audit-init-month" type="button" class="px-3 py-1.5 rounded-xl bg-teal-700 hover:bg-teal-800 text-white text-xs font-semibold transition">
+            + या महिन्याचे सर्व फ्लॅट्स आणा
+          </button>
           <button data-close="modal-maint-audit" class="close-modal-btn text-slate-400 hover:text-slate-600 text-2xl font-bold px-2">&times;</button>
         </div>
       </div>
@@ -9459,9 +9463,12 @@
 
       // Maintenance Audit & Bulk Edit Sheet (Admin only)
       function renderAuditTable() {
+        const moVal = document.getElementById('audit-filter-month').value;
         const flatVal = document.getElementById('audit-filter-flat').value;
+        const initBtn = document.getElementById('btn-audit-init-month');
+        if (initBtn) initBtn.classList.toggle('hidden', moVal === 'ALL');
         const rows = state.maintenance
-          .filter(m => flatVal === 'ALL' || m.flat === flatVal)
+          .filter(m => (moVal === 'ALL' || m.month === moVal) && (flatVal === 'ALL' || m.flat === flatVal))
           .slice()
           .sort((a, b) => String(a.flat).localeCompare(String(b.flat), undefined, { numeric: true }));
 
@@ -9495,7 +9502,11 @@
           return `<tr class="${rowCls}" data-audit-id="${m.id}">
             <td class="py-1.5 px-2 font-bold text-teal-800">${escapeHtml(m.flat)}</td>
             <td class="py-1.5 px-2 text-slate-700 whitespace-nowrap">${escapeHtml(m.name)}</td>
-            <td class="py-1.5 px-2 text-slate-600 whitespace-nowrap">${escapeHtml(m.month)}</td>
+            <td class="py-1.5 px-2 whitespace-nowrap">
+              <select class="audit-month px-1.5 py-1 border border-slate-300 rounded bg-white text-xs">
+                ${getMonthsSinceApril2024Marathi().map(mo => `<option value="${escapeHtml(mo)}" ${mo === m.month ? 'selected' : ''}>${escapeHtml(mo)}</option>`).join('')}
+              </select>
+            </td>
             <td class="py-1.5 px-2 text-right"><input type="number" step="0.01" class="audit-prev w-20 px-1.5 py-1 border border-slate-300 rounded text-right bg-white" value="${Number(m.prevBalance || 0)}" /></td>
             <td class="py-1.5 px-2 text-right"><input type="number" step="0.01" class="audit-amt w-20 px-1.5 py-1 border border-slate-300 rounded text-right bg-white" value="${Number(m.amount || 0)}" /></td>
             <td class="py-1.5 px-2 text-right"><input type="number" step="0.01" class="audit-int w-16 px-1.5 py-1 border border-slate-300 rounded text-right bg-white" value="${totInt}" /></td>
@@ -9515,6 +9526,13 @@
 
       document.getElementById('btn-maint-audit').addEventListener('click', () => {
         if (!isAdmin()) return;
+        const mSel = document.getElementById('audit-filter-month');
+        const allMonths = getMonthsSinceApril2024Marathi();
+        mSel.innerHTML = '<option value="ALL">सर्व महिने (All Months)</option>' +
+          allMonths.map(mo => `<option value="${escapeHtml(mo)}">${escapeHtml(mo)}</option>`).join('');
+        const currMaintFilter = document.getElementById('maint-filter-month').value;
+        mSel.value = (currMaintFilter && currMaintFilter !== 'all' && allMonths.includes(currMaintFilter)) ? currMaintFilter : getCurrentMarathiMonth();
+
         const fSel = document.getElementById('audit-filter-flat');
         fSel.innerHTML = '<option value="ALL">सर्व फ्लॅट्स (All Flats)</option>' +
           state.members.map(m => `<option value="${escapeHtml(m.flat)}">फ्लॅट ${escapeHtml(m.flat)} — ${escapeHtml(m.name)}</option>`).join('');
@@ -9522,7 +9540,47 @@
         openModal('modal-maint-audit');
       });
 
+      document.getElementById('audit-filter-month').addEventListener('change', renderAuditTable);
       document.getElementById('audit-filter-flat').addEventListener('change', renderAuditTable);
+
+      document.getElementById('btn-audit-init-month').addEventListener('click', () => {
+        if (!isAdmin()) return;
+        const moVal = document.getElementById('audit-filter-month').value;
+        if (!moVal || moVal === 'ALL') return;
+        let added = 0;
+        state.members.forEach(mem => {
+          const exists = state.maintenance.some(m => m.month === moVal && m.flat === mem.flat);
+          if (!exists) {
+            const amt = Number(mem.monthlyRate) || 1557;
+            state.maintenance.push({
+              id: Date.now() + Math.floor(Math.random() * 100000),
+              memberId: mem.id,
+              flat: mem.flat,
+              name: mem.name,
+              month: moVal,
+              prevBalance: 0,
+              amount: amt,
+              oldInterest: 0,
+              lateInterest: 0,
+              totalPayable: amt,
+              paidAmount: 0,
+              balance: amt,
+              status: 'थकीत',
+              paymentMode: '',
+              paidDate: ''
+            });
+            added++;
+          }
+        });
+        if (added > 0) {
+          saveState();
+          renderAuditTable();
+          renderAll();
+          showToast(`${moVal} साठी ${added} फ्लॅट्सचे रेकॉर्ड तयार केले!`);
+        } else {
+          showToast(`${moVal} चे सर्व फ्लॅट्स आधीच उपलब्ध आहेत.`);
+        }
+      });
 
       document.getElementById('btn-save-audit').addEventListener('click', () => {
         if (!isAdmin()) return;
@@ -9531,6 +9589,8 @@
           const mid = Number(tr.dataset.auditId);
           const item = state.maintenance.find(m => m.id === mid);
           if (!item) return;
+          const newMo = tr.querySelector('.audit-month') ? tr.querySelector('.audit-month').value : item.month;
+          item.month = newMo;
           const prevBal = Number(tr.querySelector('.audit-prev').value) || 0;
           const amt = Number(tr.querySelector('.audit-amt').value) || 0;
           const intr = Number(tr.querySelector('.audit-int').value) || 0;
