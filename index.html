@@ -1037,12 +1037,16 @@
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="block text-xs font-semibold text-slate-700 mb-1">चालू शुल्क (₹) *</label>
-            <input id="edit-maint-amount" type="number" min="0" step="0.01" required class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-teal-500 outline-none" />
+            <input id="edit-maint-amount" type="number" step="0.01" required class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-teal-500 outline-none" />
           </div>
           <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-1">मागील थकबाकी (₹) *</label>
-            <input id="edit-maint-prev" type="number" min="0" step="0.01" required class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-teal-500 outline-none" />
+            <label class="block text-xs font-semibold text-slate-700 mb-1">मागील बाकी / अ‍ॅडव्हान्स (₹) *</label>
+            <input id="edit-maint-prev" type="number" step="0.01" required class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-teal-500 outline-none" />
           </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">भरलेली रक्कम (एकूण देकातून वजा होईल) (₹)</label>
+          <input id="edit-maint-paid" type="number" step="0.01" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-teal-500 outline-none" />
         </div>
         <div class="grid grid-cols-2 gap-3">
           <div>
@@ -10343,18 +10347,14 @@
         item.month = document.getElementById('edit-maint-month').value.trim();
         item.amount = Number(document.getElementById('edit-maint-amount').value) || 0;
         item.prevBalance = Number(document.getElementById('edit-maint-prev').value) || 0;
-        item.totalPayable = item.amount + item.prevBalance;
-        item.status = document.getElementById('edit-maint-status').value;
+        const intr = Number(item.oldInterest || 0) + Number(item.lateInterest || 0);
+        item.totalPayable = Math.round((item.prevBalance + item.amount + intr) * 100) / 100;
+        item.paidAmount = Number(document.getElementById('edit-maint-paid').value) || 0;
+        item.balance = Math.round((item.totalPayable - item.paidAmount) * 100) / 100;
         item.paidDate = document.getElementById('edit-maint-date').value.trim();
         item.paymentMode = document.getElementById('edit-maint-mode').value;
-        if (item.status === 'भरलेले') {
-          item.paidAmount = item.totalPayable;
-          item.balance = 0;
-        } else {
-          item.paidAmount = 0;
-          item.balance = item.totalPayable;
-        }
-        recalculateMaintenanceChain();
+        item.status = (item.balance <= 0 && (item.paidAmount > 0 || item.totalPayable <= 0)) ? 'भरलेले' : 'थकीत';
+        recalculateMaintenanceChain(item.flat);
         syncMaintToTransactions();
         saveState();
         closeModal('modal-edit-maint');
@@ -10528,6 +10528,7 @@
             document.getElementById('edit-maint-month').value = m.month;
             document.getElementById('edit-maint-amount').value = m.amount;
             document.getElementById('edit-maint-prev').value = m.prevBalance || 0;
+            document.getElementById('edit-maint-paid').value = m.paidAmount != null ? m.paidAmount : (m.status === 'भरलेले' ? (m.totalPayable || m.amount || 0) : 0);
             document.getElementById('edit-maint-status').value = m.status;
             document.getElementById('edit-maint-date').value = m.paidDate || '';
             document.getElementById('edit-maint-mode').value = m.paymentMode || 'ऑनलाइन';
