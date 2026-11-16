@@ -553,6 +553,12 @@
             <p class="text-xs text-slate-500">बिल तपशील पहा आणि भरलेल्या शुल्काची डिजिटल पावती मिळवा</p>
           </div>
           <div class="flex flex-wrap gap-2">
+            <button id="btn-import-aug-bills" type="button" class="admin-only hidden bg-amber-600 hover:bg-amber-700 text-white px-3.5 py-2 rounded-xl text-sm font-semibold transition items-center gap-1.5">
+              📥 ऑगस्ट २०२६ बिल डेटा भरा
+            </button>
+            <button id="btn-single-bill" type="button" class="admin-only hidden bg-sky-700 hover:bg-sky-800 text-white px-3.5 py-2 rounded-xl text-sm font-semibold transition items-center gap-1.5">
+              ➕ एका सभासदाचे बिल
+            </button>
             <button id="btn-generate-bills" type="button" class="admin-only hidden bg-emerald-700 hover:bg-emerald-800 text-white px-3.5 py-2 rounded-xl text-sm font-semibold transition items-center gap-1.5">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/></svg>
               नवीन बिल तयार करा
@@ -669,6 +675,9 @@
             <button id="btn-open-tx-modal" type="button" class="admin-only hidden bg-teal-700 hover:bg-teal-800 text-white px-4 py-2 rounded-xl text-sm font-semibold transition items-center gap-2">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
               नवीन व्यवहार नोंदवा
+            </button>
+            <button id="btn-dup-check" type="button" class="admin-only hidden bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition items-center gap-1.5">
+              🔍 डबल एंट्री तपासा
             </button>
             <button id="btn-edit-ledger-opening" type="button" class="admin-only hidden bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition items-center gap-1.5">
               ✏️ मागील शिल्लक / खर्च संपादित करा
@@ -1046,6 +1055,17 @@
     </div>
   </div>
 
+  <!-- MODAL: DUPLICATE ENTRY CHECK -->
+  <div id="modal-dup-check" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs hidden items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-2xl max-w-3xl w-full p-5 shadow-xl max-h-[92vh] overflow-y-auto">
+      <div class="flex items-center justify-between mb-2">
+        <h3 class="text-lg font-bold text-slate-900">डबल एंट्री तपासणी</h3>
+        <button data-close="modal-dup-check" class="close-modal-btn text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+      </div>
+      <div id="dup-check-body" class="space-y-4 text-sm"></div>
+    </div>
+  </div>
+
   <!-- MODAL: EDIT LEDGER OPENING BALANCE / EXPENSE -->
   <div id="modal-ledger-edit" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs hidden items-center justify-center p-4 z-50">
     <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl max-h-[92vh] overflow-y-auto">
@@ -1078,6 +1098,54 @@
             <button type="button" data-close="modal-ledger-edit" class="close-modal-btn px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100">रद्द करा</button>
             <button type="submit" class="px-4 py-2 rounded-xl text-sm font-semibold bg-teal-700 hover:bg-teal-800 text-white">जतन करा</button>
           </div>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: SINGLE MEMBER BILL -->
+  <div id="modal-single-bill" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs hidden items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl max-h-[92vh] overflow-y-auto">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-lg font-bold text-slate-900">एका सभासदाचे बिल तयार करा</h3>
+        <button data-close="modal-single-bill" class="close-modal-btn text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+      </div>
+      <form id="form-single-bill" class="space-y-3">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div class="sm:col-span-2">
+            <label class="block text-xs font-semibold text-slate-700 mb-1">सभासद (फ्लॅट) *</label>
+            <select id="sb-member" required class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500 outline-none"></select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">महिना व वर्ष *</label>
+            <select id="sb-month" required class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500 outline-none"></select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">चालू आकारणी (₹) *</label>
+            <input id="sb-amount" type="number" min="0" step="0.01" required class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500 outline-none" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">मागील थकबाकी (₹)</label>
+            <input id="sb-prev" type="number" step="0.01" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500 outline-none" />
+            <p id="sb-prev-hint" class="text-[10px] text-slate-500 mt-0.5"></p>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">जुने व्याज (₹)</label>
+            <input id="sb-oldint" type="number" min="0" step="0.01" value="0" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500 outline-none" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">उशिराचे व्याज (₹)</label>
+            <input id="sb-lateint" type="number" min="0" step="0.01" value="0" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-emerald-500 outline-none" />
+          </div>
+        </div>
+        <div class="rounded-xl bg-emerald-50 border border-emerald-200 p-3 flex items-center justify-between">
+          <span class="text-xs font-semibold text-emerald-900">एकूण देय (Total Payable)</span>
+          <span id="sb-total" class="text-lg font-bold text-emerald-800">₹0</span>
+        </div>
+        <p id="sb-exists" class="hidden text-xs font-semibold text-rose-700"></p>
+        <div class="flex justify-end gap-2 pt-1">
+          <button type="button" data-close="modal-single-bill" class="close-modal-btn px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100">रद्द करा</button>
+          <button type="submit" id="sb-submit" class="px-4 py-2 rounded-xl text-sm font-semibold bg-emerald-700 hover:bg-emerald-800 text-white">बिल तयार करा</button>
         </div>
       </form>
     </div>
@@ -8961,6 +9029,8 @@
       return dt;
     }
 
+    const AUG2026_BILLS = {"01":[1616.0,7223.0,0.0,126.0,0,8965.0,"00189"],"02":[1557.0,0.0,0.0,0.0,5001.0,-3444.0,"00190"],"03":[1557.0,5798.0,109.0,101.0,0,7565.0,"00191"],"04":[1557.0,0.0,0.0,0.0,0,1557.0,"00192"],"05":[1557.0,0.0,0.0,0.0,1.0,1556.0,"00193"],"06":[1676.0,0.0,0.0,60.0,60.0,1676.0,"00194"],"07":[1557.0,4175.0,0.0,73.0,0,5805.0,"00195"],"08":[1557.0,2765.0,21.0,48.0,0,4391.0,"00196"],"09":[1557.0,4671.0,164.0,82.0,0,6474.0,"00197"],"10":[1616.0,7048.0,248.0,123.0,0,9035.0,"00198"],"101":[1616.0,5708.0,0.0,100.0,0,7424.0,"00199"],"102":[1557.0,4211.0,0.0,74.0,0,5842.0,"00200"],"103":[1557.0,0.0,0.0,27.0,0,1584.0,"00201"],"104":[1557.0,0.0,0.0,0.0,182.0,1375.0,"00202"],"105":[1557.0,0.0,0.0,0.0,44.0,1513.0,"00203"],"106":[1676.0,0.0,0.0,29.0,0,1705.0,"00204"],"107108":[1869.0,0.0,0.0,0.0,0,1869.0,"00205"],"109":[1557.0,0.0,0.0,0.0,0,1557.0,"00206"],"110":[1616.0,21.0,0.0,0.0,0,1637.0,"00207"],"201":[1836.0,0.0,0.0,0.0,696.0,1140.0,"00208"],"202203":[1652.0,0.0,0.0,0.0,0,1652.0,"00209"],"204":[8157.0,0.0,0.0,0.0,6401.0,1756.0,"00210"],"205":[1557.0,0.0,0.0,0.0,2.0,1555.0,"00211"],"206":[1676.0,0.0,0.0,0.0,0,1676.0,"00212"],"207":[1557.0,2950.0,24.0,52.0,0,4583.0,"00213"],"208":[1557.0,55.0,0.0,1.0,0,1613.0,"00214"],"209":[1557.0,0.0,0.0,0.0,0,1557.0,"00215"],"210":[1616.0,0.0,0.0,0.0,0,1616.0,"00216"],"301":[1616.0,0.0,0.0,29.0,0,1645.0,"00217"],"302":[1557.0,4671.0,164.0,82.0,0,6474.0,"00218"],"303":[7194.0,0.0,0.0,116.0,0,7310.0,"00219"],"304":[1557.0,6552.0,241.0,115.0,0,8465.0,"00220"],"305":[1557.0,0.0,0.0,27.0,0,1584.0,"00221"],"306":[1676.0,1.0,0.0,0.0,0,1677.0,"00222"],"307":[1557.0,0.0,0.0,0.0,18.0,1539.0,"00223"],"308309":[1697.0,1.0,0.0,0.0,0,1698.0,"00224"],"310":[1836.0,0.0,0.0,0.0,54.0,1782.0,"00225"],"401":[1616.0,0.0,0.0,0.0,0,1616.0,"00226"],"402":[1557.0,7879.0,0.0,138.0,0,9574.0,"00227"],"403":[1557.0,1557.0,56.0,27.0,0,3197.0,"00228"],"404":[1557.0,58.0,0.0,1.0,0,1616.0,"00229"],"405":[1557.0,7861.0,301.0,138.0,0,9857.0,"00230"],"406":[1676.0,162306.0,71149.0,2840.0,0,237971.0,"00231"],"407":[1557.0,0.0,0.0,0.0,0,1557.0,"00232"],"408":[1557.0,0.0,0.0,27.0,0,1584.0,"00233"],"409":[1557.0,0.0,0.0,0.0,0,1557.0,"00234"],"410":[1616.0,4936.0,58.0,86.0,0,6696.0,"00235"]};  // flat: [current, oldOutstanding, oldInt, lateInt, advance(CR), totalPayable(neg=CR), billNo]
+
     function recalculateMaintenanceChain(targetFlat = null) {
       const flats = targetFlat
         ? [targetFlat]
@@ -8971,7 +9041,9 @@
           .sort((a, b) => (marathiMonthToYYYYMM(a.month) || '9999-99').localeCompare(marathiMonthToYYYYMM(b.month) || '9999-99'));
         for (let i = 0; i < list.length; i++) {
           const cur = list[i];
-          if (i > 0) {
+          if (cur.billPrev != null && isFinite(Number(cur.billPrev))) {
+            cur.prevBalance = Number(cur.billPrev);   // value taken from the printed bill (e.g. imported August 2026 bill)
+          } else if (i > 0) {
             cur.prevBalance = Number(list[i - 1].balance || 0);
           } else {
             cur.prevBalance = Number(cur.prevBalance || 0);
@@ -9029,7 +9101,12 @@
       state.transactions = state.transactions.filter(t => {
         if (t.category !== 'देखभाल शुल्क') return true;
         // Self-heal: drop stray duplicate "total" entry left beside per-instalment entries
-        if (splitBaseDescs.has(t.desc)) return false;
+        if (splitBaseDescs.has(t.desc)) {
+          if (!Array.isArray(state.dupLog)) state.dupLog = [];
+          state.dupLog.push({ date: t.date, desc: t.desc, amount: t.amount, mode: t.mode || 'ऑनलाइन', removedOn: new Date().toISOString().slice(0, 10) });
+          if (state.dupLog.length > 300) state.dupLog = state.dupLog.slice(-300);
+          return false;
+        }
         if (!t.maintMonthYM) return true;
         return validDescs.has(t.desc);
       });
@@ -9662,6 +9739,151 @@
         w.focus();
         setTimeout(() => w.print(), 250);
       });
+
+      function runDupCheck() {
+        const H = escapeHtml;
+        const tx = state.transactions || [];
+        const isMaint = t => t.category === 'देखभाल शुल्क';
+        // 1) Maintenance bills whose ledger entries don't add up to the bill's paid amount
+        const mism = [];
+        (state.maintenance || []).forEach(it => {
+          const base = `${it.flat} (${it.name}) - ${it.month}`;
+          const rel = tx.filter(t => isMaint(t) && (t.desc === base || (t.desc || '').startsWith(base + ' [हप्ता')));
+          const sum = Math.round(rel.reduce((a, t) => a + Number(t.amount || 0), 0) * 100) / 100;
+          const paid = Math.round(Number(it.paidAmount || 0) * 100) / 100;
+          if (Math.abs(sum - paid) > 0.5) mism.push({ it, rel, sum, paid });
+        });
+        // 2) Identical entries (same date, type, desc, amount, mode)
+        const seen = {}; const same = [];
+        tx.forEach(t => {
+          const k = [t.date, t.type, t.desc, Number(t.amount), t.mode || 'ऑनलाइन'].join('|');
+          (seen[k] = seen[k] || []).push(t);
+        });
+        Object.values(seen).forEach(g => { if (g.length > 1) same.push(g); });
+        // 3) Previously auto-removed duplicates
+        const log = Array.isArray(state.dupLog) ? state.dupLog : [];
+        const tbl = (rows) => `<div class="overflow-x-auto"><table class="w-full text-xs border border-slate-200"><tbody>${rows}</tbody></table></div>`;
+        const cell = 'class="border border-slate-200 px-2 py-1.5"';
+        let out = '';
+        out += `<div><p class="font-bold text-slate-800 mb-1">१) देखभाल बिल व लेजर रक्कम न जुळणारे: ${mism.length}</p>` + (mism.length
+          ? tbl(mism.map(x => `<tr><td ${cell}>${H(x.it.flat)} — ${H(x.it.name)}<br><span class="text-slate-500">${H(x.it.month)}</span></td><td ${cell}>बिलात भरले: <b>${formatINR(x.paid)}</b></td><td ${cell}>लेजरमध्ये: <b class="text-rose-700">${formatINR(x.sum)}</b><br><span class="text-slate-500">${x.rel.map(r => H(r.date) + ' ' + H(r.mode || 'ऑनलाइन') + ' ' + formatINR(r.amount)).join('<br>') || 'नोंद नाही'}</span></td></tr>`).join(''))
+          : '<p class="text-emerald-700">सर्व जुळतात ✔</p>') + '</div>';
+        out += `<div><p class="font-bold text-slate-800 mb-1">२) अगदी सारख्या दोन नोंदी: ${same.length}</p>` + (same.length
+          ? tbl(same.map(g => `<tr><td ${cell}>${H(g[0].date)}</td><td ${cell}>${H(g[0].desc)}</td><td ${cell}>${H(g[0].mode || 'ऑनलाइन')}</td><td ${cell}><b>${formatINR(g[0].amount)}</b> × ${g.length}</td></tr>`).join(''))
+          : '<p class="text-emerald-700">काही नाही ✔</p>') + '</div>';
+        out += `<div><p class="font-bold text-slate-800 mb-1">३) ॲपने आपोआप काढलेल्या डबल नोंदी: ${log.length}</p>` + (log.length
+          ? tbl(log.map(l => `<tr><td ${cell}>${H(l.date)}</td><td ${cell}>${H(l.desc)}</td><td ${cell}>${H(l.mode)}</td><td ${cell}><b>${formatINR(l.amount)}</b></td><td ${cell} class="text-slate-500">काढल्याची तारीख: ${H(l.removedOn)}</td></tr>`).join(''))
+          : '<p class="text-slate-500">अशी कोणतीही नोंद काढली गेलेली नाही.</p>') + '</div>';
+        document.getElementById('dup-check-body').innerHTML = out;
+        openModal('modal-dup-check');
+      }
+      document.getElementById('btn-import-aug-bills').addEventListener('click', () => {
+        if (!isAdmin()) return;
+        const MONTH = 'ऑगस्ट २०२६';
+        const items = state.maintenance.filter(m => m.month === MONTH);
+        const rows = [];
+        Object.keys(AUG2026_BILLS).forEach(fl => {
+          const b = AUG2026_BILLS[fl];
+          const it = items.find(m => String(m.flat) === fl);
+          if (it) rows.push({ it, b });
+        });
+        const missing = Object.keys(AUG2026_BILLS).length - rows.length;
+        const changed = rows.filter(({ it, b }) => Math.abs((Number(it.totalPayable) || 0) - b[5]) > 0.5).length;
+        const msg = `ऑगस्ट २०२६ च्या ${Object.keys(AUG2026_BILLS).length} छापील बिलांचा डेटा भरायचा?\n\n` +
+          `• बिलातून भरले जाईल: चालू आकारणी, मागील थकबाकी (आगाऊ वजा करून), जुने व्याज, उशिराचे व्याज, एकूण देय\n` +
+          `• एकूण देय बदलणारे फ्लॅट: ${changed}\n` + (missing ? `• ॲपमध्ये न सापडलेले: ${missing}\n` : '') +
+          `• ऑगस्टमधील भरलेली रक्कम (पेमेंट) बदलली जाणार नाही.\n• पुढील महिन्यांची थकबाकी आपोआप पुन्हा मोजली जाईल.`;
+        if (!confirm(msg)) return;
+        rows.forEach(({ it, b }) => {
+          it.amount = b[0];
+          it.oldInterest = b[2];
+          it.lateInterest = b[3];
+          it.billPrev = Math.round((b[1] - b[4]) * 100) / 100;
+          it.billNo = b[6];
+        });
+        recalculateMaintenanceChain();
+        syncMaintToTransactions();
+        saveState();
+        renderAll();
+        showToast(`ऑगस्ट २०२६ चा बिल डेटा ${rows.length} फ्लॅटसाठी भरला!`);
+      });
+
+      // ===== Single-member bill =====
+      function sbAutoPrev(m, month) {
+        const ym = marathiMonthToYYYYMM(month) || '9999-99';
+        const recs = state.maintenance
+          .filter(x => (x.memberId === m.id || x.flat === m.flat) && (marathiMonthToYYYYMM(x.month) || '') < ym)
+          .sort((a, b) => (marathiMonthToYYYYMM(a.month) || '').localeCompare(marathiMonthToYYYYMM(b.month) || ''));
+        const last = recs[recs.length - 1];
+        return last ? (Number(last.balance) || 0) : 0;
+      }
+      function sbCurrent() { return state.members.find(x => String(x.id) === document.getElementById('sb-member').value); }
+      function sbRefresh(resetPrev) {
+        const m = sbCurrent(); if (!m) return;
+        const month = document.getElementById('sb-month').value;
+        const auto = sbAutoPrev(m, month);
+        if (resetPrev) document.getElementById('sb-prev').value = auto;
+        document.getElementById('sb-prev-hint').textContent = `मागील महिन्याची शिल्लक (ऑटो): ${formatINR(auto)} — गरज असल्यास बदला.`;
+        const exists = state.maintenance.some(x => (x.memberId === m.id || x.flat === m.flat) && x.month === month);
+        const ex = document.getElementById('sb-exists');
+        ex.classList.toggle('hidden', !exists);
+        ex.textContent = exists ? `⚠️ फ्लॅट ${m.flat} चे ${month} चे बिल आधीच आहे. ते बदलण्यासाठी देखभाल यादीतील "संपादित करा" वापरा.` : '';
+        document.getElementById('sb-submit').disabled = exists;
+        document.getElementById('sb-submit').classList.toggle('opacity-50', exists);
+        sbTotal();
+      }
+      function sbTotal() {
+        const n = id => Number(document.getElementById(id).value) || 0;
+        document.getElementById('sb-total').textContent = formatINR(Math.round((n('sb-amount') + n('sb-prev') + n('sb-oldint') + n('sb-lateint')) * 100) / 100);
+      }
+      document.getElementById('btn-single-bill').addEventListener('click', () => {
+        if (!isAdmin()) return;
+        const sel = document.getElementById('sb-member');
+        sel.innerHTML = [...state.members].sort((a, b) => String(a.flat).localeCompare(String(b.flat), undefined, { numeric: true }))
+          .map(m => `<option value="${escapeHtml(m.id)}">फ्लॅट ${escapeHtml(m.flat)} — ${escapeHtml(m.name)}</option>`).join('');
+        const mo = document.getElementById('sb-month');
+        mo.innerHTML = getMonthsSinceApril2024Marathi().map(x => `<option value="${escapeHtml(x)}">${escapeHtml(x)}</option>`).join('');
+        mo.value = getCurrentMarathiMonth();
+        ['sb-oldint', 'sb-lateint'].forEach(id => document.getElementById(id).value = 0);
+        const m = sbCurrent();
+        document.getElementById('sb-amount').value = m ? (Number(m.monthlyRate) || 1557) : 1557;
+        sbRefresh(true);
+        openModal('modal-single-bill');
+      });
+      document.getElementById('sb-member').addEventListener('change', () => {
+        const m = sbCurrent();
+        if (m) document.getElementById('sb-amount').value = Number(m.monthlyRate) || 1557;
+        sbRefresh(true);
+      });
+      document.getElementById('sb-month').addEventListener('change', () => sbRefresh(true));
+      ['sb-amount', 'sb-prev', 'sb-oldint', 'sb-lateint'].forEach(id => document.getElementById(id).addEventListener('input', sbTotal));
+      document.getElementById('form-single-bill').addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (!isAdmin()) return;
+        const m = sbCurrent(); if (!m) return;
+        const month = document.getElementById('sb-month').value;
+        if (state.maintenance.some(x => (x.memberId === m.id || x.flat === m.flat) && x.month === month)) { showToast('हे बिल आधीच अस्तित्वात आहे.'); return; }
+        const n = id => Number(document.getElementById(id).value) || 0;
+        const amount = n('sb-amount'), prev = n('sb-prev'), oi = n('sb-oldint'), li = n('sb-lateint');
+        const auto = sbAutoPrev(m, month);
+        const total = Math.round((amount + prev + oi + li) * 100) / 100;
+        const item = {
+          id: Date.now(), memberId: m.id, flat: m.flat, name: m.name, month,
+          amount, prevBalance: prev, oldInterest: oi, lateInterest: li,
+          totalPayable: total, paidAmount: 0, balance: total, status: 'थकीत', paidDate: ''
+        };
+        if (Math.abs(prev - auto) > 0.004) item.billPrev = prev;   // manual previous balance (differs from the automatic carry-forward)
+        state.maintenance.push(item);
+        m.monthlyRate = amount;
+        recalculateMaintenanceChain();
+        syncMaintToTransactions();
+        saveState();
+        closeModal('modal-single-bill');
+        renderAll();
+        showToast(`फ्लॅट ${m.flat} चे ${month} चे बिल तयार झाले! एकूण देय: ${formatINR(item.totalPayable)}`);
+      });
+
+      document.getElementById('btn-dup-check').addEventListener('click', () => { if (isAdmin()) runDupCheck(); });
 
       document.getElementById('btn-edit-ledger-opening').addEventListener('click', () => {
         if (!isAdmin()) return;
