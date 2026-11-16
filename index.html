@@ -191,6 +191,9 @@
         <button data-tab="deposits" class="admin-only hidden nav-tab px-4 py-2.5 text-sm font-medium rounded-t-xl whitespace-nowrap transition flex items-center gap-2 text-teal-100 hover:bg-white/10">
           <span>🏦</span> बँक ठेवी (FD / RD)
         </button>
+        <button data-tab="welfare" class="admin-only hidden nav-tab px-4 py-2.5 text-sm font-medium rounded-t-xl whitespace-nowrap transition flex items-center gap-2 text-teal-100 hover:bg-white/10">
+          <span>🤝</span> वेलफेअर फंड
+        </button>
       </nav>
     </div>
   </header>
@@ -841,6 +844,49 @@
         </div>
         <div id="deposits-kpi-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-5"></div>
         <div id="deposits-cards-list" class="grid grid-cols-1 lg:grid-cols-2 gap-4"></div>
+      </div>
+    </section>
+
+
+    <!-- TAB 9: WELFARE FUND (ADMIN ONLY — COMPLETELY SEPARATE FROM MAIN ACCOUNTING) -->
+    <section id="tab-welfare" class="tab-panel hidden space-y-5">
+      <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+          <div>
+            <h2 class="text-lg font-bold text-slate-900">वेलफेअर फंड लेखाजोखा (Welfare Fund — फक्त ॲडमिनसाठी)</h2>
+            <p class="text-xs text-slate-500">हा विभाग मुख्य आर्थिक हिशोबापासून पूर्णपणे स्वतंत्र आहे (एकमेकांमध्ये कोणतीही एंट्री होत नाही).</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <select id="welfare-year-filter" class="px-3 py-2 rounded-xl border border-slate-300 text-xs sm:text-sm bg-white font-medium">
+              <option value="all">सर्व वर्षे (एकूण)</option>
+              <option value="2025">२०२५ (मागील वर्ष)</option>
+              <option value="2026">२०२६ (चालू वर्ष)</option>
+              <option value="2027">२०२७</option>
+            </select>
+            <button id="btn-open-welfare-modal" type="button" class="admin-only hidden bg-teal-700 hover:bg-teal-800 text-white px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition">
+              + नवीन वेलफेअर नोंद (जमा / खर्च)
+            </button>
+          </div>
+        </div>
+
+        <div id="welfare-kpi-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-5"></div>
+
+        <div class="overflow-x-auto rounded-xl border border-slate-200">
+          <table class="w-full text-sm text-left">
+            <thead class="bg-slate-50 text-slate-600 text-xs uppercase border-b border-slate-200">
+              <tr>
+                <th class="py-3 px-3">फ्लॅट क्र.</th>
+                <th class="py-3 px-3">सभासदाचे नाव / तपशील</th>
+                <th class="py-3 px-3">महिना व वर्ष</th>
+                <th class="py-3 px-3">प्रकार</th>
+                <th class="py-3 px-3">माध्यम</th>
+                <th class="py-3 px-3 text-right">रक्कम (₹)</th>
+                <th class="py-3 px-3 text-right">क्रिया</th>
+              </tr>
+            </thead>
+            <tbody id="welfare-table-body" class="divide-y divide-slate-100"></tbody>
+          </table>
+        </div>
       </div>
     </section>
 
@@ -8568,10 +8614,8 @@
       const baseTx = (!isAdmin() && loggedInFlat)
         ? state.transactions.filter(t => {
             if (t.type === 'खर्च') return true;
-            if (t.category === 'देखभाल शुल्क') {
-              return (t.desc || '').startsWith(loggedInFlat + ' ') || (t.desc || '').includes('फ्लॅट ' + loggedInFlat);
-            }
-            return true;
+            const d = (t.desc || '');
+            return d.startsWith(loggedInFlat + ' ') || d.includes('फ्लॅट ' + loggedInFlat) || d.includes(loggedInFlat + ' (');
           })
         : state.transactions;
       const monthTx = selYM === 'all' ? baseTx : baseTx.filter(t => t.maintMonthYM ? t.maintMonthYM === selYM : (normalizeToISO(t.date) || '').startsWith(selYM));
@@ -9208,6 +9252,91 @@
       }
     }
 
+
+    const DEFAULT_WELFARE_ENTRIES = [
+      { id: 9501, flat: '1', name: 'सुप्रिया मेस्त्री', period: 'जून 2025', year: '2025', type: 'जमा', mode: 'ऑनलाइन', amount: 6000 },
+      { id: 9502, flat: '2', name: 'धोंडीबा गुरखे', period: 'डिसेंबर 2025', year: '2025', type: 'जमा', mode: 'ऑनलाइन', amount: 5500 },
+      { id: 9503, flat: '3', name: 'सईबाई लंबोर', period: '', year: '2025', type: 'जमा', mode: '-', amount: 0 },
+      { id: 9504, flat: '6', name: 'रमेश कुडू', period: 'डिसेंबर 2025', year: '2025', type: 'जमा', mode: 'ऑनलाइन', amount: 6500 },
+      { id: 9505, flat: '7', name: 'भानू सोलंकी', period: 'जानेवारी 2026', year: '2026', type: 'जमा', mode: 'ऑनलाइन', amount: 5500 },
+      { id: 9506, flat: '9', name: 'अमृता ओश्रामकर', period: '', year: '2025', type: 'जमा', mode: '-', amount: 0 },
+      { id: 9507, flat: '10', name: 'कल्पेश पिंपळकर', period: '', year: '2025', type: 'जमा', mode: '-', amount: 0 },
+      { id: 9508, flat: '101', name: 'युसुफ शेख', period: 'जून 2025', year: '2025', type: 'जमा', mode: 'ऑनलाइन', amount: 5500 },
+      { id: 9509, flat: '105', name: 'विनायक चव्हाण', period: 'फेब्रुवारी 2026', year: '2026', type: 'जमा', mode: 'ऑनलाइन', amount: 5500 },
+      { id: 9510, flat: '110', name: 'उमेश म्हात्रे', period: 'जुलै 2025', year: '2025', type: 'जमा', mode: 'ऑनलाइन', amount: 4800 },
+      { id: 9511, flat: '204', name: 'उमेश म्हात्रे', period: 'जून 2026', year: '2026', type: 'जमा', mode: 'ऑनलाइन', amount: 5500 },
+      { id: 9512, flat: '303', name: 'मयुरेश गायकर', period: 'जून 2025', year: '2025', type: 'जमा', mode: 'ऑनलाइन', amount: 5500 },
+      { id: 9513, flat: '303', name: 'मयुरेश गायकर', period: 'जुलै 2026', year: '2026', type: 'जमा', mode: 'ऑनलाइन', amount: 5500 }
+    ];
+
+    function ensureDefaultWelfare() {
+      if (!Array.isArray(state.welfareFund) || state.welfareFund.length === 0) {
+        state.welfareFund = JSON.parse(JSON.stringify(DEFAULT_WELFARE_ENTRIES));
+      }
+    }
+
+    function extractWelfareYear(entry) {
+      if (entry.year) return String(entry.year);
+      const m = String(entry.period || '').match(/20\d\d/);
+      return m ? m[0] : '2026';
+    }
+
+    function renderWelfare() {
+      if (!isAdmin()) return;
+      ensureDefaultWelfare();
+      const yrSel = document.getElementById('welfare-year-filter');
+      const kpiEl = document.getElementById('welfare-kpi-grid');
+      const tbody = document.getElementById('welfare-table-body');
+      if (!tbody) return;
+
+      const yr = yrSel ? yrSel.value : 'all';
+      const allList = state.welfareFund || [];
+      const list = yr === 'all' ? allList : allList.filter(x => extractWelfareYear(x) === yr);
+
+      const totInc = list.filter(x => x.type === 'जमा').reduce((a, b) => a + Number(b.amount || 0), 0);
+      const totExp = list.filter(x => x.type === 'खर्च').reduce((a, b) => a + Number(b.amount || 0), 0);
+      const netBal = totInc - totExp;
+      const pendingCount = list.filter(x => x.type === 'जमा' && Number(x.amount || 0) <= 0).length;
+
+      if (kpiEl) {
+        kpiEl.innerHTML = `
+          <div class="p-3.5 rounded-xl bg-emerald-50 border border-emerald-200">
+            <p class="text-[11px] font-semibold text-emerald-700">एकूण वेलफेअर जमा</p>
+            <p class="text-xl font-bold text-emerald-800 mt-0.5">${formatINR(totInc)}</p>
+          </div>
+          <div class="p-3.5 rounded-xl bg-rose-50 border border-rose-200">
+            <p class="text-[11px] font-semibold text-rose-700">एकूण वेलफेअर खर्च</p>
+            <p class="text-xl font-bold text-rose-800 mt-0.5">${formatINR(totExp)}</p>
+          </div>
+          <div class="p-3.5 rounded-xl bg-indigo-50 border border-indigo-200">
+            <p class="text-[11px] font-semibold text-indigo-700">शिल्लक वेलफेअर फंड</p>
+            <p class="text-xl font-bold text-indigo-800 mt-0.5">${formatINR(netBal)}</p>
+          </div>
+          <div class="p-3.5 rounded-xl bg-amber-50 border border-amber-200">
+            <p class="text-[11px] font-semibold text-amber-800">एकूण नोंदी / प्रलंबित</p>
+            <p class="text-xl font-bold text-amber-900 mt-0.5">${list.length} / ${pendingCount} प्रलंबित</p>
+          </div>`;
+      }
+
+      tbody.innerHTML = list.length ? list.map(x => `
+        <tr class="hover:bg-slate-50/80 transition">
+          <td class="py-2.5 px-3 font-semibold text-slate-800">${escapeHtml(x.flat || '-')}</td>
+          <td class="py-2.5 px-3 text-slate-800 font-medium">${escapeHtml(x.name)}</td>
+          <td class="py-2.5 px-3 text-slate-600 text-xs">${x.period ? escapeHtml(x.period) : '<span class="text-amber-600 font-semibold">प्रलंबित</span>'}</td>
+          <td class="py-2.5 px-3">
+            <span class="px-2 py-0.5 rounded-full text-[11px] font-semibold ${x.type === 'खर्च' ? 'bg-rose-100 text-rose-700' : 'bg-emerald-100 text-emerald-700'}">${escapeHtml(x.type)}</span>
+          </td>
+          <td class="py-2.5 px-3 text-xs text-slate-600">${escapeHtml(x.mode || '-')}</td>
+          <td class="py-2.5 px-3 text-right font-bold ${x.type === 'खर्च' ? 'text-rose-700' : (Number(x.amount || 0) > 0 ? 'text-emerald-700' : 'text-amber-600')}">
+            ${Number(x.amount || 0) > 0 ? formatINR(x.amount) : 'प्रलंबित'}
+          </td>
+          <td class="py-2.5 px-3 text-right whitespace-nowrap">
+            <button type="button" data-edit-wf="${x.id}" class="edit-wf-btn text-xs font-semibold text-teal-700 hover:underline mr-2">संपादित</button>
+            <button type="button" data-del-wf="${x.id}" class="del-wf-btn text-xs font-semibold text-rose-600 hover:underline">काढा</button>
+          </td>
+        </tr>`).join('') : '<tr><td colspan="7" class="py-6 text-center text-slate-500">कोणत्याही वेलफेअर फंड नोंदी नाहीत.</td></tr>';
+    }
+
     function renderAll() {
       renderWaterTaxInfo();
       applyRoleUI();
@@ -9219,6 +9348,7 @@
       renderAccounting();
       renderCommunity();
       renderDeposits();
+      renderWelfare();
     }
 
     function openPayMaintenanceModal(id) {
@@ -10945,6 +11075,73 @@
         document.getElementById('tx-category').value = '';
         if (!isAdmin()) return;
   
+
+      document.getElementById('welfare-year-filter').addEventListener('change', renderWelfare);
+
+      document.getElementById('btn-open-welfare-modal').addEventListener('click', () => {
+        if (!isAdmin()) return;
+        document.getElementById('form-welfare').reset();
+        document.getElementById('wf-id').value = '';
+        document.getElementById('wf-period').value = getCurrentMarathiMonth().replace('२०२६', '2026').replace('२०२५', '2025');
+        openModal('modal-welfare');
+      });
+
+      document.getElementById('form-welfare').addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (!isAdmin()) return;
+        ensureDefaultWelfare();
+        const idVal = document.getElementById('wf-id').value;
+        const period = document.getElementById('wf-period').value.trim();
+        const yrMatch = period.match(/20\d\d/);
+        const payload = {
+          type: document.getElementById('wf-type').value,
+          mode: document.getElementById('wf-mode').value,
+          flat: document.getElementById('wf-flat').value.trim(),
+          period,
+          year: yrMatch ? yrMatch[0] : '2026',
+          name: document.getElementById('wf-name').value.trim(),
+          amount: Number(document.getElementById('wf-amount').value) || 0
+        };
+        if (idVal) {
+          const idx = state.welfareFund.findIndex(x => String(x.id) === String(idVal));
+          if (idx !== -1) state.welfareFund[idx] = { ...state.welfareFund[idx], ...payload };
+        } else {
+          state.welfareFund.push({ id: Date.now(), ...payload });
+        }
+        saveState();
+        closeModal('modal-welfare');
+        renderWelfare();
+        showToast('वेलफेअर फंड नोंद स्वतंत्रपणे जतन केली!');
+      });
+
+      document.getElementById('welfare-table-body').addEventListener('click', (e) => {
+        if (!isAdmin()) return;
+        const ed = e.target.closest('.edit-wf-btn');
+        if (ed) {
+          const w = (state.welfareFund || []).find(x => String(x.id) === String(ed.dataset.editWf));
+          if (!w) return;
+          document.getElementById('wf-id').value = w.id;
+          document.getElementById('wf-type').value = w.type || 'जमा';
+          document.getElementById('wf-mode').value = w.mode || 'ऑनलाइन';
+          document.getElementById('wf-flat').value = w.flat || '';
+          document.getElementById('wf-period').value = w.period || '';
+          document.getElementById('wf-name').value = w.name || '';
+          document.getElementById('wf-amount').value = w.amount || 0;
+          openModal('modal-welfare');
+          return;
+        }
+        const dl = e.target.closest('.del-wf-btn');
+        if (dl) {
+          const idStr = String(dl.dataset.delWf);
+          askConfirm('वेलफेअर नोंद काढा', 'ही वेलफेअर फंड नोंद काढून टाकायची का?', () => {
+            state.welfareFund = (state.welfareFund || []).filter(x => String(x.id) !== idStr);
+            saveState();
+            renderWelfare();
+            showToast('वेलफेअर नोंद काढली.');
+          });
+        }
+      });
+
       document.getElementById('btn-open-deposit-modal').addEventListener('click', () => {
         if (!isAdmin()) return;
         document.getElementById('form-deposit').reset();
@@ -11640,6 +11837,57 @@
         </div>
         <div class="flex justify-end gap-2 pt-2">
           <button type="button" data-close="modal-deposit" class="close-modal-btn px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100">रद्द करा</button>
+          <button type="submit" class="px-5 py-2 rounded-xl text-sm font-semibold bg-teal-700 hover:bg-teal-800 text-white">सेव्ह करा</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: ADD / EDIT WELFARE FUND ENTRY -->
+  <div id="modal-welfare" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs hidden items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-bold text-slate-900">वेलफेअर फंड नोंद (स्वतंत्र खाते)</h3>
+        <button data-close="modal-welfare" class="close-modal-btn text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+      </div>
+      <form id="form-welfare" class="space-y-3">
+        <input type="hidden" id="wf-id" />
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">प्रकार *</label>
+            <select id="wf-type" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm bg-white">
+              <option value="जमा">जमा (Income)</option>
+              <option value="खर्च">खर्च (Expense)</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">माध्यम *</label>
+            <select id="wf-mode" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm bg-white">
+              <option value="ऑनलाइन">ऑनलाइन</option>
+              <option value="कॅश">कॅश</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">फ्लॅट क्र. (ऐच्छिक)</label>
+            <input id="wf-flat" type="text" placeholder="उदा. 105" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-700 mb-1">महिना व वर्ष</label>
+            <input id="wf-period" type="text" placeholder="उदा. नोव्हेंबर 2026" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm" />
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">सभासदाचे नाव / खर्चाचा तपशील *</label>
+          <input id="wf-name" type="text" required placeholder="उदा. विनायक चव्हाण" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm" />
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">रक्कम (₹) *</label>
+          <input id="wf-amount" type="number" step="0.01" min="0" required class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm" />
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" data-close="modal-welfare" class="close-modal-btn px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-slate-100">रद्द करा</button>
           <button type="submit" class="px-5 py-2 rounded-xl text-sm font-semibold bg-teal-700 hover:bg-teal-800 text-white">सेव्ह करा</button>
         </div>
       </form>
