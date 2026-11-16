@@ -8698,6 +8698,7 @@
           return matchType && matchMode && matchQuery;
         });
 
+      const ledgerValidDescs = getMaintValidDescs();
       const tbody = document.getElementById('tx-table-body');
       tbody.innerHTML = filtered.length
         ? filtered.map(t => `
@@ -8714,7 +8715,7 @@
               </span>
             </td>
             <td class="py-3 px-3 text-slate-700 font-medium">${escapeHtml(t.category)}</td>
-            <td class="py-3 px-3 text-slate-800">${escapeHtml(t.desc)}</td>
+            <td class="py-3 px-3 text-slate-800">${escapeHtml(t.desc)}${(t.category === 'देखभाल शुल्क' && !ledgerValidDescs.has(t.desc)) ? ' <span class="ml-1 text-[10px] font-bold text-rose-700 bg-rose-100 px-1.5 py-0.5 rounded-full whitespace-nowrap">⚠ देखभाल यादीत नाही</span>' : ''}</td>
             <td class="py-3 px-3 text-right font-bold ${t.type === 'जमा' ? 'text-emerald-700' : 'text-rose-600'}">
               ${t.type === 'जमा' ? '+' : '-'}${formatINR(t.amount)}
             </td>
@@ -9058,6 +9059,22 @@
         }
       });
       state.maintenance.sort((a, b) => String(a.flat).localeCompare(String(b.flat), undefined, { numeric: true }) || (marathiMonthToYYYYMM(a.month) || '').localeCompare(marathiMonthToYYYYMM(b.month) || ''));
+    }
+
+    function getMaintValidDescs() {
+      // descriptions of ledger entries that are generated from (and therefore visible in) the maintenance list
+      const set = new Set();
+      (state.maintenance || []).forEach(item => {
+        const baseDesc = `${item.flat} (${item.name}) - ${item.month}`;
+        const parts = (Array.isArray(item.payments) && item.payments.length)
+          ? item.payments
+          : (Number(item.paidAmount || 0) > 0 ? [{ amount: Number(item.paidAmount) }] : []);
+        parts.forEach((p, idx) => {
+          if (Number(p.amount || 0) <= 0) return;
+          set.add(parts.length > 1 ? `${baseDesc} [हप्ता ${idx + 1}]` : baseDesc);
+        });
+      });
+      return set;
     }
 
     function syncMaintToTransactions() {
@@ -9740,147 +9757,135 @@
         setTimeout(() => w.print(), 250);
       });
 
-      function runDupCheck() {
+      // A month-total entry (e.g. "... मासिक देखभाल संकलन (Google Sheet)") that duplicates the per-flat entries of the same month
+      function isLumpTx(t, flatwiseMonthSum) {
+        if (!(flatwiseMonthSum > 0)) return false;
+        const amt = Number(t.amount || 0);
+        return Math.abs(amt - flatwiseMonthSum) <= 1 || /संकलन|collection/i.test(String(t.desc || ''));
+      }
+
+      function runDupCheck(openIt = true) {
         const H = escapeHtml;
         const tx = state.transactions || [];
-        const isMaint = t => t.category === 'देखभाल शुल्क';
-        // 1) Maintenance bills whose ledger entries don't add up to the bill's paid amount
+        const valid = getMaintValidDescs();
+        const ymOf = t => t.maintMonthYM || (t.date || '').slice(0, 7);
+        const monthSum = {};
+        tx.forEach(t => { if (t.category === 'देखभाल शुल्क' && valid.has(t.desc)) monthSum[ymOf(t)] = (monthSum[ymOf(t)] || 0) + Number(t.amount || 0); });
+        const months = [...new Set(state.maintenance.map(m => m.month))].sort((a, b) => (marathiMonthToYYYYMM(a) || '').localeCompare(marathiMonthToYYYYMM(b) || ''));
+        const flats = [...state.members].sort((a, b) => String(a.flat).localeCompare(String(b.flat), undefined, { numeric: true }));
+        const cell = 'class="border border-slate-200 px-2 py-1.5 align-top"';
+        const tbl = (head, rows) => `<div class="overflow-x-auto"><table class="w-full text-xs border border-slate-200"><thead class="bg-slate-50 text-slate-600"><tr>${head.map(h => `<th ${cell}>${h}</th>`).join('')}</tr></thead><tbody>${rows}</tbody></table></div>`;
+        const badge = (txt, c) => `<span class="px-1.5 py-0.5 rounded-full text-[10px] font-bold ${c}">${txt}</span>`;
+
+        // A) ledger "देखभाल शुल्क" entries that are NOT in the maintenance list
+        const orphans = [];
+        tx.forEach((t, idx) => {
+          if (t.category !== 'देखभाल शुल्क' || valid.has(t.desc)) return;
+          const ym = ymOf(t);
+          const amt = Number(t.amount || 0);
+          let kind = 'missing';
+          const ms = monthSum[ym] || 0;
+          if (isLumpTx(t, ms)) kind = 'lump';
+          let guess = null;
+          const cands = flats.filter(m => new RegExp('(^|[^0-9])' + String(m.flat).replace(/[^0-9A-Za-z]/g, '') + '([^0-9]|$)').test(String(t.desc || '')));
+          if (cands.length) guess = cands.sort((a, b) => String(b.flat).length - String(a.flat).length)[0];
+          const moLabel = ym && ym.length === 7 ? formatYYYYMMToMarathi(ym) : '';
+          if (kind !== 'lump' && guess) {
+            const item = state.maintenance.find(x => x.flat === guess.flat && x.month === moLabel);
+            if (item) {
+              const pays = (Array.isArray(item.payments) && item.payments.length) ? item.payments : [{ amount: item.paidAmount }];
+              if (pays.some(p => Math.abs(Number(p.amount || 0) - amt) < 0.5)) kind = 'dup';
+            }
+          }
+          orphans.push({ t, idx, kind, guess, moLabel });
+        });
+        const kindBadge = { lump: badge('एकत्र महिन्याची नोंद — डबल', 'bg-rose-100 text-rose-800'), dup: badge('संभाव्य डबल', 'bg-amber-100 text-amber-800'), missing: badge('देखभाल यादीत नाही', 'bg-sky-100 text-sky-800') };
+        const optFlats = sel => flats.map(m => `<option value="${H(m.flat)}"${sel && sel.flat === m.flat ? ' selected' : ''}>${H(m.flat)} — ${H(m.name)}</option>`).join('');
+        const optMonths = sel => months.map(mo => `<option value="${H(mo)}"${mo === sel ? ' selected' : ''}>${H(mo)}</option>`).join('');
+        const lumpCount = orphans.filter(o => o.kind === 'lump').length;
+        const lumpSum = orphans.filter(o => o.kind === 'lump').reduce((a, o) => a + Number(o.t.amount || 0), 0);
+
+        let out = `<div class="rounded-xl border border-slate-200 bg-slate-50 p-3 text-xs text-slate-700">
+          <b>लेजर ⇄ देखभाल यादी जुळवणी.</b> देखभाल शुल्क वर्गातील प्रत्येक लेजर नोंद देखभाल यादीतील फ्लॅटच्या पेमेंटशी जुळायला हवी. जी जुळत नाही ती खाली दिसते — ती <b>देखभाल यादीत जोडा</b> किंवा डबल असल्यास <b>काढा</b>.</div>`;
+
+        out += `<div><p class="font-bold text-slate-800 mb-1">१) लेजरमध्ये आहे पण देखभाल यादीत नाही: ${orphans.length}</p>`;
+        if (lumpCount) out += `<div class="mb-2 rounded-lg border border-rose-200 bg-rose-50 p-2 text-xs text-rose-900">⚠ ${lumpCount} महिन्यांची एकत्र रकमेची नोंद (एकूण ${formatINR(lumpSum)}) आहे आणि त्याच महिन्यांची फ्लॅटवार नोंदही आहे, म्हणजे ती रक्कम दोनदा मोजली जात आहे. <button data-dup-act="del-lump" class="ml-1 px-2 py-1 rounded-lg bg-rose-600 text-white font-semibold">एकत्र डबल नोंदी काढा</button></div>`;
+        out += orphans.length
+          ? tbl(['तारीख', 'वर्णन', 'पद्धत', 'रक्कम', 'स्थिती', 'कृती'], orphans.map(o => `<tr>
+              <td ${cell}>${H(o.t.date)}</td><td ${cell}>${H(o.t.desc)}${o.kind === 'lump' ? `<br><span class="text-slate-500">या महिन्याची फ्लॅटवार नोंदींची बेरीज: ${formatINR(monthSum[ymOf(o.t)] || 0)} (फरक: ${formatINR(Math.round((Number(o.t.amount || 0) - (monthSum[ymOf(o.t)] || 0)) * 100) / 100)})</span>` : ''}</td><td ${cell}>${H(o.t.mode || 'ऑनलाइन')}</td><td ${cell}><b>${formatINR(o.t.amount)}</b></td><td ${cell}>${kindBadge[o.kind]}</td>
+              <td ${cell}>${o.kind === 'lump' ? '' : `<div class="flex flex-col gap-1 min-w-[170px]"><select id="dup-flat-${o.idx}" class="border border-slate-300 rounded px-1 py-0.5">${optFlats(o.guess)}</select><select id="dup-mo-${o.idx}" class="border border-slate-300 rounded px-1 py-0.5">${optMonths(o.moLabel)}</select><button data-dup-act="add" data-idx="${o.idx}" class="px-2 py-1 rounded-lg bg-emerald-700 text-white font-semibold">➕ देखभाल यादीत जोडा</button></div>`}
+              <button data-dup-act="del" data-idx="${o.idx}" class="mt-1 px-2 py-1 rounded-lg border border-rose-300 text-rose-700 font-semibold">🗑 काढा</button></td></tr>`).join(''))
+          : '<p class="text-emerald-700">सर्व लेजर नोंदी देखभाल यादीशी जुळतात ✔</p>';
+        out += '</div>';
+
+        // B) identical entries in the ledger
+        const seen = {}; const same = [];
+        tx.forEach((t, idx) => {
+          const k = [t.date, t.type, t.category, t.desc, Number(t.amount), t.mode || 'ऑनलाइन'].join('|');
+          (seen[k] = seen[k] || []).push(idx);
+        });
+        Object.values(seen).forEach(g => { if (g.length > 1) same.push(g); });
+        out += `<div><p class="font-bold text-slate-800 mb-1">२) लेजरमध्ये अगदी सारख्या दोन/अधिक नोंदी: ${same.length}</p>` + (same.length
+          ? tbl(['तारीख', 'वर्णन', 'पद्धत', 'रक्कम', 'कृती'], same.map(g => { const t = tx[g[0]]; return `<tr><td ${cell}>${H(t.date)}</td><td ${cell}>${H(t.desc)}</td><td ${cell}>${H(t.mode || 'ऑनलाइन')}</td><td ${cell}><b>${formatINR(t.amount)}</b> × ${g.length}</td><td ${cell}><button data-dup-act="del" data-idx="${g[g.length - 1]}" class="px-2 py-1 rounded-lg border border-rose-300 text-rose-700 font-semibold">🗑 एक प्रत काढा</button></td></tr>`; }).join(''))
+          : '<p class="text-emerald-700">काही नाही ✔</p>') + '</div>';
+
+        // C) bills whose ledger entries don't add up
         const mism = [];
         (state.maintenance || []).forEach(it => {
           const base = `${it.flat} (${it.name}) - ${it.month}`;
-          const rel = tx.filter(t => isMaint(t) && (t.desc === base || (t.desc || '').startsWith(base + ' [हप्ता')));
+          const rel = tx.filter(t => t.category === 'देखभाल शुल्क' && (t.desc === base || (t.desc || '').startsWith(base + ' [हप्ता')));
           const sum = Math.round(rel.reduce((a, t) => a + Number(t.amount || 0), 0) * 100) / 100;
           const paid = Math.round(Number(it.paidAmount || 0) * 100) / 100;
           if (Math.abs(sum - paid) > 0.5) mism.push({ it, rel, sum, paid });
         });
-        // 2) Identical entries (same date, type, desc, amount, mode)
-        const seen = {}; const same = [];
-        tx.forEach(t => {
-          const k = [t.date, t.type, t.desc, Number(t.amount), t.mode || 'ऑनलाइन'].join('|');
-          (seen[k] = seen[k] || []).push(t);
-        });
-        Object.values(seen).forEach(g => { if (g.length > 1) same.push(g); });
-        // 3) Previously auto-removed duplicates
-        const log = Array.isArray(state.dupLog) ? state.dupLog : [];
-        const tbl = (rows) => `<div class="overflow-x-auto"><table class="w-full text-xs border border-slate-200"><tbody>${rows}</tbody></table></div>`;
-        const cell = 'class="border border-slate-200 px-2 py-1.5"';
-        let out = '';
-        out += `<div><p class="font-bold text-slate-800 mb-1">१) देखभाल बिल व लेजर रक्कम न जुळणारे: ${mism.length}</p>` + (mism.length
-          ? tbl(mism.map(x => `<tr><td ${cell}>${H(x.it.flat)} — ${H(x.it.name)}<br><span class="text-slate-500">${H(x.it.month)}</span></td><td ${cell}>बिलात भरले: <b>${formatINR(x.paid)}</b></td><td ${cell}>लेजरमध्ये: <b class="text-rose-700">${formatINR(x.sum)}</b><br><span class="text-slate-500">${x.rel.map(r => H(r.date) + ' ' + H(r.mode || 'ऑनलाइन') + ' ' + formatINR(r.amount)).join('<br>') || 'नोंद नाही'}</span></td></tr>`).join(''))
+        out += `<div><p class="font-bold text-slate-800 mb-1">३) बिलात भरलेली रक्कम व लेजर रक्कम न जुळणारे: ${mism.length}</p>` + (mism.length
+          ? tbl(['फ्लॅट / महिना', 'बिलात भरले', 'लेजरमध्ये'], mism.map(x => `<tr><td ${cell}>${H(x.it.flat)} — ${H(x.it.name)}<br><span class="text-slate-500">${H(x.it.month)}</span></td><td ${cell}><b>${formatINR(x.paid)}</b></td><td ${cell}><b class="text-rose-700">${formatINR(x.sum)}</b><br><span class="text-slate-500">${x.rel.map(r => H(r.date) + ' ' + H(r.mode || 'ऑनलाइन') + ' ' + formatINR(r.amount)).join('<br>') || 'नोंद नाही'}</span></td></tr>`).join(''))
           : '<p class="text-emerald-700">सर्व जुळतात ✔</p>') + '</div>';
-        out += `<div><p class="font-bold text-slate-800 mb-1">२) अगदी सारख्या दोन नोंदी: ${same.length}</p>` + (same.length
-          ? tbl(same.map(g => `<tr><td ${cell}>${H(g[0].date)}</td><td ${cell}>${H(g[0].desc)}</td><td ${cell}>${H(g[0].mode || 'ऑनलाइन')}</td><td ${cell}><b>${formatINR(g[0].amount)}</b> × ${g.length}</td></tr>`).join(''))
-          : '<p class="text-emerald-700">काही नाही ✔</p>') + '</div>';
-        out += `<div><p class="font-bold text-slate-800 mb-1">३) ॲपने आपोआप काढलेल्या डबल नोंदी: ${log.length}</p>` + (log.length
-          ? tbl(log.map(l => `<tr><td ${cell}>${H(l.date)}</td><td ${cell}>${H(l.desc)}</td><td ${cell}>${H(l.mode)}</td><td ${cell}><b>${formatINR(l.amount)}</b></td><td ${cell} class="text-slate-500">काढल्याची तारीख: ${H(l.removedOn)}</td></tr>`).join(''))
-          : '<p class="text-slate-500">अशी कोणतीही नोंद काढली गेलेली नाही.</p>') + '</div>';
-        document.getElementById('dup-check-body').innerHTML = out;
-        openModal('modal-dup-check');
-      }
-      document.getElementById('btn-import-aug-bills').addEventListener('click', () => {
-        if (!isAdmin()) return;
-        const MONTH = 'ऑगस्ट २०२६';
-        const items = state.maintenance.filter(m => m.month === MONTH);
-        const rows = [];
-        Object.keys(AUG2026_BILLS).forEach(fl => {
-          const b = AUG2026_BILLS[fl];
-          const it = items.find(m => String(m.flat) === fl);
-          if (it) rows.push({ it, b });
-        });
-        const missing = Object.keys(AUG2026_BILLS).length - rows.length;
-        const changed = rows.filter(({ it, b }) => Math.abs((Number(it.totalPayable) || 0) - b[5]) > 0.5).length;
-        const msg = `ऑगस्ट २०२६ च्या ${Object.keys(AUG2026_BILLS).length} छापील बिलांचा डेटा भरायचा?\n\n` +
-          `• बिलातून भरले जाईल: चालू आकारणी, मागील थकबाकी (आगाऊ वजा करून), जुने व्याज, उशिराचे व्याज, एकूण देय\n` +
-          `• एकूण देय बदलणारे फ्लॅट: ${changed}\n` + (missing ? `• ॲपमध्ये न सापडलेले: ${missing}\n` : '') +
-          `• ऑगस्टमधील भरलेली रक्कम (पेमेंट) बदलली जाणार नाही.\n• पुढील महिन्यांची थकबाकी आपोआप पुन्हा मोजली जाईल.`;
-        if (!confirm(msg)) return;
-        rows.forEach(({ it, b }) => {
-          it.amount = b[0];
-          it.oldInterest = b[2];
-          it.lateInterest = b[3];
-          it.billPrev = Math.round((b[1] - b[4]) * 100) / 100;
-          it.billNo = b[6];
-        });
-        recalculateMaintenanceChain();
-        syncMaintToTransactions();
-        saveState();
-        renderAll();
-        showToast(`ऑगस्ट २०२६ चा बिल डेटा ${rows.length} फ्लॅटसाठी भरला!`);
-      });
 
-      // ===== Single-member bill =====
-      function sbAutoPrev(m, month) {
-        const ym = marathiMonthToYYYYMM(month) || '9999-99';
-        const recs = state.maintenance
-          .filter(x => (x.memberId === m.id || x.flat === m.flat) && (marathiMonthToYYYYMM(x.month) || '') < ym)
-          .sort((a, b) => (marathiMonthToYYYYMM(a.month) || '').localeCompare(marathiMonthToYYYYMM(b.month) || ''));
-        const last = recs[recs.length - 1];
-        return last ? (Number(last.balance) || 0) : 0;
+        // D) already auto-removed
+        const log = Array.isArray(state.dupLog) ? state.dupLog : [];
+        out += `<div><p class="font-bold text-slate-800 mb-1">४) ॲपने आपोआप काढलेल्या डबल नोंदी: ${log.length}</p>` + (log.length
+          ? tbl(['तारीख', 'वर्णन', 'पद्धत', 'रक्कम', 'काढल्याची तारीख'], log.map(l => `<tr><td ${cell}>${H(l.date)}</td><td ${cell}>${H(l.desc)}</td><td ${cell}>${H(l.mode)}</td><td ${cell}><b>${formatINR(l.amount)}</b></td><td ${cell}>${H(l.removedOn)}</td></tr>`).join(''))
+          : '<p class="text-slate-500">अशी कोणतीही नोंद काढली गेलेली नाही.</p>') + '</div>';
+
+        document.getElementById('dup-check-body').innerHTML = out;
+        if (openIt) openModal('modal-dup-check');
       }
-      function sbCurrent() { return state.members.find(x => String(x.id) === document.getElementById('sb-member').value); }
-      function sbRefresh(resetPrev) {
-        const m = sbCurrent(); if (!m) return;
-        const month = document.getElementById('sb-month').value;
-        const auto = sbAutoPrev(m, month);
-        if (resetPrev) document.getElementById('sb-prev').value = auto;
-        document.getElementById('sb-prev-hint').textContent = `मागील महिन्याची शिल्लक (ऑटो): ${formatINR(auto)} — गरज असल्यास बदला.`;
-        const exists = state.maintenance.some(x => (x.memberId === m.id || x.flat === m.flat) && x.month === month);
-        const ex = document.getElementById('sb-exists');
-        ex.classList.toggle('hidden', !exists);
-        ex.textContent = exists ? `⚠️ फ्लॅट ${m.flat} चे ${month} चे बिल आधीच आहे. ते बदलण्यासाठी देखभाल यादीतील "संपादित करा" वापरा.` : '';
-        document.getElementById('sb-submit').disabled = exists;
-        document.getElementById('sb-submit').classList.toggle('opacity-50', exists);
-        sbTotal();
-      }
-      function sbTotal() {
-        const n = id => Number(document.getElementById(id).value) || 0;
-        document.getElementById('sb-total').textContent = formatINR(Math.round((n('sb-amount') + n('sb-prev') + n('sb-oldint') + n('sb-lateint')) * 100) / 100);
-      }
-      document.getElementById('btn-single-bill').addEventListener('click', () => {
-        if (!isAdmin()) return;
-        const sel = document.getElementById('sb-member');
-        sel.innerHTML = [...state.members].sort((a, b) => String(a.flat).localeCompare(String(b.flat), undefined, { numeric: true }))
-          .map(m => `<option value="${escapeHtml(m.id)}">फ्लॅट ${escapeHtml(m.flat)} — ${escapeHtml(m.name)}</option>`).join('');
-        const mo = document.getElementById('sb-month');
-        mo.innerHTML = getMonthsSinceApril2024Marathi().map(x => `<option value="${escapeHtml(x)}">${escapeHtml(x)}</option>`).join('');
-        mo.value = getCurrentMarathiMonth();
-        ['sb-oldint', 'sb-lateint'].forEach(id => document.getElementById(id).value = 0);
-        const m = sbCurrent();
-        document.getElementById('sb-amount').value = m ? (Number(m.monthlyRate) || 1557) : 1557;
-        sbRefresh(true);
-        openModal('modal-single-bill');
-      });
-      document.getElementById('sb-member').addEventListener('change', () => {
-        const m = sbCurrent();
-        if (m) document.getElementById('sb-amount').value = Number(m.monthlyRate) || 1557;
-        sbRefresh(true);
-      });
-      document.getElementById('sb-month').addEventListener('change', () => sbRefresh(true));
-      ['sb-amount', 'sb-prev', 'sb-oldint', 'sb-lateint'].forEach(id => document.getElementById(id).addEventListener('input', sbTotal));
-      document.getElementById('form-single-bill').addEventListener('submit', (e) => {
-        e.preventDefault();
-        if (!isAdmin()) return;
-        const m = sbCurrent(); if (!m) return;
-        const month = document.getElementById('sb-month').value;
-        if (state.maintenance.some(x => (x.memberId === m.id || x.flat === m.flat) && x.month === month)) { showToast('हे बिल आधीच अस्तित्वात आहे.'); return; }
-        const n = id => Number(document.getElementById(id).value) || 0;
-        const amount = n('sb-amount'), prev = n('sb-prev'), oi = n('sb-oldint'), li = n('sb-lateint');
-        const auto = sbAutoPrev(m, month);
-        const total = Math.round((amount + prev + oi + li) * 100) / 100;
-        const item = {
-          id: Date.now(), memberId: m.id, flat: m.flat, name: m.name, month,
-          amount, prevBalance: prev, oldInterest: oi, lateInterest: li,
-          totalPayable: total, paidAmount: 0, balance: total, status: 'थकीत', paidDate: ''
-        };
-        if (Math.abs(prev - auto) > 0.004) item.billPrev = prev;   // manual previous balance (differs from the automatic carry-forward)
-        state.maintenance.push(item);
-        m.monthlyRate = amount;
-        recalculateMaintenanceChain();
-        syncMaintToTransactions();
-        saveState();
-        closeModal('modal-single-bill');
-        renderAll();
-        showToast(`फ्लॅट ${m.flat} चे ${month} चे बिल तयार झाले! एकूण देय: ${formatINR(item.totalPayable)}`);
+
+      document.getElementById('dup-check-body').addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-dup-act]');
+        if (!btn || !isAdmin()) return;
+        const act = btn.dataset.dupAct;
+        const idx = Number(btn.dataset.idx);
+        const after = (msg) => { saveState(); renderAll(); runDupCheck(false); showToast(msg); };
+        if (act === 'del') {
+          const t = state.transactions[idx];
+          if (!t) return;
+          if (!confirm(`ही नोंद काढायची?\n${t.date} — ${t.desc} — ${formatINR(t.amount)}`)) return;
+          state.transactions.splice(idx, 1);
+          after('नोंद काढली.');
+        } else if (act === 'del-lump') {
+          if (!confirm('महिन्याच्या एकत्र (डबल) नोंदी काढायच्या? फ्लॅटवार नोंदी तशाच राहतील.')) return;
+          const valid = getMaintValidDescs();
+          const ymOf = t => t.maintMonthYM || (t.date || '').slice(0, 7);
+          const monthSum = {};
+          state.transactions.forEach(t => { if (t.category === 'देखभाल शुल्क' && valid.has(t.desc)) monthSum[ymOf(t)] = (monthSum[ymOf(t)] || 0) + Number(t.amount || 0); });
+          const before = state.transactions.length;
+          state.transactions = state.transactions.filter(t => !(t.category === 'देखभाल शुल्क' && !valid.has(t.desc) && isLumpTx(t, monthSum[ymOf(t)] || 0)));
+          after(`${before - state.transactions.length} एकत्र नोंदी काढल्या.`);
+        } else if (act === 'add') {
+          const t = state.transactions[idx];
+          if (!t) return;
+          const flat = document.getElementById('dup-flat-' + idx).value;
+          const month = document.getElementById('dup-mo-' + idx).value;
+          const item = state.maintenance.find(x => x.flat === flat && x.month === month);
+          if (!item) { showToast(`फ्लॅट ${flat} चे ${month} चे बिल देखभाल यादीत नाही — आधी "एका सभासदाचे बिल" ने ते तयार करा.`); return; }
+          if (!confirm(`${formatINR(t.amount)} हे फ्लॅट ${flat} च्या ${month} च्या देखभाल पेमेंटमध्ये जोडायचे?`)) return;
+          const mode = t.mode || 'ऑनलाइन', amount = Number(t.amount || 0), date = t.date;
+          state.transactions.splice(idx, 1);
+          markMaintenancePaid(item.id, mode, amount, date, true);   // saves, syncs the ledger entry and re-renders
+          runDupCheck(false);
+        }
       });
 
       document.getElementById('btn-dup-check').addEventListener('click', () => { if (isAdmin()) runDupCheck(); });
