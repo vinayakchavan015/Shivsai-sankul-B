@@ -185,6 +185,10 @@
           <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
           आर्थिक हिशोब
         </button>
+        <button data-tab="welfare" class="admin-only hidden nav-tab px-4 py-2.5 text-sm font-medium rounded-t-xl whitespace-nowrap transition items-center gap-2 text-teal-100 hover:bg-white/10">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+          वेलफेअर फंड 🔒
+        </button>
         <button data-tab="community" class="nav-tab px-4 py-2.5 text-sm font-medium rounded-t-xl whitespace-nowrap transition flex items-center gap-2 text-teal-100 hover:bg-white/10">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
           तक्रार व मतदान
@@ -796,6 +800,53 @@
 
 
     <!-- TAB 7: COMPLAINTS & VOTING -->
+    <section id="tab-welfare" class="tab-panel hidden space-y-5">
+      <div class="rounded-2xl border border-rose-200 bg-rose-50 p-3 text-xs text-rose-900">
+        🔒 <b>वेलफेअर फंड — फक्त ॲडमिनसाठी.</b> हा फंड सोसायटीच्या आर्थिक हिशोबापासून पूर्णपणे वेगळा आहे; तो सोसायटीच्या जमा/खर्च, शिल्लक किंवा वार्षिक नफा-तोट्यात मिसळला जात नाही आणि कोणत्याही सभासदाला दिसत नाही.
+      </div>
+      <div id="welfare-cards" class="grid grid-cols-1 sm:grid-cols-3 gap-4"></div>
+
+      <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80">
+        <h3 class="font-bold text-slate-900 text-sm mb-3">➕ नवीन वेलफेअर फंड जमा / खर्च नोंद (आता आलेली रक्कम)</h3>
+        <form id="form-welfare-entry" class="grid grid-cols-2 lg:grid-cols-6 gap-3 items-end">
+          <div class="col-span-2"><label class="block text-xs font-semibold text-slate-700 mb-1">सभासद</label><select id="wf-member" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-rose-500 outline-none"></select></div>
+          <div><label class="block text-xs font-semibold text-slate-700 mb-1">तारीख</label><input id="wf-date" type="date" required class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-rose-500 outline-none" /></div>
+          <div><label class="block text-xs font-semibold text-slate-700 mb-1">रक्कम (₹)</label><input id="wf-amount" type="number" step="0.01" required class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-rose-500 outline-none" /></div>
+          <div><label class="block text-xs font-semibold text-slate-700 mb-1">पद्धत</label><select id="wf-mode" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-rose-500 outline-none"><option>ऑनलाइन</option><option>कॅश</option></select></div>
+          <div><label class="block text-xs font-semibold text-slate-700 mb-1">प्रकार</label><select id="wf-type" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-rose-500 outline-none"><option value="in">जमा</option><option value="out">खर्च</option></select></div>
+          <div class="col-span-2 lg:col-span-5"><label class="block text-xs font-semibold text-slate-700 mb-1">शेरा (ऐच्छिक)</label><input id="wf-note" type="text" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-rose-500 outline-none" /></div>
+          <div><button type="submit" class="w-full px-4 py-2 rounded-xl text-sm font-semibold bg-rose-700 hover:bg-rose-800 text-white">नोंद जतन करा</button></div>
+        </form>
+        <div class="mt-3 flex flex-wrap gap-2">
+          <button id="btn-welfare-migrate" type="button" class="px-3 py-1.5 rounded-lg text-xs font-semibold border border-slate-300 text-slate-700 hover:bg-slate-50">🔄 सोसायटी लेजरमधील वेलफेअर नोंदी इथे हलवा</button>
+        </div>
+      </div>
+
+      <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80">
+        <div class="flex items-center justify-between mb-2">
+          <h3 class="font-bold text-slate-900 text-sm">जुनी जमा रक्कम (आधीची यादी)</h3>
+          <button id="btn-welfare-add-old" type="button" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-white">+ ओळ जोडा</button>
+        </div>
+        <div class="overflow-x-auto"><table class="w-full text-xs border border-slate-200">
+          <thead class="bg-slate-50 text-slate-600"><tr><th class="border border-slate-200 px-2 py-1.5 text-left">फ्लॅट</th><th class="border border-slate-200 px-2 py-1.5 text-left">सभासदाचे नाव</th><th class="border border-slate-200 px-2 py-1.5 text-left">महिना / वर्ष</th><th class="border border-slate-200 px-2 py-1.5 text-right">रक्कम (₹)</th><th class="border border-slate-200 px-2 py-1.5"></th></tr></thead>
+          <tbody id="welfare-old-body"></tbody>
+        </table></div>
+      </div>
+
+      <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80">
+        <h3 class="font-bold text-slate-900 text-sm mb-2">नवीन नोंदी (आता आलेली रक्कम)</h3>
+        <div class="overflow-x-auto"><table class="w-full text-xs border border-slate-200">
+          <thead class="bg-slate-50 text-slate-600"><tr><th class="border border-slate-200 px-2 py-1.5 text-left">तारीख</th><th class="border border-slate-200 px-2 py-1.5 text-left">सभासद / तपशील</th><th class="border border-slate-200 px-2 py-1.5 text-left">पद्धत</th><th class="border border-slate-200 px-2 py-1.5 text-right">रक्कम (₹)</th><th class="border border-slate-200 px-2 py-1.5"></th></tr></thead>
+          <tbody id="welfare-new-body"></tbody>
+        </table></div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80"><h3 class="font-bold text-slate-900 text-sm mb-2">महिन्यानुसार (वेलफेअर फंड)</h3><div id="welfare-monthly"></div></div>
+        <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80"><h3 class="font-bold text-slate-900 text-sm mb-2">वार्षिक (एप्रिल–मार्च)</h3><div id="welfare-yearly"></div></div>
+      </div>
+    </section>
+
     <section id="tab-community" class="tab-panel hidden space-y-6">
       <!-- Voting / Polls Section -->
       <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80">
@@ -1904,12 +1955,14 @@
       appId: "1:792573372783:web:e32fbe7c68c6ce6a46609a"
     };
     let firestoreDocRef = null;
+    let welfareDocRef = null;   // separate document: welfare fund is NOT part of the society state that members download
     let firebaseAuth = null;
     try {
       if (typeof firebase !== 'undefined') {
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         firestoreDocRef = db.collection('societies').doc('shivsai_sankul_b_v9');
+        welfareDocRef = db.collection('societies').doc('shivsai_sankul_b_welfare_private');
         if (firebase.auth) firebaseAuth = firebase.auth();
       }
     } catch (e) {
@@ -8127,6 +8180,7 @@
     }
 
     function switchTab(tabName) {
+      if (tabName === 'welfare' && !isAdmin()) tabName = 'dashboard';   // welfare fund is admin-only
       activeTab = tabName;
       document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('hidden'));
       const target = document.getElementById('tab-' + tabName);
@@ -9166,6 +9220,174 @@
       }
     }
 
+    // =================== WELFARE FUND (admin only, separate from society accounts) ===================
+    const WELFARE_LOCAL_KEY = 'shivsai_welfare_private_v1';
+    let welfare = { opening: [], entries: [], seeded: false };
+    const WELFARE_SEED = [
+      ['1', 'सुप्रिया मेस्त्री', 'जून 2025', 6000], ['2', 'धोंडीबा गुरखे', 'डिसेंबर 2025', 5500],
+      ['3', 'सईबाई लंबोर', '', 0], ['6', 'रमेश कुडू', 'डिसेंबर 2025', 6500],
+      ['7', 'भानू सोलंकी', 'जानेवारी 2026', 5500], ['9', 'अमृता ओश्रामकर', '', 0],
+      ['10', 'कल्पेश पिंपळकर', '', 0], ['101', 'युसुफ शेख', 'जून 2025', 5500],
+      ['105', 'विनायक चव्हाण', 'फेब्रुवारी 2026', 5500], ['110', 'उमेश म्हात्रे', 'जुलै 2025', 4800],
+      ['204', 'उमेश म्हात्रे', 'जून 2026', 5500], ['303', 'मयुरेश गायकर', 'जून 2025', 5500],
+      ['303', 'मयुरेश गायकर', 'जुलै 2026', 5500]
+    ];
+
+    function saveWelfare() {
+      if (!isAdmin()) return;
+      try { localStorage.setItem(WELFARE_LOCAL_KEY, JSON.stringify(welfare)); } catch (e) {}
+      if (welfareDocRef) {
+        try { welfareDocRef.set(JSON.parse(JSON.stringify(welfare)), { merge: false }).catch(() => showToast('वेलफेअर फंड क्लाउडवर जतन झाला नाही (Firestore नियम तपासा); लोकल प्रत जतन आहे.')); } catch (e) {}
+      }
+    }
+
+    function welfareMigrateFromLedger() {
+      // welfare entries that were typed into the society ledger are moved out, so the two accounts never mix
+      const isW = t => /वेलफेअर|welfare|कल्याण निधी/i.test(String(t.category || '') + ' ' + String(t.desc || ''));
+      const moved = (state.transactions || []).filter(isW);
+      if (!moved.length) return 0;
+      moved.forEach(t => welfare.entries.push({
+        id: 'm' + (t.id || Date.now() + Math.random()), date: t.date || '', flat: '', name: t.desc || 'वेलफेअर फंड',
+        amount: (t.type === 'खर्च' ? -1 : 1) * Number(t.amount || 0), mode: t.mode || 'ऑनलाइन', note: 'सोसायटी लेजरमधून हलवले'
+      }));
+      state.transactions = state.transactions.filter(t => !isW(t));
+      saveState();
+      return moved.length;
+    }
+
+    async function loadWelfare() {
+      if (!isAdmin()) return;
+      let loaded = null;
+      if (welfareDocRef) {
+        try { const d = await welfareDocRef.get(); if (d.exists) loaded = d.data(); } catch (e) {}
+      }
+      if (!loaded) { try { const raw = localStorage.getItem(WELFARE_LOCAL_KEY); if (raw) loaded = JSON.parse(raw); } catch (e) {} }
+      if (!loaded || !Array.isArray(loaded.opening)) {
+        loaded = { opening: WELFARE_SEED.map((r, i) => ({ id: i + 1, flat: r[0], name: r[1], month: r[2], amount: r[3] })), entries: [], seeded: true };
+      }
+      if (!Array.isArray(loaded.entries)) loaded.entries = [];
+      welfare = loaded;
+      const n = welfareMigrateFromLedger();
+      saveWelfare();
+      if (n) showToast(`${n} वेलफेअर नोंदी सोसायटी लेजरमधून वेलफेअर फंडात हलवल्या.`);
+      renderAll();
+    }
+
+    function welfareYM(text, isoDate) {
+      if (isoDate) return String(isoDate).slice(0, 7);
+      const t = String(text || '').replace(/[०-९]/g, c => '०१२३४५६७८९'.indexOf(c));
+      const mi = MARATHI_MONTHS.findIndex(mn => t.trim().startsWith(mn));
+      const y = (t.match(/(20\d\d)/) || [])[1];
+      return (mi >= 0 && y) ? `${y}-${String(mi + 1).padStart(2, '0')}` : '';
+    }
+    function welfareFY(ym) {
+      if (!ym) return 'तारीख नाही';
+      const [y, m] = ym.split('-').map(Number);
+      const a = m >= 4 ? y : y - 1;
+      return `${a}-${String((a + 1) % 100).padStart(2, '0')}`;
+    }
+
+    function renderWelfare() {
+      const body = document.getElementById('welfare-old-body');
+      if (!body) return;
+      const cards = document.getElementById('welfare-cards');
+      if (!isAdmin()) {   // never render welfare data for members
+        ['welfare-old-body', 'welfare-new-body', 'welfare-monthly', 'welfare-yearly', 'welfare-cards'].forEach(id => { const e = document.getElementById(id); if (e) e.innerHTML = ''; });
+        return;
+      }
+      const H = escapeHtml;
+      const cell = 'class="border border-slate-200 px-2 py-1.5"';
+      const inp = 'class="w-full px-1.5 py-1 rounded border border-slate-300 text-xs"';
+      const oldTotal = welfare.opening.reduce((a, r) => a + (Number(r.amount) || 0), 0);
+      const newTotal = welfare.entries.reduce((a, e) => a + (Number(e.amount) || 0), 0);
+      cards.innerHTML = `
+        <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80"><p class="text-xs font-medium text-slate-500">जुनी जमा रक्कम</p><p class="text-xl font-bold text-slate-800 mt-1">${formatINR(oldTotal)}</p></div>
+        <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80"><p class="text-xs font-medium text-slate-500">नवीन (आता आलेली) रक्कम</p><p class="text-xl font-bold text-emerald-700 mt-1">${formatINR(newTotal)}</p></div>
+        <div class="bg-rose-700 rounded-2xl p-4 shadow-sm"><p class="text-xs font-medium text-rose-100">एकूण वेलफेअर फंड</p><p class="text-2xl font-extrabold text-white mt-1">${formatINR(oldTotal + newTotal)}</p></div>`;
+
+      body.innerHTML = welfare.opening.map((r, i) => `<tr>
+        <td ${cell}><input data-wf-old="${i}" data-f="flat" value="${H(r.flat)}" ${inp} style="min-width:60px"/></td>
+        <td ${cell}><input data-wf-old="${i}" data-f="name" value="${H(r.name)}" ${inp} style="min-width:140px"/></td>
+        <td ${cell}><input data-wf-old="${i}" data-f="month" value="${H(r.month)}" placeholder="जून 2025" ${inp} style="min-width:110px"/></td>
+        <td ${cell}><input data-wf-old="${i}" data-f="amount" type="number" step="0.01" value="${Number(r.amount) || ''}" ${inp} style="min-width:80px;text-align:right"/></td>
+        <td ${cell}><button data-wf-del-old="${i}" class="text-rose-600 font-semibold">काढा</button></td></tr>`).join('')
+        + `<tr class="bg-slate-50 font-bold"><td ${cell} colspan="3">जुनी एकूण रक्कम</td><td ${cell} style="text-align:right">${formatINR(oldTotal)}</td><td ${cell}></td></tr>`;
+
+      const sorted = welfare.entries.map((e, i) => ({ e, i })).sort((a, b) => String(b.e.date).localeCompare(String(a.e.date)));
+      document.getElementById('welfare-new-body').innerHTML = sorted.length
+        ? sorted.map(({ e, i }) => `<tr><td ${cell}>${H(e.date)}</td><td ${cell}>${e.flat ? 'फ्लॅट ' + H(e.flat) + ' — ' : ''}${H(e.name)}${e.note ? `<br><span class="text-slate-500">${H(e.note)}</span>` : ''}</td><td ${cell}>${H(e.mode || '')}</td><td ${cell} style="text-align:right"><b class="${Number(e.amount) < 0 ? 'text-rose-600' : 'text-emerald-700'}">${formatINR(e.amount)}</b></td><td ${cell}><button data-wf-del-new="${i}" class="text-rose-600 font-semibold">काढा</button></td></tr>`).join('')
+          + `<tr class="bg-slate-50 font-bold"><td ${cell} colspan="3">नवीन एकूण</td><td ${cell} style="text-align:right">${formatINR(newTotal)}</td><td ${cell}></td></tr>`
+        : `<tr><td ${cell} colspan="5" class="text-center text-slate-500">अजून नवीन नोंद नाही.</td></tr>`;
+
+      // month-wise and financial-year-wise (old + new together)
+      const byM = {}, byY = {};
+      const add = (ym, amt, kind) => {
+        const k = ym || 'तारीख नाही', fy = welfareFY(ym);
+        (byM[k] = byM[k] || { o: 0, n: 0 })[kind] += amt;
+        (byY[fy] = byY[fy] || { o: 0, n: 0 })[kind] += amt;
+      };
+      welfare.opening.forEach(r => { if (Number(r.amount)) add(welfareYM(r.month), Number(r.amount), 'o'); });
+      welfare.entries.forEach(e => add(welfareYM('', e.date), Number(e.amount) || 0, 'n'));
+      const mk = (obj, label) => {
+        const keys = Object.keys(obj).sort();
+        return `<div class="overflow-x-auto"><table class="w-full text-xs border border-slate-200"><thead class="bg-slate-50 text-slate-600"><tr><th ${cell}>${label}</th><th ${cell}>जुनी</th><th ${cell}>नवीन</th><th ${cell}>एकूण</th></tr></thead><tbody>`
+          + keys.map(k => `<tr><td ${cell}>${H(/^\d{4}-\d{2}$/.test(k) ? formatYYYYMMToMarathi(k) : k)}</td><td ${cell} style="text-align:right">${formatINR(obj[k].o)}</td><td ${cell} style="text-align:right">${formatINR(obj[k].n)}</td><td ${cell} style="text-align:right"><b>${formatINR(obj[k].o + obj[k].n)}</b></td></tr>`).join('')
+          + `<tr class="bg-slate-50 font-bold"><td ${cell}>एकूण</td><td ${cell} style="text-align:right">${formatINR(oldTotal)}</td><td ${cell} style="text-align:right">${formatINR(newTotal)}</td><td ${cell} style="text-align:right">${formatINR(oldTotal + newTotal)}</td></tr></tbody></table></div>`;
+      };
+      document.getElementById('welfare-monthly').innerHTML = mk(byM, 'महिना');
+      document.getElementById('welfare-yearly').innerHTML = mk(byY, 'आर्थिक वर्ष');
+
+      const sel = document.getElementById('wf-member');
+      if (sel && !sel.dataset.filled) {
+        sel.innerHTML = '<option value="">— इतर / सभासद निवडा —</option>' + [...state.members].sort((a, b) => String(a.flat).localeCompare(String(b.flat), undefined, { numeric: true }))
+          .map(m => `<option value="${H(m.flat)}">फ्लॅट ${H(m.flat)} — ${H(m.name)}</option>`).join('');
+        sel.dataset.filled = '1';
+        document.getElementById('wf-date').value = new Date().toISOString().slice(0, 10);
+      }
+    }
+
+    document.getElementById('form-welfare-entry').addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (!isAdmin()) return;
+      const flat = document.getElementById('wf-member').value;
+      const m = state.members.find(x => String(x.flat) === flat);
+      let amt = Number(document.getElementById('wf-amount').value) || 0;
+      if (document.getElementById('wf-type').value === 'out') amt = -Math.abs(amt); else amt = Math.abs(amt);
+      welfare.entries.push({
+        id: 'w' + Date.now(), date: document.getElementById('wf-date').value, flat, name: m ? m.name : 'इतर',
+        amount: amt, mode: document.getElementById('wf-mode').value, note: document.getElementById('wf-note').value.trim()
+      });
+      saveWelfare();
+      document.getElementById('wf-amount').value = ''; document.getElementById('wf-note').value = '';
+      renderWelfare();
+      showToast('वेलफेअर फंड नोंद जतन झाली.');
+    });
+    document.getElementById('btn-welfare-add-old').addEventListener('click', () => {
+      if (!isAdmin()) return;
+      welfare.opening.push({ id: Date.now(), flat: '', name: '', month: '', amount: 0 });
+      saveWelfare(); renderWelfare();
+    });
+    document.getElementById('btn-welfare-migrate').addEventListener('click', () => {
+      if (!isAdmin()) return;
+      const n = welfareMigrateFromLedger();
+      if (n) { saveWelfare(); renderAll(); showToast(`${n} नोंदी वेलफेअर फंडात हलवल्या.`); } else showToast('सोसायटी लेजरमध्ये वेलफेअर नोंद आढळली नाही.');
+    });
+    document.getElementById('tab-welfare').addEventListener('change', (e) => {
+      const el = e.target.closest('[data-wf-old]');
+      if (!el || !isAdmin()) return;
+      const r = welfare.opening[Number(el.dataset.wfOld)];
+      if (!r) return;
+      r[el.dataset.f] = el.dataset.f === 'amount' ? (Number(el.value) || 0) : el.value.trim();
+      saveWelfare(); renderWelfare();
+    });
+    document.getElementById('tab-welfare').addEventListener('click', (e) => {
+      if (!isAdmin()) return;
+      const d1 = e.target.closest('[data-wf-del-old]'), d2 = e.target.closest('[data-wf-del-new]');
+      if (d1) { if (confirm('ही ओळ काढायची?')) { welfare.opening.splice(Number(d1.dataset.wfDelOld), 1); saveWelfare(); renderWelfare(); } }
+      if (d2) { if (confirm('ही नोंद काढायची?')) { welfare.entries.splice(Number(d2.dataset.wfDelNew), 1); saveWelfare(); renderWelfare(); } }
+    });
+
+
     function renderAll() {
       renderWaterTaxInfo();
       applyRoleUI();
@@ -9176,6 +9398,7 @@
       renderNotices();
       renderAccounting();
       renderCommunity();
+      renderWelfare();
     }
 
     function openPayMaintenanceModal(id) {
@@ -9410,6 +9633,7 @@
         if (errEl) errEl.classList.add('hidden');
         document.getElementById('login-member-pin').value = '';
         currentRole = 'member';
+        welfare = { opening: [], entries: [], seeded: false };   // never keep welfare data in a member session
         loggedInFlat = flatVal;
         document.getElementById('login-screen').classList.add('hidden');
         renderAll();
@@ -9435,6 +9659,7 @@
           document.getElementById('login-admin-pin').value = '';
           ensureCurrentMonthBills();
       if (isAdmin()) syncMaintToTransactions();
+          loadWelfare();
           renderAll();
           showToast('ॲडमिन लॉगिन यशस्वी!');
         } catch (err) {
