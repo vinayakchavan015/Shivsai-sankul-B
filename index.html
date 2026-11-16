@@ -9268,6 +9268,7 @@
     function ensureDefaultDeposits() {
       if (!Array.isArray(state.bankDeposits) || state.bankDeposits.length === 0) {
         state.bankDeposits = JSON.parse(JSON.stringify(DEFAULT_BANK_DEPOSITS));
+        if (isAdmin()) saveState();
       }
     }
 
@@ -9439,6 +9440,7 @@
     function ensureDefaultWelfare() {
       if (!Array.isArray(state.welfareFund) || state.welfareFund.length === 0) {
         state.welfareFund = JSON.parse(JSON.stringify(DEFAULT_WELFARE_ENTRIES));
+        if (isAdmin()) saveState();
       }
     }
 
