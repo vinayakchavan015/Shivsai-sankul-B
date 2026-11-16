@@ -670,6 +670,9 @@
               <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
               नवीन व्यवहार नोंदवा
             </button>
+            <button id="btn-dup-check" type="button" class="admin-only hidden bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition items-center gap-1.5">
+              🔍 डबल एंट्री तपासा
+            </button>
             <button id="btn-edit-ledger-opening" type="button" class="admin-only hidden bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition items-center gap-1.5">
               ✏️ मागील शिल्लक / खर्च संपादित करा
             </button>
@@ -1043,6 +1046,17 @@
         <button id="btn-print-share-cert" type="button" class="px-4 py-1.5 rounded-xl text-xs font-semibold bg-teal-700 hover:bg-teal-800 text-white">🖨️ प्रिंट करा</button>
       </div>
       <div id="share-cert-preview" class="overflow-auto p-2 bg-slate-100 rounded-xl"></div>
+    </div>
+  </div>
+
+  <!-- MODAL: DUPLICATE ENTRY CHECK -->
+  <div id="modal-dup-check" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs hidden items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-2xl max-w-3xl w-full p-5 shadow-xl max-h-[92vh] overflow-y-auto">
+      <div class="flex items-center justify-between mb-2">
+        <h3 class="text-lg font-bold text-slate-900">डबल एंट्री तपासणी</h3>
+        <button data-close="modal-dup-check" class="close-modal-btn text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
+      </div>
+      <div id="dup-check-body" class="space-y-4 text-sm"></div>
     </div>
   </div>
 
@@ -8991,6 +9005,7 @@
     function syncMaintToTransactions() {
       // Remove stale auto-synced maintenance transactions that no longer match a paid bill, and upsert all paid bills into their exact bill month
       const validDescs = new Set();
+      const splitBaseDescs = new Set();
       state.maintenance.forEach(item => {
         const ym = marathiMonthToYYYYMM(item.month) || new Date().toISOString().slice(0, 7);
         const baseDesc = `${item.flat} (${item.name}) - ${item.month}`;
@@ -9000,6 +9015,7 @@
         parts.forEach((p, idx) => {
           const amt = Number(p.amount || 0);
           if (amt <= 0) return;
+          if (parts.length > 1) splitBaseDescs.add(baseDesc);
           const desc = parts.length > 1 ? `${baseDesc} [हप्ता ${idx + 1}]` : baseDesc;
           const isoDt = normalizeToISO(p.date) || `${ym}-01`;
           validDescs.add(desc);
@@ -9025,7 +9041,15 @@
       });
       // Remove any 'देखभाल शुल्क' auto-entry whose paidAmount is now 0 or deleted
       state.transactions = state.transactions.filter(t => {
-        if (t.category !== 'देखभाल शुल्क' || !t.maintMonthYM) return true;
+        if (t.category !== 'देखभाल शुल्क') return true;
+        // Self-heal: drop stray duplicate "total" entry left beside per-instalment entries
+        if (splitBaseDescs.has(t.desc)) {
+          if (!Array.isArray(state.dupLog)) state.dupLog = [];
+          state.dupLog.push({ date: t.date, desc: t.desc, amount: t.amount, mode: t.mode || 'ऑनलाइन', removedOn: new Date().toISOString().slice(0, 10) });
+          if (state.dupLog.length > 300) state.dupLog = state.dupLog.slice(-300);
+          return false;
+        }
+        if (!t.maintMonthYM) return true;
         return validDescs.has(t.desc);
       });
     }
@@ -9133,27 +9157,7 @@
       recalculateMaintenanceChain(item.flat);
       syncMaintToTransactions();
 
-      const txDesc = `${item.flat} (${item.name}) - ${item.month}`;
-      const existingTx = state.transactions.find(t => t.category === 'देखभाल शुल्क' && t.desc === txDesc);
-      if (paidNow > 0) {
-        if (existingTx) {
-          existingTx.date = useDate;
-          existingTx.mode = item.paymentMode;
-          existingTx.amount = paidNow;
-        } else {
-          state.transactions.push({
-            id: Date.now(),
-            date: useDate,
-            type: 'जमा',
-            mode: item.paymentMode,
-            category: 'देखभाल शुल्क',
-            desc: txDesc,
-            amount: paidNow
-          });
-        }
-      } else if (existingTx) {
-        state.transactions = state.transactions.filter(t => t.id !== existingTx.id);
-      }
+      // NOTE: ledger entries are created by syncMaintToTransactions() above (one per instalment); adding another here double-counted instalment payments.
 
       saveState();
       renderAll();
@@ -9677,6 +9681,45 @@
         w.focus();
         setTimeout(() => w.print(), 250);
       });
+
+      function runDupCheck() {
+        const H = escapeHtml;
+        const tx = state.transactions || [];
+        const isMaint = t => t.category === 'देखभाल शुल्क';
+        // 1) Maintenance bills whose ledger entries don't add up to the bill's paid amount
+        const mism = [];
+        (state.maintenance || []).forEach(it => {
+          const base = `${it.flat} (${it.name}) - ${it.month}`;
+          const rel = tx.filter(t => isMaint(t) && (t.desc === base || (t.desc || '').startsWith(base + ' [हप्ता')));
+          const sum = Math.round(rel.reduce((a, t) => a + Number(t.amount || 0), 0) * 100) / 100;
+          const paid = Math.round(Number(it.paidAmount || 0) * 100) / 100;
+          if (Math.abs(sum - paid) > 0.5) mism.push({ it, rel, sum, paid });
+        });
+        // 2) Identical entries (same date, type, desc, amount, mode)
+        const seen = {}; const same = [];
+        tx.forEach(t => {
+          const k = [t.date, t.type, t.desc, Number(t.amount), t.mode || 'ऑनलाइन'].join('|');
+          (seen[k] = seen[k] || []).push(t);
+        });
+        Object.values(seen).forEach(g => { if (g.length > 1) same.push(g); });
+        // 3) Previously auto-removed duplicates
+        const log = Array.isArray(state.dupLog) ? state.dupLog : [];
+        const tbl = (rows) => `<div class="overflow-x-auto"><table class="w-full text-xs border border-slate-200"><tbody>${rows}</tbody></table></div>`;
+        const cell = 'class="border border-slate-200 px-2 py-1.5"';
+        let out = '';
+        out += `<div><p class="font-bold text-slate-800 mb-1">१) देखभाल बिल व लेजर रक्कम न जुळणारे: ${mism.length}</p>` + (mism.length
+          ? tbl(mism.map(x => `<tr><td ${cell}>${H(x.it.flat)} — ${H(x.it.name)}<br><span class="text-slate-500">${H(x.it.month)}</span></td><td ${cell}>बिलात भरले: <b>${formatINR(x.paid)}</b></td><td ${cell}>लेजरमध्ये: <b class="text-rose-700">${formatINR(x.sum)}</b><br><span class="text-slate-500">${x.rel.map(r => H(r.date) + ' ' + H(r.mode || 'ऑनलाइन') + ' ' + formatINR(r.amount)).join('<br>') || 'नोंद नाही'}</span></td></tr>`).join(''))
+          : '<p class="text-emerald-700">सर्व जुळतात ✔</p>') + '</div>';
+        out += `<div><p class="font-bold text-slate-800 mb-1">२) अगदी सारख्या दोन नोंदी: ${same.length}</p>` + (same.length
+          ? tbl(same.map(g => `<tr><td ${cell}>${H(g[0].date)}</td><td ${cell}>${H(g[0].desc)}</td><td ${cell}>${H(g[0].mode || 'ऑनलाइन')}</td><td ${cell}><b>${formatINR(g[0].amount)}</b> × ${g.length}</td></tr>`).join(''))
+          : '<p class="text-emerald-700">काही नाही ✔</p>') + '</div>';
+        out += `<div><p class="font-bold text-slate-800 mb-1">३) ॲपने आपोआप काढलेल्या डबल नोंदी: ${log.length}</p>` + (log.length
+          ? tbl(log.map(l => `<tr><td ${cell}>${H(l.date)}</td><td ${cell}>${H(l.desc)}</td><td ${cell}>${H(l.mode)}</td><td ${cell}><b>${formatINR(l.amount)}</b></td><td ${cell} class="text-slate-500">काढल्याची तारीख: ${H(l.removedOn)}</td></tr>`).join(''))
+          : '<p class="text-slate-500">अशी कोणतीही नोंद काढली गेलेली नाही.</p>') + '</div>';
+        document.getElementById('dup-check-body').innerHTML = out;
+        openModal('modal-dup-check');
+      }
+      document.getElementById('btn-dup-check').addEventListener('click', () => { if (isAdmin()) runDupCheck(); });
 
       document.getElementById('btn-edit-ledger-opening').addEventListener('click', () => {
         if (!isAdmin()) return;
