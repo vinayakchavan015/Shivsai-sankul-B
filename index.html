@@ -1337,7 +1337,7 @@
                   <span>Chq. No.</span>
                   <span class="text-right">Amount</span>
                 </div>
-                <div id="rec-payment-row" class="grid grid-cols-4 gap-1 text-[10px] pt-1 text-slate-800"></div>
+                <div id="rec-payment-row" class="text-[10px] pt-1 text-slate-800 space-y-0.5"></div>
               </div>
               <p id="rec-amount-words" class="text-[11px] font-medium text-slate-900 mt-4 pt-2"></p>
             </div>
@@ -1347,7 +1347,8 @@
               <div class="flex justify-between"><span>Old Int. Amt:</span><span id="rec-old-int" class="font-medium tabular-nums">0.00</span></div>
               <div class="flex justify-between"><span>Interest on Late Payment:</span><span id="rec-late-int" class="font-medium tabular-nums">0.00</span></div>
               <div class="flex justify-between"><span>Advance:</span><span id="rec-advance" class="font-medium tabular-nums"></span></div>
-              <div class="flex justify-between border-t border-slate-300 pt-1 font-bold text-slate-900"><span>Total Payable:</span><span id="rec-amount" class="tabular-nums"></span></div>
+              <div id="rec-paid-row" class="flex justify-between hidden"><span>Amount Received:</span><span id="rec-paid" class="font-medium tabular-nums"></span></div>
+              <div class="flex justify-between border-t border-slate-300 pt-1 font-bold text-slate-900"><span id="rec-total-label">Total Payable:</span><span id="rec-amount" class="tabular-nums"></span></div>
             </div>
           </div>
         </div>
@@ -9337,16 +9338,30 @@
       document.getElementById('rec-amount-words').textContent =
         `Rupees ${numberToEnglishWords(finalVal)} Only`;
 
+      // Every payment (full OR part / instalment) is listed as its own receipt row
+      const parts = (Array.isArray(item.payments) && item.payments.length)
+        ? item.payments.filter(p => Number(p.amount || 0) !== 0)
+        : (paidAmt > 0 ? [{ amount: paidAmt, mode: item.paymentMode || 'ऑनलाइन', date: item.paidDate }] : []);
       const payRowEl = document.getElementById('rec-payment-row');
-      if (item.status === 'भरलेले' && paidAmt > 0) {
-        payRowEl.innerHTML = `
-          <span>R-${billSeq}</span>
-          <span>${escapeHtml(item.paidDate || '—')}</span>
-          <span>${escapeHtml(item.paymentMode || 'Online')}</span>
-          <span class="text-right font-semibold">${paidAmt.toFixed(2)}</span>
-        `;
+      const modeEn = m => ((m || 'ऑनलाइन') === 'कॅश' ? 'Cash' : 'Online');
+      if (parts.length) {
+        payRowEl.innerHTML = parts.map((p, i) => `
+          <div class="grid grid-cols-4 gap-1">
+            <span>R-${billSeq}${parts.length > 1 ? '/' + (i + 1) : ''}</span>
+            <span>${escapeHtml(p.date || '—')}</span>
+            <span>${modeEn(p.mode)}</span>
+            <span class="text-right font-semibold">${Number(p.amount || 0).toFixed(2)}</span>
+          </div>`).join('') + (parts.length > 1 ? `
+          <div class="grid grid-cols-4 gap-1 border-t border-slate-300 pt-0.5 font-bold"><span class="col-span-3">Total Received</span><span class="text-right">${paidAmt.toFixed(2)}</span></div>` : '');
       } else {
-        payRowEl.innerHTML = `<span class="col-span-4 text-slate-400 italic">Unpaid / Pending</span>`;
+        payRowEl.innerHTML = `<span class="text-slate-400 italic">Unpaid / Pending</span>`;
+      }
+      const partial = paidAmt > 0 && netBalance > 0;
+      document.getElementById('rec-paid-row').classList.toggle('hidden', !(paidAmt > 0));
+      document.getElementById('rec-paid').textContent = paidAmt.toFixed(2);
+      document.getElementById('rec-total-label').textContent = partial ? 'Balance Payable:' : 'Total Payable:';
+      if (partial) {
+        document.getElementById('rec-amount-words').textContent = `Part payment received. Balance: Rupees ${numberToEnglishWords(netBalance)} Only`;
       }
 
       openModal('modal-receipt');
