@@ -18,7 +18,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    .acct-gated, .mem-hidden { display: none !important; }
     body {
       font-family: 'Noto Sans Devanagari', 'Inter', system-ui, -apple-system, sans-serif;
       background-color: #f8fafc;
@@ -80,16 +79,16 @@
       <!-- Member Login Panel -->
       <form id="form-member-login" class="space-y-4">
         <div class="bg-teal-50 border border-teal-200/80 rounded-xl p-3 text-xs text-teal-900 leading-relaxed">
-          <strong>सभासद प्रवेश (सुरक्षित):</strong> फक्त तुमची स्वतःची माहिती दिसेल. पासवर्ड ॲडमिनकडून मिळवा.
+          <strong>सभासद प्रवेश (Read-Only):</strong> सभासदांना सोसायटीचे हिशोब, सूचना फलक, भाडेकरू माहिती व स्वतःची देखभाल पावती फक्त पाहता येईल. बदल करण्याचे अधिकार फक्त ॲडमिनकडे आहेत.
         </div>
         <div>
           <label class="block text-xs font-semibold text-slate-700 mb-1">तुमचा फ्लॅट क्रमांक निवडा</label>
           <select id="login-member-flat" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm bg-white focus:ring-2 focus:ring-teal-500 outline-none"></select>
         </div>
         <div>
-          <label class="block text-xs font-semibold text-slate-700 mb-1">तुमचा पासवर्ड *</label>
-          <input id="login-member-pin" type="password" required placeholder="उदा. मोबाईलचे शेवटचे ४ अंक" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-teal-500 outline-none" />
-          <p class="text-[11px] text-slate-500 mt-1">टीप: पासवर्ड विसरल्यास ॲडमिनशी संपर्क साधा.</p>
+          <label class="block text-xs font-semibold text-slate-700 mb-1">तुमचा ४-अंकी पासवर्ड / PIN *</label>
+          <input id="login-member-pin" type="password" inputmode="numeric" required placeholder="उदा. मोबाईलचे शेवटचे ४ अंक" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-teal-500 outline-none" />
+          <p class="text-[11px] text-slate-500 mt-1">टीप: डीफॉल्ट PIN हा तुमच्या नोंदणीकृत मोबाईल नंबरचे शेवटचे ४ अंक (किंवा १२३४) आहे.</p>
           <p id="member-login-error" class="text-xs font-semibold text-rose-600 mt-1 hidden"></p>
         </div>
         <button type="submit" class="w-full py-2.5 rounded-xl bg-teal-700 hover:bg-teal-800 text-white font-semibold text-sm transition">
@@ -147,7 +146,7 @@
         </div>
 
         <div class="flex flex-wrap items-center gap-2 self-start md:self-auto">
-          <button id="btn-change-pin" type="button" class="inline-flex text-xs bg-white/15 hover:bg-white/25 text-white px-3 py-1.5 rounded-lg font-medium transition items-center gap-1.5 border border-white/20">
+          <button id="btn-change-pin" type="button" class="admin-only hidden text-xs bg-white/15 hover:bg-white/25 text-white px-3 py-1.5 rounded-lg font-medium transition items-center gap-1.5 border border-white/20">
             पासवर्ड बदला
           </button>
           <button id="btn-export-json" type="button" class="admin-only hidden text-xs bg-white/15 hover:bg-white/25 text-white px-3 py-1.5 rounded-lg font-medium transition items-center gap-1.5 border border-white/20">
@@ -166,11 +165,11 @@
           <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
           डॅशबोर्ड
         </button>
-        <button data-tab="members" class="admin-only hidden nav-tab px-4 py-2.5 text-sm font-medium rounded-t-xl whitespace-nowrap transition flex items-center gap-2 text-teal-100 hover:bg-white/10">
+        <button data-tab="members" class="nav-tab px-4 py-2.5 text-sm font-medium rounded-t-xl whitespace-nowrap transition flex items-center gap-2 text-teal-100 hover:bg-white/10">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
           सभासद (मालक)
         </button>
-        <button data-tab="tenants" class="admin-only hidden nav-tab px-4 py-2.5 text-sm font-medium rounded-t-xl whitespace-nowrap transition flex items-center gap-2 text-teal-100 hover:bg-white/10">
+        <button data-tab="tenants" class="nav-tab px-4 py-2.5 text-sm font-medium rounded-t-xl whitespace-nowrap transition flex items-center gap-2 text-teal-100 hover:bg-white/10">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
           भाडेकरू व करार
         </button>
@@ -190,7 +189,7 @@
           <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
           वेलफेअर फंड 🔒
         </button>
-        <button data-tab="community" class="admin-only hidden nav-tab px-4 py-2.5 text-sm font-medium rounded-t-xl whitespace-nowrap transition flex items-center gap-2 text-teal-100 hover:bg-white/10">
+        <button data-tab="community" class="nav-tab px-4 py-2.5 text-sm font-medium rounded-t-xl whitespace-nowrap transition flex items-center gap-2 text-teal-100 hover:bg-white/10">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"/></svg>
           तक्रार व मतदान
         </button>
@@ -681,7 +680,6 @@
               <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
               नवीन व्यवहार नोंदवा
             </button>
-            <button id="btn-access-requests" type="button" class="admin-only hidden bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition items-center gap-1.5">🔑 हिशोब मागण्या</button>
             <button id="btn-dup-check" type="button" class="admin-only hidden bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition items-center gap-1.5">
               🔍 डबल एंट्री तपासा
             </button>
@@ -1119,16 +1117,6 @@
     </div>
   </div>
 
-  <div id="modal-access-requests" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs hidden items-center justify-center p-4 z-50">
-    <div class="bg-white rounded-2xl max-w-xl w-full p-5 shadow-xl max-h-[92vh] overflow-y-auto">
-      <div class="flex items-center justify-between mb-3">
-        <h3 class="text-lg font-bold text-slate-900">आर्थिक हिशोब — सभासद विनंत्या <span class="text-xs font-normal text-slate-400">(आवृत्ती v7)</span></h3>
-        <button data-close="modal-access-requests" class="close-modal-btn text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
-      </div>
-      <div id="access-req-body" class="space-y-4 text-sm"></div>
-    </div>
-  </div>
-
   <!-- MODAL: EDIT LEDGER OPENING BALANCE / EXPENSE -->
   <div id="modal-ledger-edit" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs hidden items-center justify-center p-4 z-50">
     <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl max-h-[92vh] overflow-y-auto">
@@ -1547,7 +1535,7 @@
   <div id="modal-change-pin" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs hidden items-center justify-center p-4 z-50">
     <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-xl">
       <div class="flex items-center justify-between mb-4">
-        <h3 class="text-lg font-bold text-slate-900">पासवर्ड बदला</h3>
+        <h3 class="text-lg font-bold text-slate-900">ॲडमिन पासवर्ड बदला</h3>
         <button data-close="modal-change-pin" class="close-modal-btn text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
       </div>
       <form id="form-change-pin" class="space-y-3.5">
@@ -1557,7 +1545,7 @@
         </div>
         <div>
           <label class="block text-xs font-semibold text-slate-700 mb-1">नवीन पासवर्ड *</label>
-          <input id="pin-new" type="password" required minlength="8" placeholder="किमान ८ अक्षरे" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-teal-500 outline-none" />
+          <input id="pin-new" type="password" required minlength="4" placeholder="किमान ४ अक्षरे/अंक" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-teal-500 outline-none" />
         </div>
         <div>
           <label class="block text-xs font-semibold text-slate-700 mb-1">नवीन पासवर्ड पुन्हा टाका *</label>
@@ -1905,7 +1893,7 @@
   </div>
 
   <!-- Toast Notification -->
-  <div id="toast" class="fixed bottom-5 right-5 bg-slate-900 text-white px-4 py-2.5 rounded-xl shadow-lg text-sm font-medium transform translate-y-16 opacity-0 transition-all duration-300 z-[100] pointer-events-none"></div>
+  <div id="toast" class="fixed bottom-5 right-5 bg-slate-900 text-white px-4 py-2.5 rounded-xl shadow-lg text-sm font-medium transform translate-y-16 opacity-0 transition-all duration-300 z-50 pointer-events-none"></div>
 
   <!-- MODAL: Save Society Water Bill Details -->
   <div id="modal-water-info" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs hidden items-center justify-center p-4 z-50">
@@ -1969,13 +1957,10 @@
     let firestoreDocRef = null;
     let welfareDocRef = null;   // separate document: welfare fund is NOT part of the society state that members download
     let firebaseAuth = null;
-    let fdb = null;
     try {
       if (typeof firebase !== 'undefined') {
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
-        try { db.settings({ experimentalAutoDetectLongPolling: true, merge: true }); } catch (e) {}
-        fdb = db;
         firestoreDocRef = db.collection('societies').doc('shivsai_sankul_b_v9');
         welfareDocRef = db.collection('societies').doc('shivsai_sankul_b_welfare_private');
         if (firebase.auth) firebaseAuth = firebase.auth();
@@ -1984,12 +1969,5963 @@
       firestoreDocRef = null;
     }
     const ADMIN_USER = 'admin';
-    const ADMIN_PIN = '';
+    const ADMIN_PIN = 'शिवसाई';
 
     const DEFAULT_DATA = {
-  "polls": [], "complaints": [], "committee": [], "members": [], "tenants": [],
-  "loan": {}, "maintenance": [], "notices": [], "transactions": [],
-  "bankDetails": {"bankName":"","branch":"","accountName":"","accountNumber":"","ifscCode":"","accountType":"","customerId":""}
+  "adminPin": "शिवसाई",
+  "polls": [
+    {
+      "id": 501,
+      "question": "इमारतीचे बाह्य रंगकाम व दुरुस्ती काम डिसेंबर २०२६ मध्ये सुरू करावे का?",
+      "options": [
+        "होय, सुरू करावे",
+        "नाही, पुढे ढकलावे",
+        "सर्वसाधारण सभेत ठरवू"
+      ],
+      "votes": {
+        "0": 1,
+        "1": 0,
+        "2": 0
+      },
+      "votedFlats": {
+        "105": 0
+      },
+      "deadline": "2026-11-30",
+      "closed": false
+    }
+  ],
+  "complaints": [
+    {
+      "id": 601,
+      "flat": "105",
+      "category": "वीज / जिना लाईट",
+      "title": "पहिल्या मजल्यावरील पॅसेज बल्ब बदलणे",
+      "desc": "पहिल्या मजल्यावरील जिन्याजवळील एलईडी बल्ब बंद पडला आहे, कृपया बदलून द्यावा.",
+      "date": "2026-11-13",
+      "status": "प्रलंबित"
+    }
+  ],
+  "committee": [
+    {
+      "id": 1,
+      "role": "अध्यक्ष (Chairman)",
+      "name": "नाव अपडेट करा",
+      "flat": "—",
+      "phone": ""
+    },
+    {
+      "id": 2,
+      "role": "सचिव (Secretary)",
+      "name": "नाव अपडेट करा",
+      "flat": "—",
+      "phone": ""
+    },
+    {
+      "id": 3,
+      "role": "खजिनदार (Treasurer)",
+      "name": "नाव अपडेट करा",
+      "flat": "—",
+      "phone": ""
+    }
+  ],
+  "members": [
+    {
+      "id": 1,
+      "flat": "01",
+      "name": "SUPRIYA MESTRY",
+      "phone": "",
+      "vehicle": "नाही",
+      "monthlyRate": 1616.0
+    },
+    {
+      "id": 2,
+      "flat": "02",
+      "name": "KONDIBA GURAKHE",
+      "phone": "",
+      "vehicle": "नाही",
+      "monthlyRate": 1557.0
+    },
+    {
+      "id": 3,
+      "flat": "03",
+      "name": "SAIBAI LAMBOR",
+      "phone": "",
+      "vehicle": "नाही",
+      "monthlyRate": 1920.11
+    },
+    {
+      "id": 4,
+      "flat": "04",
+      "name": "DINESH TAMBE",
+      "phone": "",
+      "vehicle": "नाही",
+      "monthlyRate": 1557.0
+    },
+    {
+      "id": 5,
+      "flat": "05",
+      "name": "VAISHALI COUGALE",
+      "phone": "",
+      "vehicle": "नाही",
+      "monthlyRate": 1557.0
+    },
+    {
+      "id": 6,
+      "flat": "06",
+      "name": "RAMESH KADU",
+      "phone": "",
+      "vehicle": "नाही",
+      "monthlyRate": 1676.0
+    },
+    {
+      "id": 7,
+      "flat": "07",
+      "name": "BHANU SOLANKI",
+      "phone": "",
+      "vehicle": "नाही",
+      "monthlyRate": 1631.0
+    },
+    {
+      "id": 8,
+      "flat": "08",
+      "name": "SANJAY YERAM",
+      "phone": "",
+      "vehicle": "नाही",
+      "monthlyRate": 1141.47
+    },
+    {
+      "id": 9,
+      "flat": "09",
+      "name": "AMRUTA OSHRAMKAR",
+      "phone": "",
+      "vehicle": "नाही",
+      "monthlyRate": 4752.0
+    },
+    {
+      "id": 10,
+      "flat": "10",
+      "name": "KALPESH PIMPALKAR",
+      "phone": "",
+      "vehicle": "नाही",
+      "monthlyRate": 4933.0
+    },
+    {
+      "id": 11,
+      "flat": "101",
+      "name": "YOUSUF SHAIKH",
+      "phone": "",
+      "vehicle": "नाही",
+      "monthlyRate": 155.0
+    },
+    {
+      "id": 12,
+      "flat": "102",
+      "name": "SUCHITA MHATRE",
+      "phone": "",
+      "vehicle": "नाही",
+      "monthlyRate": 4026.0
+    },
+    {
+      "id": 13,
+      "flat": "103",
+      "name": "ARJUN ZAGADE",
+      "phone": "",
+      "vehicle": "नाही",
+      "monthlyRate": 1557.0
+    },
+    {
+      "id": 14,
+      "flat": "104",
+      "name": "SANJAY BHONSALE",
+      "phone": "",
+      "vehicle": "नाही",
+      "monthlyRate": 1375.0
+    },
+    {
+      "id": 15,
+      "flat": "105",
+      "name": "SHIVAJI CHAVAN",
+      "phone": "",
+      "vehicle": "नाही",
+      "monthlyRate": 1556.0
+    },
+    {
+      "id": 16,
+      "flat": "106",
+      "name": "SAGAR SHEDEKAR",
+      "phone": "",
+      "vehicle": "नाही",
+      "monthlyRate": 1676.0
+    },
+    {
+      "id": 17,
+      "flat": "107108",
+      "name": "AATMARAM DERVANKAR",
+      "phone": "",
+      "vehicle": "नाही",
+      "monthlyRate": 1869.0
+    },
+    {
+      "id": 18,
+      "flat": "109",
+      "name": "KAUSTUBH DALAVI",
+      "phone": "",
+      "vehicle": "नाही",
+      "monthlyRate": 1557.0
+    },
+    {
+      "id": 19,
+      "flat": "110",
+      "name": "KALPNA BANE",
+      "phone": "",
+      "vehicle": "नाही",
+      "monthlyRate": 2804.0
+    },
+    {
+      "id": 20,
+      "flat": "201",
+      "name": "SUCHITA KOLAMKAR",
+      "phone": "",
+      "vehicle": "नाही",
+      "monthlyRate": 1196.0
+    },
+    {
+      "id": 21,
+      "flat": "202203",
+      "name": "SAGAR DHOND",
+      "phone": "",
+      "vehicle": "नाही",
+      "monthlyRate": 1652.0
+    },
+    {
+      "id": 22,
+      "flat": "204",
+      "name": "UMESH MHATRE",
+      "phone": "",
+      "vehicle": "नाही",
+      "monthlyRate": 3224.0
+    },
+    {
+      "id": 23,
+      "flat": "205",
+      "name": "YOGESH SAGVEKAR",
+      "phone": "",
+      "vehicle": "नाही",
+      "monthlyRate": 2089.0
+    },
+    {
+      "id": 24,
+      "flat": "206",
+      "name": "RAGHUNATH HALANDE",
+      "phone": "",
+      "vehicle": "नाही",
+      "monthlyRate": 1676.0
+    },
+    {
+      "id": 25,
+      "flat": "207",
+      "name": "SIDHARTH SHINDE",
+      "phone": "",
+      "vehicle": "नाही",
+      "monthlyRate": 2950.0
+    },
+    {
+      "id": 26,
+      "flat": "208",
+      "name": "GURUNATH DHURI",
+      "phone": "",
+      "vehicle": "नाही",
+      "monthlyRate": 1557.0
+    },
+    {
+      "id": 27,
+      "flat": "209",
+      "name": "DILIP PAVNAK",
+      "phone": "",
+      "vehicle": "नाही",
+      "monthlyRate": 1557.0
+    },
+    {
+      "id": 28,
+      "flat": "210",
+      "name": "MANDAR SHIRKE",
+      "phone": "",
+      "vehicle": "नाही",
+      "monthlyRate": 1616.0
+    },
+    {
+      "id": 29,
+      "flat": "301",
+      "name": "RUPESH PILAJI",
+      "phone": "",
+      "vehicle": "नाही",
+      "monthlyRate": 1616.0
+    },
+    {
+      "id": 30,
+      "flat": "302",
+      "name": "SUBODH PAWAR",
+      "phone": "",
+      "vehicle": "नाही",
+      "monthlyRate": 4752.0
+    },
+    {
+      "id": 31,
+      "flat": "303",
+      "name": "SANJAY DHODI",
+      "phone": "",
+      "vehicle": "नाही",
+      "monthlyRate": 10557.0
+    },
+    {
+      "id": 32,
+      "flat": "304",
+      "name": "YOGESH PAGADE",
+      "phone": "",
+      "vehicle": "नाही",
+      "monthlyRate": 5381.0
+    },
+    {
+      "id": 33,
+      "flat": "305",
+      "name": "SACHIN JADE",
+      "phone": "",
+      "vehicle": "नाही",
+      "monthlyRate": 1557.0
+    },
+    {
+      "id": 34,
+      "flat": "306",
+      "name": "MAHESH PATIL",
+      "phone": "",
+      "vehicle": "नाही",
+      "monthlyRate": 3381.0
+    },
+    {
+      "id": 35,
+      "flat": "307",
+      "name": "NITESH DHUMAL",
+      "phone": "",
+      "vehicle": "नाही",
+      "monthlyRate": 2039.0
+    },
+    {
+      "id": 36,
+      "flat": "308309",
+      "name": "SURESH PAITHANE",
+      "phone": "",
+      "vehicle": "नाही",
+      "monthlyRate": 1697.0
+    },
+    {
+      "id": 37,
+      "flat": "310",
+      "name": "SANTOSH BHOVAD",
+      "phone": "",
+      "vehicle": "नाही",
+      "monthlyRate": 1576.0
+    },
+    {
+      "id": 38,
+      "flat": "401",
+      "name": "RAJU GAUTAM",
+      "phone": "",
+      "vehicle": "नाही",
+      "monthlyRate": 1616.0
+    },
+    {
+      "id": 39,
+      "flat": "402",
+      "name": "VIJAY PARAB",
+      "phone": "",
+      "vehicle": "नाही",
+      "monthlyRate": 1599.0
+    },
+    {
+      "id": 40,
+      "flat": "403",
+      "name": "ROSHAN MALUSARE",
+      "phone": "",
+      "vehicle": "नाही",
+      "monthlyRate": 3015.0
+    },
+    {
+      "id": 41,
+      "flat": "404",
+      "name": "RAMESH TRIPATHI",
+      "phone": "",
+      "vehicle": "नाही",
+      "monthlyRate": 5119.0
+    },
+    {
+      "id": 42,
+      "flat": "405",
+      "name": "MAHESH POOJARI",
+      "phone": "",
+      "vehicle": "नाही",
+      "monthlyRate": 6190.0
+    },
+    {
+      "id": 43,
+      "flat": "406",
+      "name": "GOVIND GADE",
+      "phone": "",
+      "vehicle": "नाही",
+      "monthlyRate": 4792.0
+    },
+    {
+      "id": 44,
+      "flat": "407",
+      "name": "KRUTIKA CHOGLE",
+      "phone": "",
+      "vehicle": "नाही",
+      "monthlyRate": 1557.0
+    },
+    {
+      "id": 45,
+      "flat": "408",
+      "name": "RAVINDRA RASAL",
+      "phone": "",
+      "vehicle": "नाही",
+      "monthlyRate": 1557.0
+    },
+    {
+      "id": 46,
+      "flat": "409",
+      "name": "MORESHWAR GHADI",
+      "phone": "",
+      "vehicle": "नाही",
+      "monthlyRate": 1557.0
+    },
+    {
+      "id": 47,
+      "flat": "410",
+      "name": "SURESH NIMBALKAR",
+      "phone": "",
+      "vehicle": "नाही",
+      "monthlyRate": 5050.0
+    }
+  ],
+  "tenants": [
+    {
+      "id": 401,
+      "flat": "01",
+      "name": "सुप्रिया मेस्त्री",
+      "owner": "SUPRIYA MESTRY",
+      "phone": "919322669254",
+      "fromDate": "2026-06-07",
+      "toDate": "2027-04-07",
+      "nocStatus": "मिळाले",
+      "nocAmount": 1100.0
+    },
+    {
+      "id": 402,
+      "flat": "02",
+      "name": "धोंडीबा गुरखे",
+      "owner": "KONDIBA GURAKHE",
+      "phone": "919969683614",
+      "fromDate": "2026-06-23",
+      "toDate": "2027-05-22",
+      "nocStatus": "बाकी",
+      "nocAmount": 0
+    },
+    {
+      "id": 403,
+      "flat": "03",
+      "name": "सईबाई लंबोर",
+      "owner": "SAIBAI LAMBOR",
+      "phone": "917045181033",
+      "fromDate": "2025-01-05",
+      "toDate": "2026-03-31",
+      "nocStatus": "बाकी",
+      "nocAmount": 0
+    },
+    {
+      "id": 404,
+      "flat": "06",
+      "name": "रमेश कुडू",
+      "owner": "RAMESH KADU",
+      "phone": "",
+      "fromDate": "2025-11-19",
+      "toDate": "2026-10-18",
+      "nocStatus": "बाकी",
+      "nocAmount": 0
+    },
+    {
+      "id": 405,
+      "flat": "07",
+      "name": "भानू सोलंकी",
+      "owner": "BHANU SOLANKI",
+      "phone": "",
+      "fromDate": "2025-12-20",
+      "toDate": "2027-10-20",
+      "nocStatus": "मिळाले",
+      "nocAmount": 2200.0
+    },
+    {
+      "id": 406,
+      "flat": "09",
+      "name": "अमृता ओश्रामकर",
+      "owner": "AMRUTA OSHRAMKAR",
+      "phone": "",
+      "fromDate": "2026-01-05",
+      "toDate": "2027-03-30",
+      "nocStatus": "बाकी",
+      "nocAmount": 0
+    },
+    {
+      "id": 407,
+      "flat": "10",
+      "name": "कल्पेश पिंपळकर",
+      "owner": "KALPESH PIMPALKAR",
+      "phone": "917798849695",
+      "fromDate": "2026-02-04",
+      "toDate": "2027-01-03",
+      "nocStatus": "मिळाले",
+      "nocAmount": 2200.0
+    },
+    {
+      "id": 408,
+      "flat": "101",
+      "name": "युसुफ शेख",
+      "owner": "YOUSUF SHAIKH",
+      "phone": "",
+      "fromDate": "2026-01-05",
+      "toDate": "2027-04-30",
+      "nocStatus": "मिळाले",
+      "nocAmount": 1100.0
+    },
+    {
+      "id": 409,
+      "flat": "105",
+      "name": "विनायक चव्हाण",
+      "owner": "SHIVAJI CHAVAN",
+      "phone": "917021262303",
+      "fromDate": "2026-10-02",
+      "toDate": "2027-01-09",
+      "nocStatus": "मिळाले",
+      "nocAmount": 1100.0
+    },
+    {
+      "id": 410,
+      "flat": "110",
+      "name": "कल्पना बने",
+      "owner": "KALPNA BANE",
+      "phone": "",
+      "fromDate": "2026-01-01",
+      "toDate": "2027-05-30",
+      "nocStatus": "बाकी",
+      "nocAmount": 0
+    },
+    {
+      "id": 411,
+      "flat": "204",
+      "name": "उमेश म्हात्रे",
+      "owner": "UMESH MHATRE",
+      "phone": "",
+      "fromDate": "2026-01-06",
+      "toDate": "2027-04-30",
+      "nocStatus": "बाकी",
+      "nocAmount": 0
+    },
+    {
+      "id": 412,
+      "flat": "303",
+      "name": "मयुरेश गायकर",
+      "owner": "SANJAY DHODI",
+      "phone": "",
+      "fromDate": "2026-06-14",
+      "toDate": "2027-04-14",
+      "nocStatus": "मिळाले",
+      "nocAmount": 1100.0
+    },
+    {
+      "id": 413,
+      "flat": "308/309",
+      "name": "सुरेश पैठणे",
+      "owner": "",
+      "phone": "",
+      "fromDate": "2026-01-11",
+      "toDate": "2027-09-30",
+      "nocStatus": "बाकी",
+      "nocAmount": 0
+    },
+    {
+      "id": 414,
+      "flat": "402",
+      "name": "विजय परब",
+      "owner": "VIJAY PARAB",
+      "phone": "",
+      "fromDate": "",
+      "toDate": "",
+      "nocStatus": "बाकी",
+      "nocAmount": 0
+    }
+  ],
+  "loan": {
+    "bankName": "ठाणे जिल्हा मध्यवर्ती सहकारी बँक (TDCC), वसई रोड",
+    "loanAccountNo": "000301600000064",
+    "purpose": "Fixed Loan (0160) — सोसायटी कर्ज",
+    "startDate": "2023-03-27",
+    "totalAmount": 2500000,
+    "remainingAmount": 788219,
+    "emi": 53200,
+    "emiDay": 2,
+    "totalMonths": 60,
+    "interestRate": "10.00%",
+    "endDate": "10/04/2028",
+    "autoReduce": true
+  },
+  "maintenance": [
+    {
+      "id": 1001,
+      "memberId": 1,
+      "flat": "01",
+      "name": "SUPRIYA MESTRY",
+      "month": "एप्रिल २०२६",
+      "amount": 1616.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1616.0,
+      "paidAmount": 1616.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "3/4/26"
+    },
+    {
+      "id": 1002,
+      "memberId": 1,
+      "flat": "01",
+      "name": "SUPRIYA MESTRY",
+      "month": "मे २०२६",
+      "amount": 1616.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1616.0,
+      "paidAmount": 1616.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "2/5/26"
+    },
+    {
+      "id": 1003,
+      "memberId": 1,
+      "flat": "01",
+      "name": "SUPRIYA MESTRY",
+      "month": "जून २०२६",
+      "amount": 8716.0,
+      "prevBalance": 0.0,
+      "totalPayable": 8716.0,
+      "paidAmount": 1616.0,
+      "balance": 7100.0,
+      "status": "भरलेले",
+      "paidDate": "2/6/26"
+    },
+    {
+      "id": 1004,
+      "memberId": 1,
+      "flat": "01",
+      "name": "SUPRIYA MESTRY",
+      "month": "जुलै २०२६",
+      "amount": 1616.0,
+      "prevBalance": 7224.25,
+      "totalPayable": 8840.25,
+      "paidAmount": 1616.0,
+      "balance": 7224.25,
+      "status": "भरलेले",
+      "paidDate": "2/7/26"
+    },
+    {
+      "id": 1005,
+      "memberId": 1,
+      "flat": "01",
+      "name": "SUPRIYA MESTRY",
+      "month": "ऑगस्ट २०२६",
+      "amount": 1616.0,
+      "prevBalance": 7350.42,
+      "totalPayable": 8966.42,
+      "paidAmount": 7616.0,
+      "balance": 1350.42,
+      "status": "भरलेले",
+      "paidDate": "2/8/26"
+    },
+    {
+      "id": 1006,
+      "memberId": 1,
+      "flat": "01",
+      "name": "SUPRIYA MESTRY",
+      "month": "सप्टेंबर २०२६",
+      "amount": 1616.0,
+      "prevBalance": 1373.62,
+      "totalPayable": 2989.62,
+      "paidAmount": 1616.0,
+      "balance": 1373.62,
+      "status": "भरलेले",
+      "paidDate": "3/9/26"
+    },
+    {
+      "id": 1007,
+      "memberId": 1,
+      "flat": "01",
+      "name": "SUPRIYA MESTRY",
+      "month": "ऑक्टोबर २०२६",
+      "amount": 1616.0,
+      "prevBalance": 1398.05,
+      "totalPayable": 3014.05,
+      "paidAmount": 2967.0,
+      "balance": 47.05,
+      "status": "भरलेले",
+      "paidDate": "2/10/26"
+    },
+    {
+      "id": 1008,
+      "memberId": 1,
+      "flat": "01",
+      "name": "SUPRIYA MESTRY",
+      "month": "नोव्हेंबर २०२६",
+      "amount": 1616.0,
+      "prevBalance": 47.05,
+      "totalPayable": 1663.05,
+      "paidAmount": 0.0,
+      "balance": 1663.05,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1009,
+      "memberId": 2,
+      "flat": "02",
+      "name": "KONDIBA GURAKHE",
+      "month": "एप्रिल २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 4671.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "15/4/26"
+    },
+    {
+      "id": 1010,
+      "memberId": 2,
+      "flat": "02",
+      "name": "KONDIBA GURAKHE",
+      "month": "मे २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "आगाऊ जमा"
+    },
+    {
+      "id": 1011,
+      "memberId": 2,
+      "flat": "02",
+      "name": "KONDIBA GURAKHE",
+      "month": "जून २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "आगाऊ जमा"
+    },
+    {
+      "id": 1012,
+      "memberId": 2,
+      "flat": "02",
+      "name": "KONDIBA GURAKHE",
+      "month": "जुलै २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 4671.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "1/7/26"
+    },
+    {
+      "id": 1013,
+      "memberId": 2,
+      "flat": "02",
+      "name": "KONDIBA GURAKHE",
+      "month": "ऑगस्ट २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "आगाऊ जमा"
+    },
+    {
+      "id": 1014,
+      "memberId": 2,
+      "flat": "02",
+      "name": "KONDIBA GURAKHE",
+      "month": "सप्टेंबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "आगाऊ जमा"
+    },
+    {
+      "id": 1015,
+      "memberId": 2,
+      "flat": "02",
+      "name": "KONDIBA GURAKHE",
+      "month": "ऑक्टोबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 4671.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "2/10/26"
+    },
+    {
+      "id": 1016,
+      "memberId": 2,
+      "flat": "02",
+      "name": "KONDIBA GURAKHE",
+      "month": "नोव्हेंबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 0.0,
+      "balance": 1557.0,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1017,
+      "memberId": 3,
+      "flat": "03",
+      "name": "SAIBAI LAMBOR",
+      "month": "एप्रिल २०२६",
+      "amount": 1557.0,
+      "prevBalance": 6.11,
+      "totalPayable": 1563.11,
+      "paidAmount": 1500.0,
+      "balance": 420.11,
+      "status": "भरलेले",
+      "paidDate": "9/4/26"
+    },
+    {
+      "id": 1018,
+      "memberId": 3,
+      "flat": "03",
+      "name": "SAIBAI LAMBOR",
+      "month": "मे २०२६",
+      "amount": 1557.0,
+      "prevBalance": 528.08,
+      "totalPayable": 2085.08,
+      "paidAmount": 1500.0,
+      "balance": 576.0,
+      "status": "भरलेले",
+      "paidDate": "26/5/26"
+    },
+    {
+      "id": 1019,
+      "memberId": 3,
+      "flat": "03",
+      "name": "SAIBAI LAMBOR",
+      "month": "जून २०२६",
+      "amount": 3757.0,
+      "prevBalance": 586.08,
+      "totalPayable": 4343.08,
+      "paidAmount": 0.0,
+      "balance": 4333.0,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1020,
+      "memberId": 3,
+      "flat": "03",
+      "name": "SAIBAI LAMBOR",
+      "month": "जुलै २०२६",
+      "amount": 1557.0,
+      "prevBalance": 4408.83,
+      "totalPayable": 5965.83,
+      "paidAmount": 0.0,
+      "balance": 5965.83,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1021,
+      "memberId": 3,
+      "flat": "03",
+      "name": "SAIBAI LAMBOR",
+      "month": "ऑगस्ट २०२६",
+      "amount": 1557.0,
+      "prevBalance": 6070.4,
+      "totalPayable": 7627.4,
+      "paidAmount": 0.0,
+      "balance": 7627.4,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1022,
+      "memberId": 3,
+      "flat": "03",
+      "name": "SAIBAI LAMBOR",
+      "month": "सप्टेंबर २०२६",
+      "amount": 7657.0,
+      "prevBalance": 7760.47,
+      "totalPayable": 15417.47,
+      "paidAmount": 5000.0,
+      "balance": 10417.47,
+      "status": "भरलेले",
+      "paidDate": "17/9/26"
+    },
+    {
+      "id": 1023,
+      "memberId": 3,
+      "flat": "03",
+      "name": "SAIBAI LAMBOR",
+      "month": "ऑक्टोबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 10599.3,
+      "totalPayable": 12156.3,
+      "paidAmount": 5000.0,
+      "balance": 7156.3,
+      "status": "भरलेले",
+      "paidDate": "24/10/26"
+    },
+    {
+      "id": 1024,
+      "memberId": 3,
+      "flat": "03",
+      "name": "SAIBAI LAMBOR",
+      "month": "नोव्हेंबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 7156.3,
+      "totalPayable": 8713.3,
+      "paidAmount": 0.0,
+      "balance": 8713.3,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1025,
+      "memberId": 4,
+      "flat": "04",
+      "name": "DINESH TAMBE",
+      "month": "एप्रिल २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "15/4/26"
+    },
+    {
+      "id": 1026,
+      "memberId": 4,
+      "flat": "04",
+      "name": "DINESH TAMBE",
+      "month": "मे २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "10/5/26"
+    },
+    {
+      "id": 1027,
+      "memberId": 4,
+      "flat": "04",
+      "name": "DINESH TAMBE",
+      "month": "जून २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "15/6/26"
+    },
+    {
+      "id": 1028,
+      "memberId": 4,
+      "flat": "04",
+      "name": "DINESH TAMBE",
+      "month": "जुलै २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "15/7/26"
+    },
+    {
+      "id": 1029,
+      "memberId": 4,
+      "flat": "04",
+      "name": "DINESH TAMBE",
+      "month": "ऑगस्ट २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "10/08/26"
+    },
+    {
+      "id": 1030,
+      "memberId": 4,
+      "flat": "04",
+      "name": "DINESH TAMBE",
+      "month": "सप्टेंबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "10/9/26"
+    },
+    {
+      "id": 1031,
+      "memberId": 4,
+      "flat": "04",
+      "name": "DINESH TAMBE",
+      "month": "ऑक्टोबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "6/10/26"
+    },
+    {
+      "id": 1032,
+      "memberId": 4,
+      "flat": "04",
+      "name": "DINESH TAMBE",
+      "month": "नोव्हेंबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 0.0,
+      "balance": 1557.0,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1033,
+      "memberId": 5,
+      "flat": "05",
+      "name": "VAISHALI COUGALE",
+      "month": "एप्रिल २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "15/4/26"
+    },
+    {
+      "id": 1034,
+      "memberId": 5,
+      "flat": "05",
+      "name": "VAISHALI COUGALE",
+      "month": "मे २०२६",
+      "amount": 1557.0,
+      "prevBalance": 1584.25,
+      "totalPayable": 3141.25,
+      "paidAmount": 0.0,
+      "balance": 3141.25,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1035,
+      "memberId": 5,
+      "flat": "05",
+      "name": "VAISHALI COUGALE",
+      "month": "जून २०२६",
+      "amount": 1557.0,
+      "prevBalance": 1584.25,
+      "totalPayable": 3141.25,
+      "paidAmount": 3142.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "15/6/26"
+    },
+    {
+      "id": 1036,
+      "memberId": 5,
+      "flat": "05",
+      "name": "VAISHALI COUGALE",
+      "month": "जुलै २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "15/7/26"
+    },
+    {
+      "id": 1037,
+      "memberId": 5,
+      "flat": "05",
+      "name": "VAISHALI COUGALE",
+      "month": "ऑगस्ट २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "15/08/26"
+    },
+    {
+      "id": 1038,
+      "memberId": 5,
+      "flat": "05",
+      "name": "VAISHALI COUGALE",
+      "month": "सप्टेंबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "15/9/26"
+    },
+    {
+      "id": 1039,
+      "memberId": 5,
+      "flat": "05",
+      "name": "VAISHALI COUGALE",
+      "month": "ऑक्टोबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 0.0,
+      "balance": 1557.0,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1040,
+      "memberId": 5,
+      "flat": "05",
+      "name": "VAISHALI COUGALE",
+      "month": "नोव्हेंबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 1557.0,
+      "totalPayable": 3114.0,
+      "paidAmount": 0.0,
+      "balance": 3114.0,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1041,
+      "memberId": 6,
+      "flat": "06",
+      "name": "RAMESH KADU",
+      "month": "एप्रिल २०२६",
+      "amount": 1676.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1676.0,
+      "paidAmount": 0.0,
+      "balance": 1676.0,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1042,
+      "memberId": 6,
+      "flat": "06",
+      "name": "RAMESH KADU",
+      "month": "मे २०२६",
+      "amount": 1676.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1676.0,
+      "paidAmount": 3381.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "26/5/26"
+    },
+    {
+      "id": 1043,
+      "memberId": 6,
+      "flat": "06",
+      "name": "RAMESH KADU",
+      "month": "जून २०२६",
+      "amount": 1676.0,
+      "prevBalance": 59.02,
+      "totalPayable": 1735.02,
+      "paidAmount": 0.0,
+      "balance": 1735.02,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1044,
+      "memberId": 6,
+      "flat": "06",
+      "name": "RAMESH KADU",
+      "month": "जुलै २०२६",
+      "amount": 1676.0,
+      "prevBalance": 1765.36,
+      "totalPayable": 3441.36,
+      "paidAmount": 3500.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "22/7/26"
+    },
+    {
+      "id": 1045,
+      "memberId": 6,
+      "flat": "06",
+      "name": "RAMESH KADU",
+      "month": "ऑगस्ट २०२६",
+      "amount": 1676.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1676.0,
+      "paidAmount": 0.0,
+      "balance": 1676.0,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1046,
+      "memberId": 6,
+      "flat": "06",
+      "name": "RAMESH KADU",
+      "month": "सप्टेंबर २०२६",
+      "amount": 2676.0,
+      "prevBalance": 1705.33,
+      "totalPayable": 4381.33,
+      "paidAmount": 0.0,
+      "balance": 4381.33,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1047,
+      "memberId": 6,
+      "flat": "06",
+      "name": "RAMESH KADU",
+      "month": "ऑक्टोबर २०२६",
+      "amount": 1676.0,
+      "prevBalance": 4457.67,
+      "totalPayable": 6133.67,
+      "paidAmount": 6000.0,
+      "balance": 133.67,
+      "status": "भरलेले",
+      "paidDate": "12/10/26"
+    },
+    {
+      "id": 1048,
+      "memberId": 6,
+      "flat": "06",
+      "name": "RAMESH KADU",
+      "month": "नोव्हेंबर २०२६",
+      "amount": 1676.0,
+      "prevBalance": 133.67,
+      "totalPayable": 1809.67,
+      "paidAmount": 0.0,
+      "balance": 1809.67,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1049,
+      "memberId": 7,
+      "flat": "07",
+      "name": "BHANU SOLANKI",
+      "month": "एप्रिल २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 557.0,
+      "balance": 1074.0,
+      "status": "भरलेले",
+      "paidDate": "8/4/26"
+    },
+    {
+      "id": 1050,
+      "memberId": 7,
+      "flat": "07",
+      "name": "BHANU SOLANKI",
+      "month": "मे २०२६",
+      "amount": 1557.0,
+      "prevBalance": 1092.8,
+      "totalPayable": 2649.8,
+      "paidAmount": 557.0,
+      "balance": 2092.8,
+      "status": "भरलेले",
+      "paidDate": "6/5/26"
+    },
+    {
+      "id": 1051,
+      "memberId": 7,
+      "flat": "07",
+      "name": "BHANU SOLANKI",
+      "month": "जून २०२६",
+      "amount": 1557.0,
+      "prevBalance": 2128.61,
+      "totalPayable": 3685.61,
+      "paidAmount": 557.0,
+      "balance": 3128.61,
+      "status": "भरलेले",
+      "paidDate": "8/6/26"
+    },
+    {
+      "id": 1052,
+      "memberId": 7,
+      "flat": "07",
+      "name": "BHANU SOLANKI",
+      "month": "जुलै २०२६",
+      "amount": 1557.0,
+      "prevBalance": 3183.76,
+      "totalPayable": 4740.76,
+      "paidAmount": 557.0,
+      "balance": 4183.76,
+      "status": "भरलेले",
+      "paidDate": "14/7/26"
+    },
+    {
+      "id": 1053,
+      "memberId": 7,
+      "flat": "07",
+      "name": "BHANU SOLANKI",
+      "month": "ऑगस्ट २०२६",
+      "amount": 1557.0,
+      "prevBalance": 4257.22,
+      "totalPayable": 5814.22,
+      "paidAmount": 557.0,
+      "balance": 5257.22,
+      "status": "भरलेले",
+      "paidDate": "11/08/26"
+    },
+    {
+      "id": 1054,
+      "memberId": 7,
+      "flat": "07",
+      "name": "BHANU SOLANKI",
+      "month": "सप्टेंबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 5349.0,
+      "totalPayable": 6906.0,
+      "paidAmount": 7057.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "16/9/26"
+    },
+    {
+      "id": 1055,
+      "memberId": 7,
+      "flat": "07",
+      "name": "BHANU SOLANKI",
+      "month": "ऑक्टोबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 0.0,
+      "balance": 1394.0,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1056,
+      "memberId": 7,
+      "flat": "07",
+      "name": "BHANU SOLANKI",
+      "month": "नोव्हेंबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 1394.0,
+      "totalPayable": 2951.0,
+      "paidAmount": 0.0,
+      "balance": 2951.0,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1057,
+      "memberId": 8,
+      "flat": "08",
+      "name": "SANJAY YERAM",
+      "month": "एप्रिल २०२६",
+      "amount": 1557.0,
+      "prevBalance": 27.47,
+      "totalPayable": 1584.47,
+      "paidAmount": 0.0,
+      "balance": 1141.47,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1058,
+      "memberId": 8,
+      "flat": "08",
+      "name": "SANJAY YERAM",
+      "month": "मे २०२६",
+      "amount": 1557.0,
+      "prevBalance": 1160.97,
+      "totalPayable": 2717.97,
+      "paidAmount": 1557.0,
+      "balance": 1160.97,
+      "status": "भरलेले",
+      "paidDate": "19/5/26"
+    },
+    {
+      "id": 1059,
+      "memberId": 8,
+      "flat": "08",
+      "name": "SANJAY YERAM",
+      "month": "जून २०२६",
+      "amount": 1557.0,
+      "prevBalance": 1208.79,
+      "totalPayable": 2765.79,
+      "paidAmount": 1557.0,
+      "balance": 1208.79,
+      "status": "भरलेले",
+      "paidDate": "15/6/26"
+    },
+    {
+      "id": 1060,
+      "memberId": 8,
+      "flat": "08",
+      "name": "SANJAY YERAM",
+      "month": "जुलै २०२६",
+      "amount": 1557.0,
+      "prevBalance": 1229.14,
+      "totalPayable": 2786.14,
+      "paidAmount": 0.0,
+      "balance": 2786.14,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1061,
+      "memberId": 8,
+      "flat": "08",
+      "name": "SANJAY YERAM",
+      "month": "ऑगस्ट २०२६",
+      "amount": 1557.0,
+      "prevBalance": 2834.76,
+      "totalPayable": 4391.76,
+      "paidAmount": 4500.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "2/8/26"
+    },
+    {
+      "id": 1062,
+      "memberId": 8,
+      "flat": "08",
+      "name": "SANJAY YERAM",
+      "month": "सप्टेंबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 0.0,
+      "balance": 1449.0,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1063,
+      "memberId": 8,
+      "flat": "08",
+      "name": "SANJAY YERAM",
+      "month": "ऑक्टोबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 1474.36,
+      "totalPayable": 3031.36,
+      "paidAmount": 2500.0,
+      "balance": 531.36,
+      "status": "भरलेले",
+      "paidDate": "9/10/26"
+    },
+    {
+      "id": 1064,
+      "memberId": 8,
+      "flat": "08",
+      "name": "SANJAY YERAM",
+      "month": "नोव्हेंबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 531.36,
+      "totalPayable": 2088.36,
+      "paidAmount": 0.0,
+      "balance": 2088.36,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1065,
+      "memberId": 9,
+      "flat": "09",
+      "name": "AMRUTA OSHRAMKAR",
+      "month": "एप्रिल २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 4752.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "26/4/26"
+    },
+    {
+      "id": 1066,
+      "memberId": 9,
+      "flat": "09",
+      "name": "AMRUTA OSHRAMKAR",
+      "month": "मे २०२६",
+      "amount": 1557.0,
+      "prevBalance": 84.45,
+      "totalPayable": 1641.45,
+      "paidAmount": 0.0,
+      "balance": 1641.45,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1067,
+      "memberId": 9,
+      "flat": "09",
+      "name": "AMRUTA OSHRAMKAR",
+      "month": "जून २०२६",
+      "amount": 1557.0,
+      "prevBalance": 1667.68,
+      "totalPayable": 3224.68,
+      "paidAmount": 0.0,
+      "balance": 3224.68,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1068,
+      "memberId": 9,
+      "flat": "09",
+      "name": "AMRUTA OSHRAMKAR",
+      "month": "जुलै २०२६",
+      "amount": 1557.0,
+      "prevBalance": 3281.44,
+      "totalPayable": 4838.44,
+      "paidAmount": 0.0,
+      "balance": 4838.44,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1069,
+      "memberId": 9,
+      "flat": "09",
+      "name": "AMRUTA OSHRAMKAR",
+      "month": "ऑगस्ट २०२६",
+      "amount": 1557.0,
+      "prevBalance": 4922.66,
+      "totalPayable": 6479.66,
+      "paidAmount": 0.0,
+      "balance": 6479.66,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1070,
+      "memberId": 9,
+      "flat": "09",
+      "name": "AMRUTA OSHRAMKAR",
+      "month": "सप्टेंबर २०२६",
+      "amount": 2557.0,
+      "prevBalance": 6593.4,
+      "totalPayable": 9150.4,
+      "paidAmount": 9101.0,
+      "balance": 49.4,
+      "status": "भरलेले",
+      "paidDate": "8/9/26"
+    },
+    {
+      "id": 1071,
+      "memberId": 9,
+      "flat": "09",
+      "name": "AMRUTA OSHRAMKAR",
+      "month": "ऑक्टोबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 40.7,
+      "totalPayable": 1597.7,
+      "paidAmount": 0.0,
+      "balance": 1597.7,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1072,
+      "memberId": 9,
+      "flat": "09",
+      "name": "AMRUTA OSHRAMKAR",
+      "month": "नोव्हेंबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 1597.7,
+      "totalPayable": 3154.7,
+      "paidAmount": 0.0,
+      "balance": 3154.7,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1073,
+      "memberId": 10,
+      "flat": "10",
+      "name": "KALPESH PIMPALKAR",
+      "month": "एप्रिल २०२६",
+      "amount": 1616.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1616.0,
+      "paidAmount": 4933.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "16/4/26"
+    },
+    {
+      "id": 1074,
+      "memberId": 10,
+      "flat": "10",
+      "name": "KALPESH PIMPALKAR",
+      "month": "मे २०२६",
+      "amount": 3816.0,
+      "prevBalance": 86.49,
+      "totalPayable": 3902.49,
+      "paidAmount": 0.0,
+      "balance": 3902.49,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1075,
+      "memberId": 10,
+      "flat": "10",
+      "name": "KALPESH PIMPALKAR",
+      "month": "जून २०२६",
+      "amount": 1616.0,
+      "prevBalance": 3969.27,
+      "totalPayable": 5585.27,
+      "paidAmount": 0.0,
+      "balance": 5585.27,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1076,
+      "memberId": 10,
+      "flat": "10",
+      "name": "KALPESH PIMPALKAR",
+      "month": "जुलै २०२६",
+      "amount": 1616.0,
+      "prevBalance": 5682.74,
+      "totalPayable": 7298.74,
+      "paidAmount": 0.0,
+      "balance": 7298.74,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1077,
+      "memberId": 10,
+      "flat": "10",
+      "name": "KALPESH PIMPALKAR",
+      "month": "ऑगस्ट २०२६",
+      "amount": 1616.0,
+      "prevBalance": 7423.68,
+      "totalPayable": 9039.68,
+      "paidAmount": 6000.0,
+      "balance": 3039.68,
+      "status": "भरलेले",
+      "paidDate": "10/08/26"
+    },
+    {
+      "id": 1078,
+      "memberId": 10,
+      "flat": "10",
+      "name": "KALPESH PIMPALKAR",
+      "month": "सप्टेंबर २०२६",
+      "amount": 1616.0,
+      "prevBalance": 3093.2,
+      "totalPayable": 4709.2,
+      "paidAmount": 4651.0,
+      "balance": 58.2,
+      "status": "भरलेले",
+      "paidDate": "14/9/26"
+    },
+    {
+      "id": 1079,
+      "memberId": 10,
+      "flat": "10",
+      "name": "KALPESH PIMPALKAR",
+      "month": "ऑक्टोबर २०२६",
+      "amount": 1616.0,
+      "prevBalance": 54.95,
+      "totalPayable": 1670.95,
+      "paidAmount": 0.0,
+      "balance": 1670.94,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1080,
+      "memberId": 10,
+      "flat": "10",
+      "name": "KALPESH PIMPALKAR",
+      "month": "नोव्हेंबर २०२६",
+      "amount": 1616.0,
+      "prevBalance": 1670.94,
+      "totalPayable": 3286.94,
+      "paidAmount": 0.0,
+      "balance": 3286.94,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1081,
+      "memberId": 11,
+      "flat": "101",
+      "name": "YOUSUF SHAIKH",
+      "month": "एप्रिल २०२६",
+      "amount": 1616.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1616.0,
+      "paidAmount": 2000.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "4/4/26"
+    },
+    {
+      "id": 1082,
+      "memberId": 11,
+      "flat": "101",
+      "name": "YOUSUF SHAIKH",
+      "month": "मे २०२६",
+      "amount": 1616.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1616.0,
+      "paidAmount": 1616.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "आगाऊ जमा"
+    },
+    {
+      "id": 1083,
+      "memberId": 11,
+      "flat": "101",
+      "name": "YOUSUF SHAIKH",
+      "month": "जून २०२६",
+      "amount": 8216.0,
+      "prevBalance": 0.0,
+      "totalPayable": 8216.0,
+      "paidAmount": 2000.0,
+      "balance": 5987.0,
+      "status": "भरलेले",
+      "paidDate": "9/6/26"
+    },
+    {
+      "id": 1084,
+      "memberId": 11,
+      "flat": "101",
+      "name": "YOUSUF SHAIKH",
+      "month": "जुलै २०२६",
+      "amount": 1616.0,
+      "prevBalance": 6091.77,
+      "totalPayable": 7707.77,
+      "paidAmount": 2000.0,
+      "balance": 5707.77,
+      "status": "भरलेले",
+      "paidDate": "8/7/26"
+    },
+    {
+      "id": 1085,
+      "memberId": 11,
+      "flat": "101",
+      "name": "YOUSUF SHAIKH",
+      "month": "ऑगस्ट २०२६",
+      "amount": 1616.0,
+      "prevBalance": 5807.89,
+      "totalPayable": 7423.89,
+      "paidAmount": 8600.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "10/08/26"
+    },
+    {
+      "id": 1086,
+      "memberId": 11,
+      "flat": "101",
+      "name": "YOUSUF SHAIKH",
+      "month": "सप्टेंबर २०२६",
+      "amount": 2616.0,
+      "prevBalance": 0.0,
+      "totalPayable": 2616.0,
+      "paidAmount": 2000.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "8/9/26"
+    },
+    {
+      "id": 1087,
+      "memberId": 11,
+      "flat": "101",
+      "name": "YOUSUF SHAIKH",
+      "month": "ऑक्टोबर २०२६",
+      "amount": 1616.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1616.0,
+      "paidAmount": 0.0,
+      "balance": 1056.0,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1088,
+      "memberId": 11,
+      "flat": "101",
+      "name": "YOUSUF SHAIKH",
+      "month": "नोव्हेंबर २०२६",
+      "amount": 1616.0,
+      "prevBalance": 1056.0,
+      "totalPayable": 2672.0,
+      "paidAmount": 0.0,
+      "balance": 2672.0,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1089,
+      "memberId": 12,
+      "flat": "102",
+      "name": "SUCHITA MHATRE",
+      "month": "एप्रिल २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 2469.0,
+      "status": "भरलेले",
+      "paidDate": "15/4/26"
+    },
+    {
+      "id": 1090,
+      "memberId": 12,
+      "flat": "102",
+      "name": "SUCHITA MHATRE",
+      "month": "मे २०२६",
+      "amount": 1557.0,
+      "prevBalance": 2512.21,
+      "totalPayable": 4069.21,
+      "paidAmount": 0.0,
+      "balance": 4069.21,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1091,
+      "memberId": 12,
+      "flat": "102",
+      "name": "SUCHITA MHATRE",
+      "month": "जून २०२६",
+      "amount": 1557.0,
+      "prevBalance": 4139.19,
+      "totalPayable": 5696.19,
+      "paidAmount": 1557.0,
+      "balance": 4139.19,
+      "status": "भरलेले",
+      "paidDate": "15/6/26"
+    },
+    {
+      "id": 1092,
+      "memberId": 12,
+      "flat": "102",
+      "name": "SUCHITA MHATRE",
+      "month": "जुलै २०२६",
+      "amount": 1557.0,
+      "prevBalance": 4211.43,
+      "totalPayable": 5768.43,
+      "paidAmount": 1557.0,
+      "balance": 4211.43,
+      "status": "भरलेले",
+      "paidDate": "15/7/26"
+    },
+    {
+      "id": 1093,
+      "memberId": 12,
+      "flat": "102",
+      "name": "SUCHITA MHATRE",
+      "month": "ऑगस्ट २०२६",
+      "amount": 1557.0,
+      "prevBalance": 4284.69,
+      "totalPayable": 5841.69,
+      "paidAmount": 1557.0,
+      "balance": 4284.69,
+      "status": "भरलेले",
+      "paidDate": "30/08/26"
+    },
+    {
+      "id": 1094,
+      "memberId": 12,
+      "flat": "102",
+      "name": "SUCHITA MHATRE",
+      "month": "सप्टेंबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 4359.99,
+      "totalPayable": 5916.99,
+      "paidAmount": 0.0,
+      "balance": 5916.99,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1095,
+      "memberId": 12,
+      "flat": "102",
+      "name": "SUCHITA MHATRE",
+      "month": "ऑक्टोबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 6020.55,
+      "totalPayable": 7577.55,
+      "paidAmount": 0.0,
+      "balance": 7577.55,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1096,
+      "memberId": 12,
+      "flat": "102",
+      "name": "SUCHITA MHATRE",
+      "month": "नोव्हेंबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 7577.55,
+      "totalPayable": 9134.55,
+      "paidAmount": 0.0,
+      "balance": 9134.55,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1097,
+      "memberId": 13,
+      "flat": "103",
+      "name": "ARJUN ZAGADE",
+      "month": "एप्रिल २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "3/4/26"
+    },
+    {
+      "id": 1098,
+      "memberId": 13,
+      "flat": "103",
+      "name": "ARJUN ZAGADE",
+      "month": "मे २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "3/5/26"
+    },
+    {
+      "id": 1099,
+      "memberId": 13,
+      "flat": "103",
+      "name": "ARJUN ZAGADE",
+      "month": "जून २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "2/6/26"
+    },
+    {
+      "id": 1100,
+      "memberId": 13,
+      "flat": "103",
+      "name": "ARJUN ZAGADE",
+      "month": "जुलै २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "2/7/26"
+    },
+    {
+      "id": 1101,
+      "memberId": 13,
+      "flat": "103",
+      "name": "ARJUN ZAGADE",
+      "month": "ऑगस्ट २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "2/8/26"
+    },
+    {
+      "id": 1102,
+      "memberId": 13,
+      "flat": "103",
+      "name": "ARJUN ZAGADE",
+      "month": "सप्टेंबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "02/9/26"
+    },
+    {
+      "id": 1103,
+      "memberId": 13,
+      "flat": "103",
+      "name": "ARJUN ZAGADE",
+      "month": "ऑक्टोबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "4/10/26"
+    },
+    {
+      "id": 1104,
+      "memberId": 13,
+      "flat": "103",
+      "name": "ARJUN ZAGADE",
+      "month": "नोव्हेंबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 0.0,
+      "balance": 1557.0,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1105,
+      "memberId": 14,
+      "flat": "104",
+      "name": "SANJAY BHONSALE",
+      "month": "एप्रिल २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "3/4/26"
+    },
+    {
+      "id": 1106,
+      "memberId": 14,
+      "flat": "104",
+      "name": "SANJAY BHONSALE",
+      "month": "मे २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "2/5/26"
+    },
+    {
+      "id": 1107,
+      "memberId": 14,
+      "flat": "104",
+      "name": "SANJAY BHONSALE",
+      "month": "जून २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "2/6/26"
+    },
+    {
+      "id": 1108,
+      "memberId": 14,
+      "flat": "104",
+      "name": "SANJAY BHONSALE",
+      "month": "जुलै २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "2/7/26"
+    },
+    {
+      "id": 1109,
+      "memberId": 14,
+      "flat": "104",
+      "name": "SANJAY BHONSALE",
+      "month": "ऑगस्ट २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "2/8/26"
+    },
+    {
+      "id": 1110,
+      "memberId": 14,
+      "flat": "104",
+      "name": "SANJAY BHONSALE",
+      "month": "सप्टेंबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "1/9/26"
+    },
+    {
+      "id": 1111,
+      "memberId": 14,
+      "flat": "104",
+      "name": "SANJAY BHONSALE",
+      "month": "ऑक्टोबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "2/10/26"
+    },
+    {
+      "id": 1112,
+      "memberId": 14,
+      "flat": "104",
+      "name": "SANJAY BHONSALE",
+      "month": "नोव्हेंबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 0.0,
+      "balance": 1557.0,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1113,
+      "memberId": 15,
+      "flat": "105",
+      "name": "SHIVAJI CHAVAN",
+      "month": "एप्रिल २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "15/4/26"
+    },
+    {
+      "id": 1114,
+      "memberId": 15,
+      "flat": "105",
+      "name": "SHIVAJI CHAVAN",
+      "month": "मे २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "15/5/26"
+    },
+    {
+      "id": 1115,
+      "memberId": 15,
+      "flat": "105",
+      "name": "SHIVAJI CHAVAN",
+      "month": "जून २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "15/6/26"
+    },
+    {
+      "id": 1116,
+      "memberId": 15,
+      "flat": "105",
+      "name": "SHIVAJI CHAVAN",
+      "month": "जुलै २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1600.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "15/7/23"
+    },
+    {
+      "id": 1117,
+      "memberId": 15,
+      "flat": "105",
+      "name": "SHIVAJI CHAVAN",
+      "month": "ऑगस्ट २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "15/08/26"
+    },
+    {
+      "id": 1118,
+      "memberId": 15,
+      "flat": "105",
+      "name": "SHIVAJI CHAVAN",
+      "month": "सप्टेंबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "15/9/26"
+    },
+    {
+      "id": 1119,
+      "memberId": 15,
+      "flat": "105",
+      "name": "SHIVAJI CHAVAN",
+      "month": "ऑक्टोबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "15/10/26"
+    },
+    {
+      "id": 1120,
+      "memberId": 15,
+      "flat": "105",
+      "name": "SHIVAJI CHAVAN",
+      "month": "नोव्हेंबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 0.0,
+      "balance": 1557.0,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1121,
+      "memberId": 16,
+      "flat": "106",
+      "name": "SAGAR SHEDEKAR",
+      "month": "एप्रिल २०२६",
+      "amount": 1676.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1676.0,
+      "paidAmount": 1676.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "9/4/26"
+    },
+    {
+      "id": 1122,
+      "memberId": 16,
+      "flat": "106",
+      "name": "SAGAR SHEDEKAR",
+      "month": "मे २०२६",
+      "amount": 1676.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1676.0,
+      "paidAmount": 1676.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "10/5/26"
+    },
+    {
+      "id": 1123,
+      "memberId": 16,
+      "flat": "106",
+      "name": "SAGAR SHEDEKAR",
+      "month": "जून २०२६",
+      "amount": 1676.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1676.0,
+      "paidAmount": 1676.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "5/6/26"
+    },
+    {
+      "id": 1124,
+      "memberId": 16,
+      "flat": "106",
+      "name": "SAGAR SHEDEKAR",
+      "month": "जुलै २०२६",
+      "amount": 1676.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1676.0,
+      "paidAmount": 1676.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "10/7/26"
+    },
+    {
+      "id": 1125,
+      "memberId": 16,
+      "flat": "106",
+      "name": "SAGAR SHEDEKAR",
+      "month": "ऑगस्ट २०२६",
+      "amount": 1676.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1676.0,
+      "paidAmount": 1676.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "10/08/26"
+    },
+    {
+      "id": 1126,
+      "memberId": 16,
+      "flat": "106",
+      "name": "SAGAR SHEDEKAR",
+      "month": "सप्टेंबर २०२६",
+      "amount": 1676.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1676.0,
+      "paidAmount": 1676.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "7/9/26"
+    },
+    {
+      "id": 1127,
+      "memberId": 16,
+      "flat": "106",
+      "name": "SAGAR SHEDEKAR",
+      "month": "ऑक्टोबर २०२६",
+      "amount": 1676.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1676.0,
+      "paidAmount": 1676.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "6/10/26"
+    },
+    {
+      "id": 1128,
+      "memberId": 16,
+      "flat": "106",
+      "name": "SAGAR SHEDEKAR",
+      "month": "नोव्हेंबर २०२६",
+      "amount": 1676.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1676.0,
+      "paidAmount": 0.0,
+      "balance": 1676.0,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1129,
+      "memberId": 17,
+      "flat": "107108",
+      "name": "AATMARAM DERVANKAR",
+      "month": "एप्रिल २०२६",
+      "amount": 1869.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1869.0,
+      "paidAmount": 1869.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "10/4/26"
+    },
+    {
+      "id": 1130,
+      "memberId": 17,
+      "flat": "107108",
+      "name": "AATMARAM DERVANKAR",
+      "month": "मे २०२६",
+      "amount": 1869.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1869.0,
+      "paidAmount": 1869.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "15/5/26"
+    },
+    {
+      "id": 1131,
+      "memberId": 17,
+      "flat": "107108",
+      "name": "AATMARAM DERVANKAR",
+      "month": "जून २०२६",
+      "amount": 1869.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1869.0,
+      "paidAmount": 1869.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "10/6/26"
+    },
+    {
+      "id": 1132,
+      "memberId": 17,
+      "flat": "107108",
+      "name": "AATMARAM DERVANKAR",
+      "month": "जुलै २०२६",
+      "amount": 1869.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1869.0,
+      "paidAmount": 1869.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "14/7/26"
+    },
+    {
+      "id": 1133,
+      "memberId": 17,
+      "flat": "107108",
+      "name": "AATMARAM DERVANKAR",
+      "month": "ऑगस्ट २०२६",
+      "amount": 1869.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1869.0,
+      "paidAmount": 1869.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "14/08/26"
+    },
+    {
+      "id": 1134,
+      "memberId": 17,
+      "flat": "107108",
+      "name": "AATMARAM DERVANKAR",
+      "month": "सप्टेंबर २०२६",
+      "amount": 1869.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1869.0,
+      "paidAmount": 1869.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "13/9/26"
+    },
+    {
+      "id": 1135,
+      "memberId": 17,
+      "flat": "107108",
+      "name": "AATMARAM DERVANKAR",
+      "month": "ऑक्टोबर २०२६",
+      "amount": 1869.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1869.0,
+      "paidAmount": 1869.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "10/10/26"
+    },
+    {
+      "id": 1136,
+      "memberId": 17,
+      "flat": "107108",
+      "name": "AATMARAM DERVANKAR",
+      "month": "नोव्हेंबर २०२६",
+      "amount": 1869.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1869.0,
+      "paidAmount": 0.0,
+      "balance": 1869.0,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1137,
+      "memberId": 18,
+      "flat": "109",
+      "name": "KAUSTUBH DALAVI",
+      "month": "एप्रिल २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "3/4/26"
+    },
+    {
+      "id": 1138,
+      "memberId": 18,
+      "flat": "109",
+      "name": "KAUSTUBH DALAVI",
+      "month": "मे २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "1/5/26"
+    },
+    {
+      "id": 1139,
+      "memberId": 18,
+      "flat": "109",
+      "name": "KAUSTUBH DALAVI",
+      "month": "जून २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "2/6/26"
+    },
+    {
+      "id": 1140,
+      "memberId": 18,
+      "flat": "109",
+      "name": "KAUSTUBH DALAVI",
+      "month": "जुलै २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "4/7/26"
+    },
+    {
+      "id": 1141,
+      "memberId": 18,
+      "flat": "109",
+      "name": "KAUSTUBH DALAVI",
+      "month": "ऑगस्ट २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "4/8/26"
+    },
+    {
+      "id": 1142,
+      "memberId": 18,
+      "flat": "109",
+      "name": "KAUSTUBH DALAVI",
+      "month": "सप्टेंबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "02/09/26"
+    },
+    {
+      "id": 1143,
+      "memberId": 18,
+      "flat": "109",
+      "name": "KAUSTUBH DALAVI",
+      "month": "ऑक्टोबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "4/10/26"
+    },
+    {
+      "id": 1144,
+      "memberId": 18,
+      "flat": "109",
+      "name": "KAUSTUBH DALAVI",
+      "month": "नोव्हेंबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 0.0,
+      "balance": 1557.0,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1145,
+      "memberId": 19,
+      "flat": "110",
+      "name": "KALPNA BANE",
+      "month": "एप्रिल २०२६",
+      "amount": 1616.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1616.0,
+      "paidAmount": 1616.0,
+      "balance": 1188.0,
+      "status": "भरलेले",
+      "paidDate": "10/4/26"
+    },
+    {
+      "id": 1146,
+      "memberId": 19,
+      "flat": "110",
+      "name": "KALPNA BANE",
+      "month": "मे २०२६",
+      "amount": 1616.0,
+      "prevBalance": 1208.79,
+      "totalPayable": 2824.79,
+      "paidAmount": 1616.0,
+      "balance": 1208.79,
+      "status": "भरलेले",
+      "paidDate": "8/5/26"
+    },
+    {
+      "id": 1147,
+      "memberId": 19,
+      "flat": "110",
+      "name": "KALPNA BANE",
+      "month": "जून २०२६",
+      "amount": 1616.0,
+      "prevBalance": 1230.16,
+      "totalPayable": 2846.16,
+      "paidAmount": 1616.0,
+      "balance": 1230.16,
+      "status": "भरलेले",
+      "paidDate": "5/6/26"
+    },
+    {
+      "id": 1148,
+      "memberId": 19,
+      "flat": "110",
+      "name": "KALPNA BANE",
+      "month": "जुलै २०२६",
+      "amount": 1616.0,
+      "prevBalance": 1251.53,
+      "totalPayable": 2867.53,
+      "paidAmount": 2825.0,
+      "balance": 42.52,
+      "status": "भरलेले",
+      "paidDate": "5/7/26"
+    },
+    {
+      "id": 1149,
+      "memberId": 19,
+      "flat": "110",
+      "name": "KALPNA BANE",
+      "month": "ऑगस्ट २०२६",
+      "amount": 1616.0,
+      "prevBalance": 43.75,
+      "totalPayable": 1659.75,
+      "paidAmount": 1637.0,
+      "balance": 22.75,
+      "status": "भरलेले",
+      "paidDate": "7/8/26"
+    },
+    {
+      "id": 1150,
+      "memberId": 19,
+      "flat": "110",
+      "name": "KALPNA BANE",
+      "month": "सप्टेंबर २०२६",
+      "amount": 1616.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1616.0,
+      "paidAmount": 1616.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "12/9/26"
+    },
+    {
+      "id": 1151,
+      "memberId": 19,
+      "flat": "110",
+      "name": "KALPNA BANE",
+      "month": "ऑक्टोबर २०२६",
+      "amount": 1616.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1616.0,
+      "paidAmount": 1616.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "4/10/26"
+    },
+    {
+      "id": 1152,
+      "memberId": 19,
+      "flat": "110",
+      "name": "KALPNA BANE",
+      "month": "नोव्हेंबर २०२६",
+      "amount": 1616.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1616.0,
+      "paidAmount": 0.0,
+      "balance": 1616.0,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1153,
+      "memberId": 20,
+      "flat": "201",
+      "name": "SUCHITA KOLAMKAR",
+      "month": "एप्रिल २०२६",
+      "amount": 1836.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1836.0,
+      "paidAmount": 1850.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "8/4/26"
+    },
+    {
+      "id": 1154,
+      "memberId": 20,
+      "flat": "201",
+      "name": "SUCHITA KOLAMKAR",
+      "month": "मे २०२६",
+      "amount": 1836.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1836.0,
+      "paidAmount": 1850.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "8/5/26"
+    },
+    {
+      "id": 1155,
+      "memberId": 20,
+      "flat": "201",
+      "name": "SUCHITA KOLAMKAR",
+      "month": "जून २०२६",
+      "amount": 1836.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1836.0,
+      "paidAmount": 1850.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "7/6/26"
+    },
+    {
+      "id": 1156,
+      "memberId": 20,
+      "flat": "201",
+      "name": "SUCHITA KOLAMKAR",
+      "month": "जुलै २०२६",
+      "amount": 1836.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1836.0,
+      "paidAmount": 1850.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "7/7/26"
+    },
+    {
+      "id": 1157,
+      "memberId": 20,
+      "flat": "201",
+      "name": "SUCHITA KOLAMKAR",
+      "month": "ऑगस्ट २०२६",
+      "amount": 1836.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1836.0,
+      "paidAmount": 1850.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "8/8/26"
+    },
+    {
+      "id": 1158,
+      "memberId": 20,
+      "flat": "201",
+      "name": "SUCHITA KOLAMKAR",
+      "month": "सप्टेंबर २०२६",
+      "amount": 1836.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1836.0,
+      "paidAmount": 1850.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "8/9/26"
+    },
+    {
+      "id": 1159,
+      "memberId": 20,
+      "flat": "201",
+      "name": "SUCHITA KOLAMKAR",
+      "month": "ऑक्टोबर २०२६",
+      "amount": 1836.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1836.0,
+      "paidAmount": 1850.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "8/10/26"
+    },
+    {
+      "id": 1160,
+      "memberId": 20,
+      "flat": "201",
+      "name": "SUCHITA KOLAMKAR",
+      "month": "नोव्हेंबर २०२६",
+      "amount": 1836.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1836.0,
+      "paidAmount": 0.0,
+      "balance": 1836.0,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1161,
+      "memberId": 21,
+      "flat": "202203",
+      "name": "SAGAR DHOND",
+      "month": "एप्रिल २०२६",
+      "amount": 1652.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1652.0,
+      "paidAmount": 1652.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "7/4/26"
+    },
+    {
+      "id": 1162,
+      "memberId": 21,
+      "flat": "202203",
+      "name": "SAGAR DHOND",
+      "month": "मे २०२६",
+      "amount": 2652.0,
+      "prevBalance": 0.0,
+      "totalPayable": 2652.0,
+      "paidAmount": 2652.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "7/5/26"
+    },
+    {
+      "id": 1163,
+      "memberId": 21,
+      "flat": "202203",
+      "name": "SAGAR DHOND",
+      "month": "जून २०२६",
+      "amount": 1652.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1652.0,
+      "paidAmount": 1652.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "7/6/26"
+    },
+    {
+      "id": 1164,
+      "memberId": 21,
+      "flat": "202203",
+      "name": "SAGAR DHOND",
+      "month": "जुलै २०२६",
+      "amount": 1652.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1652.0,
+      "paidAmount": 1652.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "8/7/26"
+    },
+    {
+      "id": 1165,
+      "memberId": 21,
+      "flat": "202203",
+      "name": "SAGAR DHOND",
+      "month": "ऑगस्ट २०२६",
+      "amount": 1652.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1652.0,
+      "paidAmount": 1652.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "6/8/26"
+    },
+    {
+      "id": 1166,
+      "memberId": 21,
+      "flat": "202203",
+      "name": "SAGAR DHOND",
+      "month": "सप्टेंबर २०२६",
+      "amount": 1652.0,
+      "prevBalance": 1680.91,
+      "totalPayable": 3332.91,
+      "paidAmount": 1652.0,
+      "balance": 1680.91,
+      "status": "भरलेले",
+      "paidDate": "5/9/26"
+    },
+    {
+      "id": 1167,
+      "memberId": 21,
+      "flat": "202203",
+      "name": "SAGAR DHOND",
+      "month": "ऑक्टोबर २०२६",
+      "amount": 1652.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1652.0,
+      "paidAmount": 1652.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "6/10/26"
+    },
+    {
+      "id": 1168,
+      "memberId": 21,
+      "flat": "202203",
+      "name": "SAGAR DHOND",
+      "month": "नोव्हेंबर २०२६",
+      "amount": 1652.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1652.0,
+      "paidAmount": 0.0,
+      "balance": 1652.0,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1169,
+      "memberId": 22,
+      "flat": "204",
+      "name": "UMESH MHATRE",
+      "month": "एप्रिल २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1640.0,
+      "balance": 1584.0,
+      "status": "भरलेले",
+      "paidDate": "13/4/26"
+    },
+    {
+      "id": 1170,
+      "memberId": 22,
+      "flat": "204",
+      "name": "UMESH MHATRE",
+      "month": "मे २०२६",
+      "amount": 1557.0,
+      "prevBalance": 1611.72,
+      "totalPayable": 3168.72,
+      "paidAmount": 0.0,
+      "balance": 3168.72,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1171,
+      "memberId": 22,
+      "flat": "204",
+      "name": "UMESH MHATRE",
+      "month": "जून २०२६",
+      "amount": 8157.0,
+      "prevBalance": 3224.46,
+      "totalPayable": 11381.46,
+      "paidAmount": 600.0,
+      "balance": 10781.46,
+      "status": "भरलेले",
+      "paidDate": "21/6/26"
+    },
+    {
+      "id": 1172,
+      "memberId": 22,
+      "flat": "204",
+      "name": "UMESH MHATRE",
+      "month": "जुलै २०२६",
+      "amount": 2157.0,
+      "prevBalance": 10969.67,
+      "totalPayable": 13126.67,
+      "paidAmount": 11381.0,
+      "balance": 1745.67,
+      "status": "भरलेले",
+      "paidDate": "2/7/26"
+    },
+    {
+      "id": 1173,
+      "memberId": 22,
+      "flat": "204",
+      "name": "UMESH MHATRE",
+      "month": "ऑगस्ट २०२६",
+      "amount": 1557.0,
+      "prevBalance": 1775.54,
+      "totalPayable": 3332.54,
+      "paidAmount": 1756.0,
+      "balance": 1576.54,
+      "status": "भरलेले",
+      "paidDate": "7/8/26"
+    },
+    {
+      "id": 1174,
+      "memberId": 22,
+      "flat": "204",
+      "name": "UMESH MHATRE",
+      "month": "सप्टेंबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 1604.6,
+      "totalPayable": 3161.6,
+      "paidAmount": 0.0,
+      "balance": 3161.6,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1175,
+      "memberId": 22,
+      "flat": "204",
+      "name": "UMESH MHATRE",
+      "month": "ऑक्टोबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 3141.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "22/10/26"
+    },
+    {
+      "id": 1176,
+      "memberId": 22,
+      "flat": "204",
+      "name": "UMESH MHATRE",
+      "month": "नोव्हेंबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 0.0,
+      "balance": 1557.0,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1177,
+      "memberId": 23,
+      "flat": "205",
+      "name": "YOGESH SAGVEKAR",
+      "month": "एप्रिल २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 532.0,
+      "status": "भरलेले",
+      "paidDate": "15/4/26"
+    },
+    {
+      "id": 1178,
+      "memberId": 23,
+      "flat": "205",
+      "name": "YOGESH SAGVEKAR",
+      "month": "मे २०२६",
+      "amount": 1557.0,
+      "prevBalance": 541.31,
+      "totalPayable": 2098.31,
+      "paidAmount": 2100.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "14/5/26"
+    },
+    {
+      "id": 1179,
+      "memberId": 23,
+      "flat": "205",
+      "name": "YOGESH SAGVEKAR",
+      "month": "जून २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "15/6/26"
+    },
+    {
+      "id": 1180,
+      "memberId": 23,
+      "flat": "205",
+      "name": "YOGESH SAGVEKAR",
+      "month": "जुलै २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "15/7/26"
+    },
+    {
+      "id": 1181,
+      "memberId": 23,
+      "flat": "205",
+      "name": "YOGESH SAGVEKAR",
+      "month": "ऑगस्ट २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "15/08/26"
+    },
+    {
+      "id": 1182,
+      "memberId": 23,
+      "flat": "205",
+      "name": "YOGESH SAGVEKAR",
+      "month": "सप्टेंबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "17/9/26"
+    },
+    {
+      "id": 1183,
+      "memberId": 23,
+      "flat": "205",
+      "name": "YOGESH SAGVEKAR",
+      "month": "ऑक्टोबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "15/10/26"
+    },
+    {
+      "id": 1184,
+      "memberId": 23,
+      "flat": "205",
+      "name": "YOGESH SAGVEKAR",
+      "month": "नोव्हेंबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 0.0,
+      "balance": 1557.0,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1185,
+      "memberId": 24,
+      "flat": "206",
+      "name": "RAGHUNATH HALANDE",
+      "month": "एप्रिल २०२६",
+      "amount": 1676.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1676.0,
+      "paidAmount": 1676.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "8/4/26"
+    },
+    {
+      "id": 1186,
+      "memberId": 24,
+      "flat": "206",
+      "name": "RAGHUNATH HALANDE",
+      "month": "मे २०२६",
+      "amount": 1676.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1676.0,
+      "paidAmount": 1676.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "13/5/26"
+    },
+    {
+      "id": 1187,
+      "memberId": 24,
+      "flat": "206",
+      "name": "RAGHUNATH HALANDE",
+      "month": "जून २०२६",
+      "amount": 1676.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1676.0,
+      "paidAmount": 1676.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "5/6/26"
+    },
+    {
+      "id": 1188,
+      "memberId": 24,
+      "flat": "206",
+      "name": "RAGHUNATH HALANDE",
+      "month": "जुलै २०२६",
+      "amount": 1676.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1676.0,
+      "paidAmount": 1676.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "4/7/26"
+    },
+    {
+      "id": 1189,
+      "memberId": 24,
+      "flat": "206",
+      "name": "RAGHUNATH HALANDE",
+      "month": "ऑगस्ट २०२६",
+      "amount": 1676.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1676.0,
+      "paidAmount": 1676.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "6/8/26"
+    },
+    {
+      "id": 1190,
+      "memberId": 24,
+      "flat": "206",
+      "name": "RAGHUNATH HALANDE",
+      "month": "सप्टेंबर २०२६",
+      "amount": 1676.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1676.0,
+      "paidAmount": 1676.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "8/9/26"
+    },
+    {
+      "id": 1191,
+      "memberId": 24,
+      "flat": "206",
+      "name": "RAGHUNATH HALANDE",
+      "month": "ऑक्टोबर २०२६",
+      "amount": 1676.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1676.0,
+      "paidAmount": 1676.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "5/10/29"
+    },
+    {
+      "id": 1192,
+      "memberId": 24,
+      "flat": "206",
+      "name": "RAGHUNATH HALANDE",
+      "month": "नोव्हेंबर २०२६",
+      "amount": 1676.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1676.0,
+      "paidAmount": 0.0,
+      "balance": 1676.0,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1193,
+      "memberId": 25,
+      "flat": "207",
+      "name": "SIDHARTH SHINDE",
+      "month": "एप्रिल २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 3114.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "7/4/26"
+    },
+    {
+      "id": 1194,
+      "memberId": 25,
+      "flat": "207",
+      "name": "SIDHARTH SHINDE",
+      "month": "मे २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "13/5/26"
+    },
+    {
+      "id": 1195,
+      "memberId": 25,
+      "flat": "207",
+      "name": "SIDHARTH SHINDE",
+      "month": "जून २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 0.0,
+      "balance": 1393.0,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1196,
+      "memberId": 25,
+      "flat": "207",
+      "name": "SIDHARTH SHINDE",
+      "month": "जुलै २०२६",
+      "amount": 1557.0,
+      "prevBalance": 1417.38,
+      "totalPayable": 2974.38,
+      "paidAmount": 0.0,
+      "balance": 2974.38,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1197,
+      "memberId": 25,
+      "flat": "207",
+      "name": "SIDHARTH SHINDE",
+      "month": "ऑगस्ट २०२६",
+      "amount": 1557.0,
+      "prevBalance": 3026.05,
+      "totalPayable": 4583.05,
+      "paidAmount": 4671.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "5/8/26"
+    },
+    {
+      "id": 1198,
+      "memberId": 25,
+      "flat": "207",
+      "name": "SIDHARTH SHINDE",
+      "month": "सप्टेंबर २०२६",
+      "amount": 2557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 2557.0,
+      "paidAmount": 0.0,
+      "balance": 2469.0,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1199,
+      "memberId": 25,
+      "flat": "207",
+      "name": "SIDHARTH SHINDE",
+      "month": "ऑक्टोबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 2512.21,
+      "totalPayable": 4069.21,
+      "paidAmount": 3164.0,
+      "balance": 905.21,
+      "status": "भरलेले",
+      "paidDate": "5/10/26"
+    },
+    {
+      "id": 1200,
+      "memberId": 25,
+      "flat": "207",
+      "name": "SIDHARTH SHINDE",
+      "month": "नोव्हेंबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 905.21,
+      "totalPayable": 2462.21,
+      "paidAmount": 0.0,
+      "balance": 2462.21,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1201,
+      "memberId": 26,
+      "flat": "208",
+      "name": "GURUNATH DHURI",
+      "month": "एप्रिल २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "15/4/26"
+    },
+    {
+      "id": 1202,
+      "memberId": 26,
+      "flat": "208",
+      "name": "GURUNATH DHURI",
+      "month": "मे २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 0.0,
+      "balance": 1557.0,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1203,
+      "memberId": 26,
+      "flat": "208",
+      "name": "GURUNATH DHURI",
+      "month": "जून २०२६",
+      "amount": 1557.0,
+      "prevBalance": 1584.25,
+      "totalPayable": 3141.25,
+      "paidAmount": 1557.0,
+      "balance": 1584.25,
+      "status": "भरलेले",
+      "paidDate": "7/6/26"
+    },
+    {
+      "id": 1204,
+      "memberId": 26,
+      "flat": "208",
+      "name": "GURUNATH DHURI",
+      "month": "जुलै २०२६",
+      "amount": 1557.0,
+      "prevBalance": 1611.72,
+      "totalPayable": 3168.72,
+      "paidAmount": 3114.0,
+      "balance": 54.72,
+      "status": "भरलेले",
+      "paidDate": "15/7/26"
+    },
+    {
+      "id": 1205,
+      "memberId": 26,
+      "flat": "208",
+      "name": "GURUNATH DHURI",
+      "month": "ऑगस्ट २०२६",
+      "amount": 1557.0,
+      "prevBalance": 55.96,
+      "totalPayable": 1612.96,
+      "paidAmount": 7557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "20/08/26"
+    },
+    {
+      "id": 1206,
+      "memberId": 26,
+      "flat": "208",
+      "name": "GURUNATH DHURI",
+      "month": "सप्टेंबर २०२६",
+      "amount": 8657.0,
+      "prevBalance": 0.0,
+      "totalPayable": 8657.0,
+      "paidAmount": 1557.0,
+      "balance": 1156.0,
+      "status": "भरलेले",
+      "paidDate": "10/9/26"
+    },
+    {
+      "id": 1207,
+      "memberId": 26,
+      "flat": "208",
+      "name": "GURUNATH DHURI",
+      "month": "ऑक्टोबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 1176.23,
+      "totalPayable": 2733.23,
+      "paidAmount": 1557.0,
+      "balance": 1176.23,
+      "status": "भरलेले",
+      "paidDate": "13/10/26"
+    },
+    {
+      "id": 1208,
+      "memberId": 26,
+      "flat": "208",
+      "name": "GURUNATH DHURI",
+      "month": "नोव्हेंबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 1176.23,
+      "totalPayable": 2733.23,
+      "paidAmount": 0.0,
+      "balance": 2733.23,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1209,
+      "memberId": 27,
+      "flat": "209",
+      "name": "DILIP PAVNAK",
+      "month": "एप्रिल २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "14/4/26"
+    },
+    {
+      "id": 1210,
+      "memberId": 27,
+      "flat": "209",
+      "name": "DILIP PAVNAK",
+      "month": "मे २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "12/5/26"
+    },
+    {
+      "id": 1211,
+      "memberId": 27,
+      "flat": "209",
+      "name": "DILIP PAVNAK",
+      "month": "जून २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "10/6/26"
+    },
+    {
+      "id": 1212,
+      "memberId": 27,
+      "flat": "209",
+      "name": "DILIP PAVNAK",
+      "month": "जुलै २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "11/7/26"
+    },
+    {
+      "id": 1213,
+      "memberId": 27,
+      "flat": "209",
+      "name": "DILIP PAVNAK",
+      "month": "ऑगस्ट २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "8/8/26"
+    },
+    {
+      "id": 1214,
+      "memberId": 27,
+      "flat": "209",
+      "name": "DILIP PAVNAK",
+      "month": "सप्टेंबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "14/9/26"
+    },
+    {
+      "id": 1215,
+      "memberId": 27,
+      "flat": "209",
+      "name": "DILIP PAVNAK",
+      "month": "ऑक्टोबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "12/10/26"
+    },
+    {
+      "id": 1216,
+      "memberId": 27,
+      "flat": "209",
+      "name": "DILIP PAVNAK",
+      "month": "नोव्हेंबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 0.0,
+      "balance": 1557.0,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1217,
+      "memberId": 28,
+      "flat": "210",
+      "name": "MANDAR SHIRKE",
+      "month": "एप्रिल २०२६",
+      "amount": 1616.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1616.0,
+      "paidAmount": 1616.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "14/4/26"
+    },
+    {
+      "id": 1218,
+      "memberId": 28,
+      "flat": "210",
+      "name": "MANDAR SHIRKE",
+      "month": "मे २०२६",
+      "amount": 1616.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1616.0,
+      "paidAmount": 1616.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "15/5/26"
+    },
+    {
+      "id": 1219,
+      "memberId": 28,
+      "flat": "210",
+      "name": "MANDAR SHIRKE",
+      "month": "जून २०२६",
+      "amount": 1616.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1616.0,
+      "paidAmount": 1616.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "15/6/26"
+    },
+    {
+      "id": 1220,
+      "memberId": 28,
+      "flat": "210",
+      "name": "MANDAR SHIRKE",
+      "month": "जुलै २०२६",
+      "amount": 1616.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1616.0,
+      "paidAmount": 1616.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "15/7/26"
+    },
+    {
+      "id": 1221,
+      "memberId": 28,
+      "flat": "210",
+      "name": "MANDAR SHIRKE",
+      "month": "ऑगस्ट २०२६",
+      "amount": 1616.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1616.0,
+      "paidAmount": 1616.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "15/08/26"
+    },
+    {
+      "id": 1222,
+      "memberId": 28,
+      "flat": "210",
+      "name": "MANDAR SHIRKE",
+      "month": "सप्टेंबर २०२६",
+      "amount": 1616.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1616.0,
+      "paidAmount": 1616.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "15/9/26"
+    },
+    {
+      "id": 1223,
+      "memberId": 28,
+      "flat": "210",
+      "name": "MANDAR SHIRKE",
+      "month": "ऑक्टोबर २०२६",
+      "amount": 1616.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1616.0,
+      "paidAmount": 1616.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "16/10/26"
+    },
+    {
+      "id": 1224,
+      "memberId": 28,
+      "flat": "210",
+      "name": "MANDAR SHIRKE",
+      "month": "नोव्हेंबर २०२६",
+      "amount": 1616.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1616.0,
+      "paidAmount": 0.0,
+      "balance": 1616.0,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1225,
+      "memberId": 29,
+      "flat": "301",
+      "name": "RUPESH PILAJI",
+      "month": "एप्रिल २०२६",
+      "amount": 1616.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1616.0,
+      "paidAmount": 0.0,
+      "balance": 1616.0,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1226,
+      "memberId": 29,
+      "flat": "301",
+      "name": "RUPESH PILAJI",
+      "month": "मे २०२६",
+      "amount": 1616.0,
+      "prevBalance": 1644.28,
+      "totalPayable": 3260.28,
+      "paidAmount": 1616.0,
+      "balance": 1644.28,
+      "status": "भरलेले",
+      "paidDate": "12/5/25"
+    },
+    {
+      "id": 1227,
+      "memberId": 29,
+      "flat": "301",
+      "name": "RUPESH PILAJI",
+      "month": "जून २०२६",
+      "amount": 1616.0,
+      "prevBalance": 1672.77,
+      "totalPayable": 3288.77,
+      "paidAmount": 3232.0,
+      "balance": 56.77,
+      "status": "भरलेले",
+      "paidDate": "6/6/26"
+    },
+    {
+      "id": 1228,
+      "memberId": 29,
+      "flat": "301",
+      "name": "RUPESH PILAJI",
+      "month": "जुलै २०२६",
+      "amount": 1616.0,
+      "prevBalance": 28.49,
+      "totalPayable": 1644.49,
+      "paidAmount": 1672.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "22/7/26"
+    },
+    {
+      "id": 1229,
+      "memberId": 29,
+      "flat": "301",
+      "name": "RUPESH PILAJI",
+      "month": "ऑगस्ट २०२६",
+      "amount": 1616.0,
+      "prevBalance": 29.51,
+      "totalPayable": 1645.51,
+      "paidAmount": 1616.0,
+      "balance": 29.51,
+      "status": "भरलेले",
+      "paidDate": "15/8/26"
+    },
+    {
+      "id": 1230,
+      "memberId": 29,
+      "flat": "301",
+      "name": "RUPESH PILAJI",
+      "month": "सप्टेंबर २०२६",
+      "amount": 2616.0,
+      "prevBalance": 30.52,
+      "totalPayable": 2646.52,
+      "paidAmount": 1645.0,
+      "balance": 1001.52,
+      "status": "भरलेले",
+      "paidDate": "25/9/26"
+    },
+    {
+      "id": 1231,
+      "memberId": 29,
+      "flat": "301",
+      "name": "RUPESH PILAJI",
+      "month": "ऑक्टोबर २०२६",
+      "amount": 1616.0,
+      "prevBalance": 1019.53,
+      "totalPayable": 2635.53,
+      "paidAmount": 0.0,
+      "balance": 2635.53,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1232,
+      "memberId": 29,
+      "flat": "301",
+      "name": "RUPESH PILAJI",
+      "month": "नोव्हेंबर २०२६",
+      "amount": 1616.0,
+      "prevBalance": 2635.53,
+      "totalPayable": 4251.53,
+      "paidAmount": 0.0,
+      "balance": 4251.53,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1233,
+      "memberId": 30,
+      "flat": "302",
+      "name": "SUBODH PAWAR",
+      "month": "एप्रिल २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 4752.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "21/4/26"
+    },
+    {
+      "id": 1234,
+      "memberId": 30,
+      "flat": "302",
+      "name": "SUBODH PAWAR",
+      "month": "मे २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 0.0,
+      "balance": 1557.0,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1235,
+      "memberId": 30,
+      "flat": "302",
+      "name": "SUBODH PAWAR",
+      "month": "जून २०२६",
+      "amount": 1557.0,
+      "prevBalance": 1666.66,
+      "totalPayable": 3223.66,
+      "paidAmount": 0.0,
+      "balance": 3223.66,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1236,
+      "memberId": 30,
+      "flat": "302",
+      "name": "SUBODH PAWAR",
+      "month": "जुलै २०२६",
+      "amount": 1557.0,
+      "prevBalance": 3279.4,
+      "totalPayable": 4836.4,
+      "paidAmount": 0.0,
+      "balance": 4836.4,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1237,
+      "memberId": 30,
+      "flat": "302",
+      "name": "SUBODH PAWAR",
+      "month": "ऑगस्ट २०२६",
+      "amount": 1557.0,
+      "prevBalance": 4917.58,
+      "totalPayable": 6474.58,
+      "paidAmount": 6474.0,
+      "balance": 0.58,
+      "status": "भरलेले",
+      "paidDate": "9/8/26"
+    },
+    {
+      "id": 1238,
+      "memberId": 30,
+      "flat": "302",
+      "name": "SUBODH PAWAR",
+      "month": "सप्टेंबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 27.47,
+      "totalPayable": 1584.47,
+      "paidAmount": 1557.0,
+      "balance": 27.47,
+      "status": "भरलेले",
+      "paidDate": "17/9/26"
+    },
+    {
+      "id": 1239,
+      "memberId": 30,
+      "flat": "302",
+      "name": "SUBODH PAWAR",
+      "month": "ऑक्टोबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 27.47,
+      "totalPayable": 1584.47,
+      "paidAmount": 1557.0,
+      "balance": 27.47,
+      "status": "भरलेले",
+      "paidDate": "27/10/26"
+    },
+    {
+      "id": 1240,
+      "memberId": 30,
+      "flat": "302",
+      "name": "SUBODH PAWAR",
+      "month": "नोव्हेंबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 27.47,
+      "totalPayable": 1584.47,
+      "paidAmount": 0.0,
+      "balance": 1584.47,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1241,
+      "memberId": 31,
+      "flat": "303",
+      "name": "SANJAY DHODI",
+      "month": "एप्रिल २०२६",
+      "amount": 10557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 10557.0,
+      "paidAmount": 12500.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "16/4/26"
+    },
+    {
+      "id": 1242,
+      "memberId": 31,
+      "flat": "303",
+      "name": "SANJAY DHODI",
+      "month": "मे २०२६",
+      "amount": 557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 557.0,
+      "paidAmount": 1750.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "12/5/26"
+    },
+    {
+      "id": 1243,
+      "memberId": 31,
+      "flat": "303",
+      "name": "SANJAY DHODI",
+      "month": "जून २०२६",
+      "amount": 7157.0,
+      "prevBalance": 0.0,
+      "totalPayable": 7157.0,
+      "paidAmount": 557.0,
+      "balance": 6523.0,
+      "status": "भरलेले",
+      "paidDate": "8/6/26"
+    },
+    {
+      "id": 1244,
+      "memberId": 31,
+      "flat": "303",
+      "name": "SANJAY DHODI",
+      "month": "जुलै २०२६",
+      "amount": 557.0,
+      "prevBalance": 6637.15,
+      "totalPayable": 7194.15,
+      "paidAmount": 7194.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "9/7/26"
+    },
+    {
+      "id": 1245,
+      "memberId": 31,
+      "flat": "303",
+      "name": "SANJAY DHODI",
+      "month": "ऑगस्ट २०२६",
+      "amount": 557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 557.0,
+      "paidAmount": 557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "6/8/26"
+    },
+    {
+      "id": 1246,
+      "memberId": 31,
+      "flat": "303",
+      "name": "SANJAY DHODI",
+      "month": "सप्टेंबर २०२६",
+      "amount": 557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 557.0,
+      "paidAmount": 557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "8/9/26"
+    },
+    {
+      "id": 1247,
+      "memberId": 31,
+      "flat": "303",
+      "name": "SANJAY DHODI",
+      "month": "ऑक्टोबर २०२६",
+      "amount": 557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 557.0,
+      "paidAmount": 557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "12/10/26"
+    },
+    {
+      "id": 1248,
+      "memberId": 31,
+      "flat": "303",
+      "name": "SANJAY DHODI",
+      "month": "नोव्हेंबर २०२६",
+      "amount": 557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 557.0,
+      "paidAmount": 0.0,
+      "balance": 557.0,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1249,
+      "memberId": 32,
+      "flat": "304",
+      "name": "YOGESH PAGADE",
+      "month": "एप्रिल २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 3500.0,
+      "balance": 1881.0,
+      "status": "भरलेले",
+      "paidDate": "18/4/26"
+    },
+    {
+      "id": 1250,
+      "memberId": 32,
+      "flat": "304",
+      "name": "YOGESH PAGADE",
+      "month": "मे २०२६",
+      "amount": 1557.0,
+      "prevBalance": 1913.92,
+      "totalPayable": 3470.92,
+      "paidAmount": 0.0,
+      "balance": 3470.92,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1251,
+      "memberId": 32,
+      "flat": "304",
+      "name": "YOGESH PAGADE",
+      "month": "जून २०२६",
+      "amount": 1557.0,
+      "prevBalance": 3592.79,
+      "totalPayable": 5149.79,
+      "paidAmount": 0.0,
+      "balance": 5148.79,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1252,
+      "memberId": 32,
+      "flat": "304",
+      "name": "YOGESH PAGADE",
+      "month": "जुलै २०२६",
+      "amount": 1557.0,
+      "prevBalance": 5239.11,
+      "totalPayable": 6796.11,
+      "paidAmount": 0.0,
+      "balance": 6796.11,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1253,
+      "memberId": 32,
+      "flat": "304",
+      "name": "YOGESH PAGADE",
+      "month": "ऑगस्ट २०२६",
+      "amount": 1557.0,
+      "prevBalance": 6908.82,
+      "totalPayable": 8465.82,
+      "paidAmount": 0.0,
+      "balance": 8465.83,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1254,
+      "memberId": 32,
+      "flat": "304",
+      "name": "YOGESH PAGADE",
+      "month": "सप्टेंबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 8614.16,
+      "totalPayable": 10171.16,
+      "paidAmount": 2500.0,
+      "balance": 7671.15,
+      "status": "भरलेले",
+      "paidDate": "17/9/26"
+    },
+    {
+      "id": 1255,
+      "memberId": 32,
+      "flat": "304",
+      "name": "YOGESH PAGADE",
+      "month": "ऑक्टोबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 7805.24,
+      "totalPayable": 9362.24,
+      "paidAmount": 5000.0,
+      "balance": 4362.24,
+      "status": "भरलेले",
+      "paidDate": "2/10/26"
+    },
+    {
+      "id": 1256,
+      "memberId": 32,
+      "flat": "304",
+      "name": "YOGESH PAGADE",
+      "month": "नोव्हेंबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 4362.24,
+      "totalPayable": 5919.24,
+      "paidAmount": 0.0,
+      "balance": 5919.24,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1257,
+      "memberId": 33,
+      "flat": "305",
+      "name": "SACHIN JADE",
+      "month": "एप्रिल २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "10/4/26"
+    },
+    {
+      "id": 1258,
+      "memberId": 33,
+      "flat": "305",
+      "name": "SACHIN JADE",
+      "month": "मे २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "13/5/26"
+    },
+    {
+      "id": 1259,
+      "memberId": 33,
+      "flat": "305",
+      "name": "SACHIN JADE",
+      "month": "जून २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "15/6/26"
+    },
+    {
+      "id": 1260,
+      "memberId": 33,
+      "flat": "305",
+      "name": "SACHIN JADE",
+      "month": "जुलै २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "8/7/26"
+    },
+    {
+      "id": 1261,
+      "memberId": 33,
+      "flat": "305",
+      "name": "SACHIN JADE",
+      "month": "ऑगस्ट २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "8/8/26"
+    },
+    {
+      "id": 1262,
+      "memberId": 33,
+      "flat": "305",
+      "name": "SACHIN JADE",
+      "month": "सप्टेंबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "7/9/26"
+    },
+    {
+      "id": 1263,
+      "memberId": 33,
+      "flat": "305",
+      "name": "SACHIN JADE",
+      "month": "ऑक्टोबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "8/10/26"
+    },
+    {
+      "id": 1264,
+      "memberId": 33,
+      "flat": "305",
+      "name": "SACHIN JADE",
+      "month": "नोव्हेंबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 0.0,
+      "balance": 1557.0,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1265,
+      "memberId": 34,
+      "flat": "306",
+      "name": "MAHESH PATIL",
+      "month": "एप्रिल २०२६",
+      "amount": 1676.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1676.0,
+      "paidAmount": 3352.0,
+      "balance": 29.0,
+      "status": "भरलेले",
+      "paidDate": "6/4/26"
+    },
+    {
+      "id": 1266,
+      "memberId": 34,
+      "flat": "306",
+      "name": "MAHESH PATIL",
+      "month": "मे २०२६",
+      "amount": 1676.0,
+      "prevBalance": 29.51,
+      "totalPayable": 1705.51,
+      "paidAmount": 1705.0,
+      "balance": 0.51,
+      "status": "भरलेले",
+      "paidDate": "12/5/26"
+    },
+    {
+      "id": 1267,
+      "memberId": 34,
+      "flat": "306",
+      "name": "MAHESH PATIL",
+      "month": "जून २०२६",
+      "amount": 1676.0,
+      "prevBalance": 1.02,
+      "totalPayable": 1677.02,
+      "paidAmount": 1676.0,
+      "balance": 1.02,
+      "status": "भरलेले",
+      "paidDate": "7/6/26"
+    },
+    {
+      "id": 1268,
+      "memberId": 34,
+      "flat": "306",
+      "name": "MAHESH PATIL",
+      "month": "जुलै २०२६",
+      "amount": 1676.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1676.0,
+      "paidAmount": 1676.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "11/7/26"
+    },
+    {
+      "id": 1269,
+      "memberId": 34,
+      "flat": "306",
+      "name": "MAHESH PATIL",
+      "month": "ऑगस्ट २०२६",
+      "amount": 1676.0,
+      "prevBalance": 1.02,
+      "totalPayable": 1677.02,
+      "paidAmount": 1676.0,
+      "balance": 1.02,
+      "status": "भरलेले",
+      "paidDate": "15/08/26"
+    },
+    {
+      "id": 1270,
+      "memberId": 34,
+      "flat": "306",
+      "name": "MAHESH PATIL",
+      "month": "सप्टेंबर २०२६",
+      "amount": 1676.0,
+      "prevBalance": 1.02,
+      "totalPayable": 1677.02,
+      "paidAmount": 1676.0,
+      "balance": 1.02,
+      "status": "भरलेले",
+      "paidDate": "28/9/26"
+    },
+    {
+      "id": 1271,
+      "memberId": 34,
+      "flat": "306",
+      "name": "MAHESH PATIL",
+      "month": "ऑक्टोबर २०२६",
+      "amount": 1676.0,
+      "prevBalance": 28.49,
+      "totalPayable": 1704.49,
+      "paidAmount": 1676.0,
+      "balance": 28.49,
+      "status": "भरलेले",
+      "paidDate": "15/10/26"
+    },
+    {
+      "id": 1272,
+      "memberId": 34,
+      "flat": "306",
+      "name": "MAHESH PATIL",
+      "month": "नोव्हेंबर २०२६",
+      "amount": 1676.0,
+      "prevBalance": 28.49,
+      "totalPayable": 1704.49,
+      "paidAmount": 0.0,
+      "balance": 1704.49,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1273,
+      "memberId": 35,
+      "flat": "307",
+      "name": "NITESH DHUMAL",
+      "month": "एप्रिल २०२६",
+      "amount": 2057.0,
+      "prevBalance": 0.0,
+      "totalPayable": 2057.0,
+      "paidAmount": 2057.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "4/4/26"
+    },
+    {
+      "id": 1274,
+      "memberId": 35,
+      "flat": "307",
+      "name": "NITESH DHUMAL",
+      "month": "मे २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "5/5/26"
+    },
+    {
+      "id": 1275,
+      "memberId": 35,
+      "flat": "307",
+      "name": "NITESH DHUMAL",
+      "month": "जून २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "4/6/26"
+    },
+    {
+      "id": 1276,
+      "memberId": 35,
+      "flat": "307",
+      "name": "NITESH DHUMAL",
+      "month": "जुलै २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "4/7/26"
+    },
+    {
+      "id": 1277,
+      "memberId": 35,
+      "flat": "307",
+      "name": "NITESH DHUMAL",
+      "month": "ऑगस्ट २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "4/8/26"
+    },
+    {
+      "id": 1278,
+      "memberId": 35,
+      "flat": "307",
+      "name": "NITESH DHUMAL",
+      "month": "सप्टेंबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "04/09/26"
+    },
+    {
+      "id": 1279,
+      "memberId": 35,
+      "flat": "307",
+      "name": "NITESH DHUMAL",
+      "month": "ऑक्टोबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "4/10/26"
+    },
+    {
+      "id": 1280,
+      "memberId": 35,
+      "flat": "307",
+      "name": "NITESH DHUMAL",
+      "month": "नोव्हेंबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 0.0,
+      "balance": 1557.0,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1281,
+      "memberId": 36,
+      "flat": "308309",
+      "name": "SURESH PAITHANE",
+      "month": "एप्रिल २०२६",
+      "amount": 1697.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1697.0,
+      "paidAmount": 1697.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "15/4/26"
+    },
+    {
+      "id": 1282,
+      "memberId": 36,
+      "flat": "308309",
+      "name": "SURESH PAITHANE",
+      "month": "मे २०२६",
+      "amount": 1697.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1697.0,
+      "paidAmount": 1697.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "13/5/26"
+    },
+    {
+      "id": 1283,
+      "memberId": 36,
+      "flat": "308309",
+      "name": "SURESH PAITHANE",
+      "month": "जून २०२६",
+      "amount": 1697.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1697.0,
+      "paidAmount": 1697.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "11/6/26"
+    },
+    {
+      "id": 1284,
+      "memberId": 36,
+      "flat": "308309",
+      "name": "SURESH PAITHANE",
+      "month": "जुलै २०२६",
+      "amount": 1697.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1697.0,
+      "paidAmount": 1697.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "10/7/26"
+    },
+    {
+      "id": 1285,
+      "memberId": 36,
+      "flat": "308309",
+      "name": "SURESH PAITHANE",
+      "month": "ऑगस्ट २०२६",
+      "amount": 1697.0,
+      "prevBalance": 1.02,
+      "totalPayable": 1698.02,
+      "paidAmount": 1698.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "11/08/26"
+    },
+    {
+      "id": 1286,
+      "memberId": 36,
+      "flat": "308309",
+      "name": "SURESH PAITHANE",
+      "month": "सप्टेंबर २०२६",
+      "amount": 1697.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1697.0,
+      "paidAmount": 1697.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "11/9/26"
+    },
+    {
+      "id": 1287,
+      "memberId": 36,
+      "flat": "308309",
+      "name": "SURESH PAITHANE",
+      "month": "ऑक्टोबर २०२६",
+      "amount": 1697.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1697.0,
+      "paidAmount": 1697.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "15/10/26"
+    },
+    {
+      "id": 1288,
+      "memberId": 36,
+      "flat": "308309",
+      "name": "SURESH PAITHANE",
+      "month": "नोव्हेंबर २०२६",
+      "amount": 1697.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1697.0,
+      "paidAmount": 0.0,
+      "balance": 1697.0,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1289,
+      "memberId": 37,
+      "flat": "310",
+      "name": "SANTOSH BHOVAD",
+      "month": "एप्रिल २०२६",
+      "amount": 1836.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1836.0,
+      "paidAmount": 1600.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "15/4/26"
+    },
+    {
+      "id": 1290,
+      "memberId": 37,
+      "flat": "310",
+      "name": "SANTOSH BHOVAD",
+      "month": "मे २०२६",
+      "amount": 1836.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1836.0,
+      "paidAmount": 1850.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "15/5/26"
+    },
+    {
+      "id": 1291,
+      "memberId": 37,
+      "flat": "310",
+      "name": "SANTOSH BHOVAD",
+      "month": "जून २०२६",
+      "amount": 1836.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1836.0,
+      "paidAmount": 1850.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "15/6/26"
+    },
+    {
+      "id": 1292,
+      "memberId": 37,
+      "flat": "310",
+      "name": "SANTOSH BHOVAD",
+      "month": "जुलै २०२६",
+      "amount": 1836.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1836.0,
+      "paidAmount": 1850.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "15/7/26"
+    },
+    {
+      "id": 1293,
+      "memberId": 37,
+      "flat": "310",
+      "name": "SANTOSH BHOVAD",
+      "month": "ऑगस्ट २०२६",
+      "amount": 1836.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1836.0,
+      "paidAmount": 1850.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "14/08/26"
+    },
+    {
+      "id": 1294,
+      "memberId": 37,
+      "flat": "310",
+      "name": "SANTOSH BHOVAD",
+      "month": "सप्टेंबर २०२६",
+      "amount": 1836.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1836.0,
+      "paidAmount": 1850.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "14/9/26"
+    },
+    {
+      "id": 1295,
+      "memberId": 37,
+      "flat": "310",
+      "name": "SANTOSH BHOVAD",
+      "month": "ऑक्टोबर २०२६",
+      "amount": 1836.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1836.0,
+      "paidAmount": 1850.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "15/10/26"
+    },
+    {
+      "id": 1296,
+      "memberId": 37,
+      "flat": "310",
+      "name": "SANTOSH BHOVAD",
+      "month": "नोव्हेंबर २०२६",
+      "amount": 1836.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1836.0,
+      "paidAmount": 1850.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "15/10/26"
+    },
+    {
+      "id": 1297,
+      "memberId": 38,
+      "flat": "401",
+      "name": "RAJU GAUTAM",
+      "month": "एप्रिल २०२६",
+      "amount": 1616.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1616.0,
+      "paidAmount": 1616.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "7/4/26"
+    },
+    {
+      "id": 1298,
+      "memberId": 38,
+      "flat": "401",
+      "name": "RAJU GAUTAM",
+      "month": "मे २०२६",
+      "amount": 1616.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1616.0,
+      "paidAmount": 1616.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "7/5/26"
+    },
+    {
+      "id": 1299,
+      "memberId": 38,
+      "flat": "401",
+      "name": "RAJU GAUTAM",
+      "month": "जून २०२६",
+      "amount": 1616.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1616.0,
+      "paidAmount": 1616.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "8/6/26"
+    },
+    {
+      "id": 1300,
+      "memberId": 38,
+      "flat": "401",
+      "name": "RAJU GAUTAM",
+      "month": "जुलै २०२६",
+      "amount": 1616.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1616.0,
+      "paidAmount": 1616.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "8/7/26"
+    },
+    {
+      "id": 1301,
+      "memberId": 38,
+      "flat": "401",
+      "name": "RAJU GAUTAM",
+      "month": "ऑगस्ट २०२६",
+      "amount": 1616.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1616.0,
+      "paidAmount": 1616.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "7/8/26"
+    },
+    {
+      "id": 1302,
+      "memberId": 38,
+      "flat": "401",
+      "name": "RAJU GAUTAM",
+      "month": "सप्टेंबर २०२६",
+      "amount": 1616.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1616.0,
+      "paidAmount": 1616.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "7/9/26"
+    },
+    {
+      "id": 1303,
+      "memberId": 38,
+      "flat": "401",
+      "name": "RAJU GAUTAM",
+      "month": "ऑक्टोबर २०२६",
+      "amount": 1616.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1616.0,
+      "paidAmount": 1557.0,
+      "balance": 59.0,
+      "status": "भरलेले",
+      "paidDate": "7/10/26"
+    },
+    {
+      "id": 1304,
+      "memberId": 38,
+      "flat": "401",
+      "name": "RAJU GAUTAM",
+      "month": "नोव्हेंबर २०२६",
+      "amount": 1616.0,
+      "prevBalance": 59.0,
+      "totalPayable": 1675.0,
+      "paidAmount": 0.0,
+      "balance": 1675.0,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1305,
+      "memberId": 39,
+      "flat": "402",
+      "name": "VIJAY PARAB",
+      "month": "एप्रिल २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 42.0,
+      "status": "भरलेले",
+      "paidDate": "5/4/26"
+    },
+    {
+      "id": 1306,
+      "memberId": 39,
+      "flat": "402",
+      "name": "VIJAY PARAB",
+      "month": "मे २०२६",
+      "amount": 1557.0,
+      "prevBalance": 42.73,
+      "totalPayable": 1599.73,
+      "paidAmount": 1557.0,
+      "balance": 42.73,
+      "status": "भरलेले",
+      "paidDate": "13/5/26"
+    },
+    {
+      "id": 1307,
+      "memberId": 39,
+      "flat": "402",
+      "name": "VIJAY PARAB",
+      "month": "जून २०२६",
+      "amount": 9257.0,
+      "prevBalance": 43.75,
+      "totalPayable": 9300.75,
+      "paidAmount": 1557.0,
+      "balance": 7743.75,
+      "status": "भरलेले",
+      "paidDate": "7/6/26"
+    },
+    {
+      "id": 1308,
+      "memberId": 39,
+      "flat": "402",
+      "name": "VIJAY PARAB",
+      "month": "जुलै २०२६",
+      "amount": 1557.0,
+      "prevBalance": 7879.52,
+      "totalPayable": 9436.52,
+      "paidAmount": 1557.0,
+      "balance": 7879.52,
+      "status": "भरलेले",
+      "paidDate": "10/7/26"
+    },
+    {
+      "id": 1309,
+      "memberId": 39,
+      "flat": "402",
+      "name": "VIJAY PARAB",
+      "month": "ऑगस्ट २०२६",
+      "amount": 1557.0,
+      "prevBalance": 8017.9,
+      "totalPayable": 9574.9,
+      "paidAmount": 1557.0,
+      "balance": 8017.9,
+      "status": "भरलेले",
+      "paidDate": "11/08/26"
+    },
+    {
+      "id": 1310,
+      "memberId": 39,
+      "flat": "402",
+      "name": "VIJAY PARAB",
+      "month": "सप्टेंबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 8158.31,
+      "totalPayable": 9715.31,
+      "paidAmount": 1557.0,
+      "balance": 8158.31,
+      "status": "भरलेले",
+      "paidDate": "14/9/26"
+    },
+    {
+      "id": 1311,
+      "memberId": 39,
+      "flat": "402",
+      "name": "VIJAY PARAB",
+      "month": "ऑक्टोबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 8300.76,
+      "totalPayable": 9857.76,
+      "paidAmount": 1557.0,
+      "balance": 8300.76,
+      "status": "भरलेले",
+      "paidDate": "9/10/26"
+    },
+    {
+      "id": 1312,
+      "memberId": 39,
+      "flat": "402",
+      "name": "VIJAY PARAB",
+      "month": "नोव्हेंबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 8300.76,
+      "totalPayable": 9857.76,
+      "paidAmount": 0.0,
+      "balance": 9857.76,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1313,
+      "memberId": 40,
+      "flat": "403",
+      "name": "ROSHAN MALUSARE",
+      "month": "एप्रिल २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 3015.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "26/4/26"
+    },
+    {
+      "id": 1314,
+      "memberId": 40,
+      "flat": "403",
+      "name": "ROSHAN MALUSARE",
+      "month": "मे २०२६",
+      "amount": 1557.0,
+      "prevBalance": 53.93,
+      "totalPayable": 1610.93,
+      "paidAmount": 0.0,
+      "balance": 1610.93,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1315,
+      "memberId": 40,
+      "flat": "403",
+      "name": "ROSHAN MALUSARE",
+      "month": "जून २०२६",
+      "amount": 2557.0,
+      "prevBalance": 1637.16,
+      "totalPayable": 4194.16,
+      "paidAmount": 4194.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "24/6/26"
+    },
+    {
+      "id": 1316,
+      "memberId": 40,
+      "flat": "403",
+      "name": "ROSHAN MALUSARE",
+      "month": "जुलै २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 0.0,
+      "balance": 1557.0,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1317,
+      "memberId": 40,
+      "flat": "403",
+      "name": "ROSHAN MALUSARE",
+      "month": "ऑगस्ट २०२६",
+      "amount": 1557.0,
+      "prevBalance": 1584.25,
+      "totalPayable": 3141.25,
+      "paidAmount": 0.0,
+      "balance": 3141.25,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1318,
+      "memberId": 40,
+      "flat": "403",
+      "name": "ROSHAN MALUSARE",
+      "month": "सप्टेंबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 3195.97,
+      "totalPayable": 4752.97,
+      "paidAmount": 0.0,
+      "balance": 4752.97,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1319,
+      "memberId": 40,
+      "flat": "403",
+      "name": "ROSHAN MALUSARE",
+      "month": "ऑक्टोबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 4836.18,
+      "totalPayable": 6393.18,
+      "paidAmount": 0.0,
+      "balance": 6393.18,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1320,
+      "memberId": 40,
+      "flat": "403",
+      "name": "ROSHAN MALUSARE",
+      "month": "नोव्हेंबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 6393.18,
+      "totalPayable": 7950.18,
+      "paidAmount": 0.0,
+      "balance": 7950.18,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1321,
+      "memberId": 41,
+      "flat": "404",
+      "name": "RAMESH TRIPATHI",
+      "month": "एप्रिल २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 0.0,
+      "balance": 5119.0,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1322,
+      "memberId": 41,
+      "flat": "404",
+      "name": "RAMESH TRIPATHI",
+      "month": "मे २०२६",
+      "amount": 1557.0,
+      "prevBalance": 5208.58,
+      "totalPayable": 6765.58,
+      "paidAmount": 5000.0,
+      "balance": 1765.58,
+      "status": "भरलेले",
+      "paidDate": "10/5/26"
+    },
+    {
+      "id": 1323,
+      "memberId": 41,
+      "flat": "404",
+      "name": "RAMESH TRIPATHI",
+      "month": "जून २०२६",
+      "amount": 1557.0,
+      "prevBalance": 1793.85,
+      "totalPayable": 3350.85,
+      "paidAmount": 3320.0,
+      "balance": 30.85,
+      "status": "भरलेले",
+      "paidDate": "16/6/26"
+    },
+    {
+      "id": 1324,
+      "memberId": 41,
+      "flat": "404",
+      "name": "RAMESH TRIPATHI",
+      "month": "जुलै २०२६",
+      "amount": 1557.0,
+      "prevBalance": 30.52,
+      "totalPayable": 1587.52,
+      "paidAmount": 1557.0,
+      "balance": 30.52,
+      "status": "भरलेले",
+      "paidDate": "11/7/26"
+    },
+    {
+      "id": 1325,
+      "memberId": 41,
+      "flat": "404",
+      "name": "RAMESH TRIPATHI",
+      "month": "ऑगस्ट २०२६",
+      "amount": 1557.0,
+      "prevBalance": 59.02,
+      "totalPayable": 1616.02,
+      "paidAmount": 1650.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "14/08/26"
+    },
+    {
+      "id": 1326,
+      "memberId": 41,
+      "flat": "404",
+      "name": "RAMESH TRIPATHI",
+      "month": "सप्टेंबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 1549.65,
+      "totalPayable": 3106.65,
+      "paidAmount": 0.0,
+      "balance": 3072.65,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1327,
+      "memberId": 41,
+      "flat": "404",
+      "name": "RAMESH TRIPATHI",
+      "month": "ऑक्टोबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 3300.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "15/10/26"
+    },
+    {
+      "id": 1328,
+      "memberId": 41,
+      "flat": "404",
+      "name": "RAMESH TRIPATHI",
+      "month": "नोव्हेंबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 0.0,
+      "balance": 1557.0,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1329,
+      "memberId": 42,
+      "flat": "405",
+      "name": "MAHESH POOJARI",
+      "month": "एप्रिल २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 3000.0,
+      "balance": 3190.0,
+      "status": "भरलेले",
+      "paidDate": "27/4/26"
+    },
+    {
+      "id": 1330,
+      "memberId": 42,
+      "flat": "405",
+      "name": "MAHESH POOJARI",
+      "month": "मे २०२६",
+      "amount": 1557.0,
+      "prevBalance": 3245.82,
+      "totalPayable": 4802.82,
+      "paidAmount": 0.0,
+      "balance": 4802.82,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1331,
+      "memberId": 42,
+      "flat": "405",
+      "name": "MAHESH POOJARI",
+      "month": "जून २०२६",
+      "amount": 1557.0,
+      "prevBalance": 4937.93,
+      "totalPayable": 6494.93,
+      "paidAmount": 0.0,
+      "balance": 6494.93,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1332,
+      "memberId": 42,
+      "flat": "405",
+      "name": "MAHESH POOJARI",
+      "month": "जुलै २०२६",
+      "amount": 1557.0,
+      "prevBalance": 6608.66,
+      "totalPayable": 8165.66,
+      "paidAmount": 0.0,
+      "balance": 8165.66,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1333,
+      "memberId": 42,
+      "flat": "405",
+      "name": "MAHESH POOJARI",
+      "month": "ऑगस्ट २०२६",
+      "amount": 1557.0,
+      "prevBalance": 8308.91,
+      "totalPayable": 9865.91,
+      "paidAmount": 0.0,
+      "balance": 9865.91,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1334,
+      "memberId": 42,
+      "flat": "405",
+      "name": "MAHESH POOJARI",
+      "month": "सप्टेंबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 10038.66,
+      "totalPayable": 11595.66,
+      "paidAmount": 5000.0,
+      "balance": 6595.65,
+      "status": "भरलेले",
+      "paidDate": "11/9/26"
+    },
+    {
+      "id": 1335,
+      "memberId": 42,
+      "flat": "405",
+      "name": "MAHESH POOJARI",
+      "month": "ऑक्टोबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 11798.93,
+      "totalPayable": 13355.93,
+      "paidAmount": 5000.0,
+      "balance": 8355.93,
+      "status": "भरलेले",
+      "paidDate": "11/10/26"
+    },
+    {
+      "id": 1336,
+      "memberId": 42,
+      "flat": "405",
+      "name": "MAHESH POOJARI",
+      "month": "नोव्हेंबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 8355.93,
+      "totalPayable": 9912.93,
+      "paidAmount": 0.0,
+      "balance": 9912.93,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1337,
+      "memberId": 43,
+      "flat": "406",
+      "name": "GOVIND GADE",
+      "month": "एप्रिल २०२६",
+      "amount": 1676.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1676.0,
+      "paidAmount": 0.0,
+      "balance": 4792.0,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1338,
+      "memberId": 43,
+      "flat": "406",
+      "name": "GOVIND GADE",
+      "month": "मे २०२६",
+      "amount": 1676.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1676.0,
+      "paidAmount": 0.0,
+      "balance": 1676.0,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1339,
+      "memberId": 43,
+      "flat": "406",
+      "name": "GOVIND GADE",
+      "month": "जून २०२६",
+      "amount": 1676.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1676.0,
+      "paidAmount": 0.0,
+      "balance": 1676.0,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1340,
+      "memberId": 43,
+      "flat": "406",
+      "name": "GOVIND GADE",
+      "month": "जुलै २०२६",
+      "amount": 1676.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1676.0,
+      "paidAmount": 0.0,
+      "balance": 1676.0,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1341,
+      "memberId": 43,
+      "flat": "406",
+      "name": "GOVIND GADE",
+      "month": "ऑगस्ट २०२६",
+      "amount": 1676.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1676.0,
+      "paidAmount": 0.0,
+      "balance": 1676.0,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1342,
+      "memberId": 43,
+      "flat": "406",
+      "name": "GOVIND GADE",
+      "month": "सप्टेंबर २०२६",
+      "amount": 1676.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1676.0,
+      "paidAmount": 0.0,
+      "balance": 1676.0,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1343,
+      "memberId": 43,
+      "flat": "406",
+      "name": "GOVIND GADE",
+      "month": "ऑक्टोबर २०२६",
+      "amount": 1676.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1676.0,
+      "paidAmount": 0.0,
+      "balance": 1676.0,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1344,
+      "memberId": 43,
+      "flat": "406",
+      "name": "GOVIND GADE",
+      "month": "नोव्हेंबर २०२६",
+      "amount": 1676.0,
+      "prevBalance": 1676.0,
+      "totalPayable": 3352.0,
+      "paidAmount": 0.0,
+      "balance": 3352.0,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1345,
+      "memberId": 44,
+      "flat": "407",
+      "name": "KRUTIKA CHOGLE",
+      "month": "एप्रिल २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "5/4/26"
+    },
+    {
+      "id": 1346,
+      "memberId": 44,
+      "flat": "407",
+      "name": "KRUTIKA CHOGLE",
+      "month": "मे २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "13/5/26"
+    },
+    {
+      "id": 1347,
+      "memberId": 44,
+      "flat": "407",
+      "name": "KRUTIKA CHOGLE",
+      "month": "जून २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "7/6/26"
+    },
+    {
+      "id": 1348,
+      "memberId": 44,
+      "flat": "407",
+      "name": "KRUTIKA CHOGLE",
+      "month": "जुलै २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "10/7/26"
+    },
+    {
+      "id": 1349,
+      "memberId": 44,
+      "flat": "407",
+      "name": "KRUTIKA CHOGLE",
+      "month": "ऑगस्ट २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "11/08/26"
+    },
+    {
+      "id": 1350,
+      "memberId": 44,
+      "flat": "407",
+      "name": "KRUTIKA CHOGLE",
+      "month": "सप्टेंबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "14/9/26"
+    },
+    {
+      "id": 1351,
+      "memberId": 44,
+      "flat": "407",
+      "name": "KRUTIKA CHOGLE",
+      "month": "ऑक्टोबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "9/10/26"
+    },
+    {
+      "id": 1352,
+      "memberId": 44,
+      "flat": "407",
+      "name": "KRUTIKA CHOGLE",
+      "month": "नोव्हेंबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 0.0,
+      "balance": 1557.0,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1353,
+      "memberId": 45,
+      "flat": "408",
+      "name": "RAVINDRA RASAL",
+      "month": "एप्रिल २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "1/4/26"
+    },
+    {
+      "id": 1354,
+      "memberId": 45,
+      "flat": "408",
+      "name": "RAVINDRA RASAL",
+      "month": "मे २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "1/5/26"
+    },
+    {
+      "id": 1355,
+      "memberId": 45,
+      "flat": "408",
+      "name": "RAVINDRA RASAL",
+      "month": "जून २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "1/6/26"
+    },
+    {
+      "id": 1356,
+      "memberId": 45,
+      "flat": "408",
+      "name": "RAVINDRA RASAL",
+      "month": "जुलै २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "2/7/26"
+    },
+    {
+      "id": 1357,
+      "memberId": 45,
+      "flat": "408",
+      "name": "RAVINDRA RASAL",
+      "month": "ऑगस्ट २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "1/08/26"
+    },
+    {
+      "id": 1358,
+      "memberId": 45,
+      "flat": "408",
+      "name": "RAVINDRA RASAL",
+      "month": "सप्टेंबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "2/9/26"
+    },
+    {
+      "id": 1359,
+      "memberId": 45,
+      "flat": "408",
+      "name": "RAVINDRA RASAL",
+      "month": "ऑक्टोबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "1/10/26"
+    },
+    {
+      "id": 1360,
+      "memberId": 45,
+      "flat": "408",
+      "name": "RAVINDRA RASAL",
+      "month": "नोव्हेंबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 0.0,
+      "balance": 1557.0,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1361,
+      "memberId": 46,
+      "flat": "409",
+      "name": "MORESHWAR GHADI",
+      "month": "एप्रिल २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "8/4/26"
+    },
+    {
+      "id": 1362,
+      "memberId": 46,
+      "flat": "409",
+      "name": "MORESHWAR GHADI",
+      "month": "मे २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "6/5/26"
+    },
+    {
+      "id": 1363,
+      "memberId": 46,
+      "flat": "409",
+      "name": "MORESHWAR GHADI",
+      "month": "जून २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "8/6/26"
+    },
+    {
+      "id": 1364,
+      "memberId": 46,
+      "flat": "409",
+      "name": "MORESHWAR GHADI",
+      "month": "जुलै २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "9/7/26"
+    },
+    {
+      "id": 1365,
+      "memberId": 46,
+      "flat": "409",
+      "name": "MORESHWAR GHADI",
+      "month": "ऑगस्ट २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "6/8/26"
+    },
+    {
+      "id": 1366,
+      "memberId": 46,
+      "flat": "409",
+      "name": "MORESHWAR GHADI",
+      "month": "सप्टेंबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "8/9/26"
+    },
+    {
+      "id": 1367,
+      "memberId": 46,
+      "flat": "409",
+      "name": "MORESHWAR GHADI",
+      "month": "ऑक्टोबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 1557.0,
+      "balance": 0.0,
+      "status": "भरलेले",
+      "paidDate": "11/10/26"
+    },
+    {
+      "id": 1368,
+      "memberId": 46,
+      "flat": "409",
+      "name": "MORESHWAR GHADI",
+      "month": "नोव्हेंबर २०२६",
+      "amount": 1557.0,
+      "prevBalance": 0.0,
+      "totalPayable": 1557.0,
+      "paidAmount": 0.0,
+      "balance": 1557.0,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1369,
+      "memberId": 47,
+      "flat": "410",
+      "name": "SURESH NIMBALKAR",
+      "month": "एप्रिल २०२६",
+      "amount": 1616.0,
+      "prevBalance": 27.47,
+      "totalPayable": 1643.47,
+      "paidAmount": 2000.0,
+      "balance": 3050.0,
+      "status": "भरलेले",
+      "paidDate": "27/4/26"
+    },
+    {
+      "id": 1370,
+      "memberId": 47,
+      "flat": "410",
+      "name": "SURESH NIMBALKAR",
+      "month": "मे २०२६",
+      "amount": 1616.0,
+      "prevBalance": 3103.38,
+      "totalPayable": 4719.38,
+      "paidAmount": 3023.0,
+      "balance": 1696.38,
+      "status": "भरलेले",
+      "paidDate": "12/5/26"
+    },
+    {
+      "id": 1371,
+      "memberId": 47,
+      "flat": "410",
+      "name": "SURESH NIMBALKAR",
+      "month": "जून २०२६",
+      "amount": 1616.0,
+      "prevBalance": 1733.82,
+      "totalPayable": 3349.82,
+      "paidAmount": 0.0,
+      "balance": 3349.82,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1372,
+      "memberId": 47,
+      "flat": "410",
+      "name": "SURESH NIMBALKAR",
+      "month": "जुलै २०२६",
+      "amount": 1616.0,
+      "prevBalance": 3408.62,
+      "totalPayable": 5024.62,
+      "paidAmount": 0.0,
+      "balance": 5024.62,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1373,
+      "memberId": 47,
+      "flat": "410",
+      "name": "SURESH NIMBALKAR",
+      "month": "ऑगस्ट २०२६",
+      "amount": 1616.0,
+      "prevBalance": 5112.94,
+      "totalPayable": 6728.94,
+      "paidAmount": 3300.0,
+      "balance": 3428.94,
+      "status": "भरलेले",
+      "paidDate": "12/08/26"
+    },
+    {
+      "id": 1374,
+      "memberId": 47,
+      "flat": "410",
+      "name": "SURESH NIMBALKAR",
+      "month": "सप्टेंबर २०२६",
+      "amount": 1616.0,
+      "prevBalance": 3489.01,
+      "totalPayable": 5105.01,
+      "paidAmount": 0.0,
+      "balance": 5105.01,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1375,
+      "memberId": 47,
+      "flat": "410",
+      "name": "SURESH NIMBALKAR",
+      "month": "ऑक्टोबर २०२६",
+      "amount": 1616.0,
+      "prevBalance": 5194.34,
+      "totalPayable": 6810.34,
+      "paidAmount": 0.0,
+      "balance": 6810.34,
+      "status": "थकीत",
+      "paidDate": ""
+    },
+    {
+      "id": 1376,
+      "memberId": 47,
+      "flat": "410",
+      "name": "SURESH NIMBALKAR",
+      "month": "नोव्हेंबर २०२६",
+      "amount": 1616.0,
+      "prevBalance": 6810.34,
+      "totalPayable": 8426.34,
+      "paidAmount": 0.0,
+      "balance": 8426.34,
+      "status": "थकीत",
+      "paidDate": ""
+    }
+  ],
+  "notices": [
+    {
+      "id": 201,
+      "title": "मासिक देखभाल व भाडेकरू माहिती अद्ययावत",
+      "category": "देखभाल",
+      "date": "2026-11-13",
+      "body": "सर्व ४७ फ्लॅटधारकांचे वैयक्तिक मासिक शुल्क, मागील थकबाकी कॅरी फॉरवर्ड आणि १४ भाडेकरूंच्या कराराची माहिती ॲपमध्ये अद्ययावत केली आहे."
+    }
+  ],
+  "transactions": [
+    {
+      "id": 301,
+      "date": "2026-04-30",
+      "type": "जमा",
+      "category": "देखभाल शुल्क",
+      "desc": "एप्रिल २०२६ मासिक देखभाल संकलन (Google Sheet)",
+      "amount": 99182.0
+    },
+    {
+      "id": 302,
+      "date": "2026-05-31",
+      "type": "जमा",
+      "category": "देखभाल शुल्क",
+      "desc": "मे २०२६ मासिक देखभाल संकलन (Google Sheet)",
+      "amount": 62164.0
+    },
+    {
+      "id": 303,
+      "date": "2026-06-30",
+      "type": "जमा",
+      "category": "देखभाल शुल्क",
+      "desc": "जून २०२६ मासिक देखभाल संकलन (Google Sheet)",
+      "amount": 62924.0
+    },
+    {
+      "id": 304,
+      "date": "2026-07-31",
+      "type": "जमा",
+      "category": "देखभाल शुल्क",
+      "desc": "जुलै २०२६ मासिक देखभाल संकलन (Google Sheet)",
+      "amount": 80663.0
+    },
+    {
+      "id": 305,
+      "date": "2026-08-31",
+      "type": "जमा",
+      "category": "देखभाल शुल्क",
+      "desc": "ऑगस्ट २०२६ मासिक देखभाल संकलन (Google Sheet)",
+      "amount": 97025.0
+    },
+    {
+      "id": 306,
+      "date": "2026-09-30",
+      "type": "जमा",
+      "category": "देखभाल शुल्क",
+      "desc": "सप्टेंबर २०२६ मासिक देखभाल संकलन (Google Sheet)",
+      "amount": 82833.0
+    },
+    {
+      "id": 307,
+      "date": "2026-10-31",
+      "type": "जमा",
+      "category": "देखभाल शुल्क",
+      "desc": "ऑक्टोबर २०२६ मासिक देखभाल संकलन (Google Sheet)",
+      "amount": 83390.0
+    },
+    {
+      "id": 308,
+      "date": "2026-11-13",
+      "type": "जमा",
+      "category": "देखभाल शुल्क",
+      "desc": "नोव्हेंबर २०२६ मासिक देखभाल संकलन (Google Sheet)",
+      "amount": 1850.0
+    }
+  ],
+  "bankDetails": {
+    "bankName": "ठाणे जिल्हा मध्यवर्ती सहकारी बँक (TDCC)",
+    "branch": "VASAI ROAD",
+    "accountName": "SHIV SAI SANKUL B WING CO OP HSG LTD",
+    "accountNumber": "000300310002129",
+    "ifscCode": "TDCB0000003",
+    "accountType": "SAVING DEPOSIT SOCIETY (0031)",
+    "customerId": "0002332832"
+  }
 };
 
     let state = loadState();
@@ -1999,7 +7935,21 @@
     let confirmCallback = null;
 
     function loadState() {
-      // no local cache: data is fetched from Firestore only after a successful login
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed && Array.isArray(parsed.members) && Array.isArray(parsed.tenants) && parsed.loan) {
+            if (!parsed.waterTax) {
+              try {
+                const wb = localStorage.getItem(WATER_BACKUP_KEY);
+                if (wb) parsed.waterTax = JSON.parse(wb);
+              } catch (e) {}
+            }
+            return parsed;
+          }
+        }
+      } catch (e) {}
       return JSON.parse(JSON.stringify(DEFAULT_DATA));
     }
 
@@ -2015,336 +7965,53 @@
     let lastLocalSaveAt = 0;
 
     function saveState() {
-      if (!isAdmin()) return;   // members never write
       lastLocalSaveAt = Date.now();
-      state = JSON.parse(JSON.stringify(state));
-      if (firestoreDocRef && state.members.length) {
+      const cleanState = JSON.parse(JSON.stringify(state));
+      state = cleanState;
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(cleanState));
+        if (cleanState.waterTax) localStorage.setItem(WATER_BACKUP_KEY, JSON.stringify(cleanState.waterTax));
+      } catch (e) {}
+      if (firestoreDocRef) {
         try {
-          firestoreDocRef.set(state, { merge: false })
+          firestoreDocRef.set(cleanState, { merge: false })
             .then(() => updateSyncBadge(true, 'क्लाउड सिंक सक्रिय'))
-            .catch(() => updateSyncBadge(false, 'सेव्ह अयशस्वी (Firestore नियम तपासा)'));
+            .catch(() => updateSyncBadge(false, 'लोकल मोड (Firestore नियम तपासा)'));
         } catch (e) {}
       }
-      schedulePublish();
     }
 
-    let unsubMain = null;
     function initFirestoreSync() {
-      if (!firestoreDocRef || !isAdmin()) { updateSyncBadge(false, 'लॉगिन आवश्यक'); return; }
-      if (unsubMain) { try { unsubMain(); } catch (e) {} }
-      try {
-        unsubMain = firestoreDocRef.onSnapshot((doc) => {
-          if (!doc.exists) return;
-          if (Date.now() - lastLocalSaveAt < 4000) return;
-          const remote = doc.data();
-          if (remote && Array.isArray(remote.members)) {
-            if (!Array.isArray(remote.polls)) remote.polls = [];
-            if (!Array.isArray(remote.complaints)) remote.complaints = [];
-            state = remote;
-            renderAll();
-          }
-          updateSyncBadge(true, 'क्लाउड सिंक सक्रिय');
-        }, () => updateSyncBadge(false, 'ऑफलाइन / परवानगी नाही'));
-      } catch (e) { updateSyncBadge(false, 'लोकल मोड'); }
-    }
-
-    // ================= SECURE ACCESS LAYER =================
-    const FLAT_LIST = ['01','02','03','04','05','06','07','08','09','10','101','102','103','104','105','106','107108','109','110','201','202203','204','205','206','207','208','209','210','301','302','303','304','305','306','307','308309','310','401','402','403','404','405','406','407','408','409','410'];
-    const memberEmail = flat => 'b' + flat + '@shivsai-b.app';
-    let memberAccess = { until: null, status: null };
-    let accessRequests = [];
-    let unsubRequests = null;
-    let pubTimer = null;
-    const pubCache = {};
-
-    function flatLabel(f) { return f === '107108' ? '107 / 108' : f === '202203' ? '202 / 203' : f === '308309' ? '308 / 309' : f; }
-
-    function clearLocalCaches() {
-      try { localStorage.removeItem(STORAGE_KEY); localStorage.removeItem(WATER_BACKUP_KEY); localStorage.removeItem(WELFARE_LOCAL_KEY); } catch (e) {}
-    }
-
-    async function logoutAndReload() {
-      clearLocalCaches();
-      try { if (firebaseAuth) await firebaseAuth.signOut(); } catch (e) {}
-      location.reload();
-    }
-
-    // ---------- admin ----------
-    async function adminBootstrap() {
-      try {
-        const d = await firestoreDocRef.get();
-        if (d.exists) {
-          const r = d.data();
-          if (r && Array.isArray(r.members)) {
-            if (!Array.isArray(r.polls)) r.polls = [];
-            if (!Array.isArray(r.complaints)) r.complaints = [];
-            state = r;
-          }
-        }
-      } catch (e) { showToast('डेटा लोड करता आला नाही — नेटवर्क / नियम तपासा'); return false; }
-      try {
-        const s = await fdb.collection('admin_private').doc('seed').get();
-        if (s.exists) {
-          const v = s.data();
-          if (v.aug2026Bills) AUG2026_BILLS = JSON.parse(v.aug2026Bills);
-          if (v.welfareSeed) WELFARE_SEED = JSON.parse(v.welfareSeed);
-        }
-      } catch (e) {}
-      initFirestoreSync();
-      watchAccessRequests();
-      return true;
-    }
-
-    function schedulePublish() {
-      if (!isAdmin() || !fdb) return;
-      clearTimeout(pubTimer);
-      pubTimer = setTimeout(() => publishToMembers(false), 4000);
-    }
-
-    let lastPublishError = '';
-    async function publishToMembers(force, onProgress) {
-      if (!isAdmin() || !fdb || !state.members.length) return 0;
-      const jobs = [];
-      state.members.forEach(m => {
-        const mem = Object.assign({}, m); delete mem.pin;
-        const view = JSON.parse(JSON.stringify({
-          member: mem,
-          tenants: state.tenants.filter(t => t.flat === m.flat),
-          maintenance: state.maintenance.filter(x => x.flat === m.flat)
-        }));
-        const s = JSON.stringify(view), key = 'mv' + m.flat;
-        if (force || pubCache[key] !== s) jobs.push({ key, s, ref: fdb.collection('member_views').doc(m.flat), data: Object.assign(view, { updatedAt: firebase.firestore.FieldValue.serverTimestamp() }) });
-      });
-      const info = JSON.parse(JSON.stringify({ notices: state.notices || [], bankDetails: state.bankDetails || {} }));
-      const si = JSON.stringify(info);
-      if (force || pubCache.info !== si) jobs.push({ key: 'info', s: si, ref: fdb.collection('shared').doc('info'), data: info });
-      const led = { tx: JSON.stringify(state.transactions || []), opening: JSON.stringify(state.ledgerOpening || null), overrides: JSON.stringify(state.ledgerOverrides || {}) };
-      const sl = JSON.stringify(led);
-      if (force || pubCache.led !== sl) jobs.push({ key: 'led', s: sl, ref: fdb.collection('ledger_public').doc('current'), data: Object.assign(led, { updatedAt: firebase.firestore.FieldValue.serverTimestamp() }) });
-      lastPublishError = '';
-      let ok = 0;
-      for (const j of jobs) {
-        try {
-          await Promise.race([
-            j.ref.set(j.data),
-            new Promise((_, rej) => setTimeout(() => rej({ code: 'timeout' }), 20000))
-          ]);
-          pubCache[j.key] = j.s; ok++;
-          if (onProgress) onProgress(ok, jobs.length);
-        } catch (e) {
-          lastPublishError = `${j.ref.path}: ${e.code || e.message}`;
-          showToast('सभासद डेटा प्रकाशित करता आला नाही');
-          return -1;
-        }
+      if (!firestoreDocRef) {
+        updateSyncBadge(false, 'लोकल मोड');
+        return;
       }
-      return jobs.length;
-    }
-
-    function watchAccessRequests() {
-      if (unsubRequests) { try { unsubRequests(); } catch (e) {} }
-      let first = true;
-      unsubRequests = fdb.collection('requests').onSnapshot(snap => {
-        const prevPending = accessRequests.filter(r => r.status === 'pending').length;
-        accessRequests = snap.docs.map(d => Object.assign({ id: d.id }, d.data()));
-        const pend = accessRequests.filter(r => r.status === 'pending').length;
-        const btn = document.getElementById('btn-access-requests');
-        if (btn) btn.innerHTML = '🔑 हिशोब मागण्या' + (pend ? ` <span class="ml-1 bg-rose-500 text-white rounded-full px-1.5 text-xs">${pend}</span>` : '');
-        if (!first && pend > prevPending) showToast('नवीन हिशोब पाहण्याची विनंती आली आहे');
-        first = false;
-        if (!document.getElementById('modal-access-requests').classList.contains('hidden')) renderAccessRequests();
-      }, () => {});
-    }
-
-    async function renderAccessRequests() {
-      const body = document.getElementById('access-req-body');
-      let grants = [];
-      try { const g = await fdb.collection('ledger_access').get(); grants = g.docs.map(d => Object.assign({ id: d.id }, d.data())); } catch (e) {}
-      const nameOf = f => { const m = state.members.find(x => x.flat === f); return m ? m.name : ''; };
-      const fmt = ts => ts && ts.toDate ? ts.toDate().toLocaleString('en-IN') : '—';
-      const pend = accessRequests.filter(r => r.status === 'pending');
-      const active = grants.filter(g => g.until && g.until.toMillis() > Date.now());
-      body.innerHTML = `
-        <div><h4 class="font-bold text-slate-800 mb-2">प्रलंबित विनंत्या (${pend.length})</h4>
-        ${pend.length ? pend.map(r => `
-          <div class="flex flex-wrap items-center justify-between gap-2 p-3 rounded-xl bg-amber-50 border border-amber-200 mb-2">
-            <div><p class="font-bold text-sm">${escapeHtml(flatLabel(r.id))} — ${escapeHtml(nameOf(r.id))}</p><p class="text-xs text-slate-500">${fmt(r.requestedAt)}</p></div>
-            <div class="flex items-center gap-2">
-              <select data-days-for="${escapeHtml(r.id)}" class="border border-slate-300 rounded-lg text-xs px-2 py-1"><option value="1">१ दिवस</option><option value="3">३ दिवस</option><option value="7" selected>७ दिवस</option><option value="30">३० दिवस</option></select>
-              <button data-acc="approve" data-flat="${escapeHtml(r.id)}" class="px-3 py-1 rounded-lg bg-emerald-600 text-white text-xs font-semibold">मंजूर</button>
-              <button data-acc="reject" data-flat="${escapeHtml(r.id)}" class="px-3 py-1 rounded-lg bg-rose-600 text-white text-xs font-semibold">नाकारा</button>
-            </div></div>`).join('') : '<p class="text-xs text-slate-500">कोणतीही प्रलंबित विनंती नाही.</p>'}</div>
-        <div><h4 class="font-bold text-slate-800 mb-2">सध्या चालू असलेली परवानगी (${active.length})</h4>
-        ${active.length ? active.map(g => `
-          <div class="flex items-center justify-between gap-2 p-3 rounded-xl bg-emerald-50 border border-emerald-200 mb-2">
-            <div><p class="font-bold text-sm">${escapeHtml(flatLabel(g.id))} — ${escapeHtml(nameOf(g.id))}</p><p class="text-xs text-slate-500">पर्यंत: ${fmt(g.until)}</p></div>
-            <button data-acc="revoke" data-flat="${escapeHtml(g.id)}" class="px-3 py-1 rounded-lg bg-slate-700 text-white text-xs font-semibold">परवानगी रद्द करा</button>
-          </div>`).join('') : '<p class="text-xs text-slate-500">कोणतीही चालू परवानगी नाही.</p>'}</div>
-        <div class="pt-3 border-t border-slate-200"><button data-acc="publish" class="px-3 py-2 rounded-lg bg-teal-700 text-white text-xs font-semibold">सभासदांसाठी डेटा आत्ता प्रकाशित करा (सर्व)</button>
-        <p class="text-[11px] text-slate-500 mt-1">प्रत्येक बदलानंतर हे आपोआप होते; फक्त पहिल्यांदा किंवा शंका असल्यास वापरा.</p></div>
-        <div class="pt-3 border-t border-slate-200 space-y-2">
-          <h4 class="font-bold text-slate-800">सुरुवातीचे सेटअप (एकदाच)</h4>
-          <button data-acc="mkaccounts" class="px-3 py-2 rounded-lg bg-indigo-600 text-white text-xs font-semibold">१) सर्व सभासदांची लॉगिन खाती बनवा</button>
-          <div><label class="block text-xs font-semibold text-slate-700 mb-1">२) खाजगी डेटा फाइल (private_seed.json) निवडा</label>
-          <input id="seed-file" type="file" accept=".json,application/json" class="text-xs"></div>
-          <div id="acct-result" class="text-xs"></div>
-        </div>`;
-    }
-
-    async function handleAccessAction(act, flat) {
-      if (!isAdmin()) return;
-      const ts = firebase.firestore.Timestamp, fv = firebase.firestore.FieldValue;
       try {
-        if (act === 'approve') {
-          const sel = document.querySelector(`[data-days-for="${flat}"]`);
-          const days = Number(sel ? sel.value : 7) || 7;
-          const b = fdb.batch();
-          b.set(fdb.collection('ledger_access').doc(flat), { flat, until: ts.fromMillis(Date.now() + days * 86400000), grantedAt: fv.serverTimestamp() });
-          b.update(fdb.collection('requests').doc(flat), { status: 'approved', decidedAt: fv.serverTimestamp() });
-          await b.commit();
-          await publishToMembers(true);
-          showToast(`${flatLabel(flat)} ला ${days} दिवस परवानगी दिली`);
-        } else if (act === 'reject') {
-          await fdb.collection('requests').doc(flat).update({ status: 'rejected', decidedAt: fv.serverTimestamp() });
-        } else if (act === 'revoke') {
-          const b = fdb.batch();
-          b.delete(fdb.collection('ledger_access').doc(flat));
-          b.set(fdb.collection('requests').doc(flat), { flat, status: 'revoked', decidedAt: fv.serverTimestamp() }, { merge: true });
-          await b.commit();
-        } else if (act === 'mkaccounts') {
-          await createMemberAccounts();
-        } else if (act === 'publish') {
-          const bx = document.getElementById('acct-result');
-          if (bx) bx.innerHTML = '<p class="text-slate-600">प्रकाशित करत आहे… थांबा</p>';
-          const n = await publishToMembers(true, (a, b) => { const b3 = document.getElementById('acct-result'); if (b3) b3.textContent = `प्रकाशित करत आहे… ${a}/${b}`; });
-          const msg = n >= 0 ? `${n} दस्तऐवज प्रकाशित झाले. आता सभासद लॉगिन करू शकतात.` : `प्रकाशित झाले नाही. त्रुटी: ${lastPublishError}  —  permission-denied असल्यास Firebase Rules (नियम) Publish करा व ॲडमिन ईमेल तपासा; timeout/unavailable असल्यास इंटरनेट बदलून पहा.`;
-          showToast(msg);
-          setTimeout(() => { const b2 = document.getElementById('acct-result'); if (b2) b2.innerHTML = `<p class="font-bold ${n >= 0 ? 'text-emerald-700' : 'text-rose-600'}">${msg}</p>`; }, 50);
-        }
-      } catch (e) { showToast('कृती अयशस्वी: ' + (e.code || e.message)); }
-      if (act !== 'mkaccounts' && act !== 'publish') renderAccessRequests();   // keep the password list visible
-    }
-
-    async function createMemberAccounts() {
-      const box = document.getElementById('acct-result');
-      box.textContent = 'खाती बनवत आहे… थांबा';
-      const sec = firebase.apps.find(a => a.name === 'sec') || firebase.initializeApp(firebaseConfig, 'sec');
-      const sa = sec.auth();
-      const al = 'abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-      const gen = () => Array.from(crypto.getRandomValues(new Uint8Array(8))).map(x => al[x % al.length]).join('');
-      const rows = [];
-      const sleep = ms => new Promise(r => setTimeout(r, ms));
-      let done = 0;
-      for (const m of state.members) {
-        const email = memberEmail(m.flat), pass = gen();
-        let res = null;
-        for (let tryNo = 0; tryNo < 4 && !res; tryNo++) {
-          try { await sa.createUserWithEmailAndPassword(email, pass); await sa.signOut(); res = [m.flat, m.name, email, pass, 'नवीन']; }
-          catch (e) {
-            if (e.code === 'auth/email-already-in-use') res = [m.flat, m.name, email, '', 'आधीच आहे'];
-            else if (e.code === 'auth/too-many-requests' && tryNo < 3) {
-              for (let s = 30; s > 0; s--) { box.textContent = `Firebase ने थोडा वेळ थांबवले — ${s} सेकंदांनी पुन्हा प्रयत्न (${done}/${state.members.length} झाले). पान बंद करू नका.`; await sleep(1000); }
-            } else res = [m.flat, m.name, email, '', e.code || 'त्रुटी'];
+        firestoreDocRef.onSnapshot((doc) => {
+          if (doc.exists) {
+            if (Date.now() - lastLocalSaveAt < 4000) return;
+            const remote = doc.data();
+            if (remote && Array.isArray(remote.members)) {
+              if (!Array.isArray(remote.polls)) remote.polls = DEFAULT_DATA.polls;
+              if (!Array.isArray(remote.complaints)) remote.complaints = DEFAULT_DATA.complaints;
+              state = remote;
+              try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+              populateMemberLoginDropdown();
+              renderAll();
+            }
+            updateSyncBadge(true, 'क्लाउड सिंक सक्रिय');
+          } else {
+            firestoreDocRef.set(state)
+              .then(() => updateSyncBadge(true, 'क्लाउड सिंक सक्रिय'))
+              .catch(() => updateSyncBadge(false, 'लोकल मोड'));
           }
-        }
-        rows.push(res || [m.flat, m.name, email, '', 'auth/too-many-requests']);
-        done++;
-        box.textContent = `खाती बनवत आहे… ${done}/${state.members.length} (पान बंद करू नका)`;
-        await sleep(1500);
-      }
-      const csv = 'flat,name,email,password,status\n' + rows.map(r => r.map(x => `"${x}"`).join(',')).join('\n');
-      box.innerHTML = `<p class="font-bold text-rose-600 mb-1">हे पासवर्ड फक्त आत्ताच दिसतात. आत्ताच फाइल सेव्ह करा.</p>
-        <button id="btn-dl-pass" class="px-3 py-1.5 rounded-lg bg-teal-700 text-white font-semibold mb-2">पासवर्डची CSV फाइल डाउनलोड करा</button>
-        <div class="max-h-60 overflow-auto border rounded-lg"><table class="w-full text-[11px]">${rows.map(r => `<tr class="border-b"><td class="p-1">${escapeHtml(flatLabel(r[0]))}</td><td class="p-1">${escapeHtml(r[1])}</td><td class="p-1 font-mono">${escapeHtml(r[3])}</td><td class="p-1">${escapeHtml(r[4])}</td></tr>`).join('')}</table></div>`;
-      document.getElementById('btn-dl-pass').onclick = () => {
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv' }));
-        a.download = 'sabhasad_passwords.csv'; a.click();
-      };
-    }
-
-    async function importPrivateSeed(file) {
-      const box = document.getElementById('acct-result');
-      try {
-        const j = JSON.parse(await file.text());
-        if (!j.aug2026Bills || !j.welfareSeed) throw new Error('bad');
-        await fdb.collection('admin_private').doc('seed').set({ aug2026Bills: JSON.stringify(j.aug2026Bills), welfareSeed: JSON.stringify(j.welfareSeed) });
-        AUG2026_BILLS = j.aug2026Bills; WELFARE_SEED = j.welfareSeed;
-        if (j.dd && j.dd.members && !state.members.length) { state = j.dd; saveState(); renderAll(); }
-        box.innerHTML = '<p class="text-emerald-700 font-bold">खाजगी डेटा सुरक्षितपणे जतन केला.</p>';
-      } catch (e) { box.innerHTML = '<p class="text-rose-600 font-bold">फाइल चुकीची आहे किंवा परवानगी नाही.</p>'; }
-    }
-
-    // ---------- member ----------
-    async function memberLoadAccess(flat) {
-      memberAccess = { until: null, status: null };
-      try { const r = await fdb.collection('requests').doc(flat).get(); if (r.exists) memberAccess.status = r.data().status; } catch (e) {}
-      try {
-        const a = await fdb.collection('ledger_access').doc(flat).get();
-        if (a.exists && a.data().until) memberAccess.until = a.data().until.toMillis();
-      } catch (e) {}
-      state.transactions = []; delete state.ledgerOpening; delete state.ledgerOverrides;
-      if (memberAccess.until && memberAccess.until > Date.now()) {
-        try {
-          const l = await fdb.collection('ledger_public').doc('current').get();
-          if (l.exists) {
-            const d = l.data();
-            state.transactions = JSON.parse(d.tx || '[]');
-            const o = JSON.parse(d.opening || 'null'); if (o) state.ledgerOpening = o;
-            state.ledgerOverrides = JSON.parse(d.overrides || '{}');
-          }
-        } catch (e) { memberAccess.until = null; }
+        }, () => {
+          updateSyncBadge(false, 'लोकल मोड (ऑफलाइन)');
+        });
+      } catch (e) {
+        updateSyncBadge(false, 'लोकल मोड');
       }
     }
-
-    async function memberLoadAll(flat) {
-      const v = await fdb.collection('member_views').doc(flat).get();
-      if (!v.exists) return false;
-      const view = v.data();
-      let info = {};
-      try { const s = await fdb.collection('shared').doc('info').get(); if (s.exists) info = s.data(); } catch (e) {}
-      state = {
-        members: [view.member], tenants: view.tenants || [], maintenance: view.maintenance || [],
-        notices: info.notices || [], bankDetails: info.bankDetails || DEFAULT_DATA.bankDetails,
-        loan: {}, committee: [], polls: [], complaints: [], transactions: []
-      };
-      await memberLoadAccess(flat);
-      return true;
-    }
-
-    function memberHasLedger() { return !!(memberAccess.until && memberAccess.until > Date.now()); }
-
-    function applyAcctGate() {
-      const sec = document.getElementById('tab-accounting');
-      if (!sec) return;
-      let gate = document.getElementById('acct-gate');
-      if (!gate) { gate = document.createElement('div'); gate.id = 'acct-gate'; sec.prepend(gate); }
-      const isMem = currentRole === 'member';
-      const ok = !isMem || memberHasLedger();
-      if (isMem && !ok) { state.transactions = []; }
-      Array.from(sec.children).forEach(c => { if (c !== gate) c.classList.toggle('acct-gated', !ok); });
-      gate.classList.toggle('hidden', ok);
-      if (ok) return;
-      const st = memberAccess.status;
-      let msg = 'आर्थिक हिशोब गोपनीय आहे. पाहण्यासाठी ॲडमिनकडे विनंती पाठवा; मंजुरी मिळाल्यावर मर्यादित काळासाठी दिसेल.';
-      let btn = '<button data-gate="request" class="px-4 py-2 rounded-xl bg-teal-700 text-white text-sm font-semibold">विनंती पाठवा</button>';
-      if (st === 'pending') { msg = 'तुमची विनंती ॲडमिनकडे पाठवली आहे. मंजुरीची प्रतीक्षा करा.'; btn = ''; }
-      else if (st === 'rejected') msg = 'तुमची मागील विनंती नाकारली गेली. हवे असल्यास पुन्हा विनंती पाठवा.';
-      else if (memberAccess.until) msg = 'तुमच्या परवानगीची मुदत संपली आहे. पुन्हा विनंती पाठवा.';
-      gate.innerHTML = `<div class="bg-white rounded-2xl p-6 border border-amber-200 text-center space-y-3">
-        <p class="text-3xl">🔒</p><p class="text-sm text-slate-700">${msg}</p>
-        <div class="flex justify-center gap-2">${btn}<button data-gate="refresh" class="px-4 py-2 rounded-xl border border-slate-300 text-sm font-semibold text-slate-700">स्थिती तपासा</button></div></div>`;
-    }
-
-    async function memberRequestLedger() {
-      try {
-        await fdb.collection('requests').doc(loggedInFlat).set({ flat: loggedInFlat, status: 'pending', requestedAt: firebase.firestore.FieldValue.serverTimestamp(), note: '' });
-        memberAccess.status = 'pending';
-        showToast('विनंती ॲडमिनकडे पाठवली');
-      } catch (e) { showToast('विनंती पाठवता आली नाही'); }
-      renderAll();
-    }
-
-    // ================= END SECURE ACCESS LAYER =================
 
     const MARATHI_MONTHS = [
       'जानेवारी', 'फेब्रुवारी', 'मार्च', 'एप्रिल', 'मे', 'जून',
@@ -2474,7 +8141,9 @@
 
     function populateMemberLoginDropdown() {
       const sel = document.getElementById('login-member-flat');
-      sel.innerHTML = FLAT_LIST.map(f => `<option value="${f}">फ्लॅट ${flatLabel(f)}</option>`).join('');
+      sel.innerHTML = state.members.map(m =>
+        `<option value="${escapeHtml(m.flat)}">${escapeHtml(m.flat)} — ${escapeHtml(m.name)}</option>`
+      ).join('');
     }
 
     function applyRoleUI() {
@@ -2504,11 +8173,6 @@
         }
       });
 
-      [['kpi-members', '.rounded-2xl'], ['kpi-balance', '.rounded-2xl'], ['loan-total', '.bg-gradient-to-r'], ['dash-committee-grid', null]].forEach(([id, sel]) => {
-        const el = document.getElementById(id); if (!el) return;
-        const card = sel ? el.closest(sel) : el.parentElement;
-        if (card) card.classList.toggle('mem-hidden', !admin);
-      });
       document.querySelectorAll('.admin-col').forEach(el => {
         if (admin) el.classList.remove('hidden');
         else el.classList.add('hidden');
@@ -2516,7 +8180,7 @@
     }
 
     function switchTab(tabName) {
-      if (['welfare','members','tenants','community'].includes(tabName) && !isAdmin()) tabName = 'dashboard';   // welfare fund is admin-only
+      if (tabName === 'welfare' && !isAdmin()) tabName = 'dashboard';   // welfare fund is admin-only
       activeTab = tabName;
       document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('hidden'));
       const target = document.getElementById('tab-' + tabName);
@@ -2759,7 +8423,6 @@
 
       renderCommittee();
       renderVvcmcPropBar();
-      if (!isAdmin()) { const e = document.getElementById('btn-edit-prop-no'); if (e) e.remove(); }
     }
 
     function renderVvcmcPropBar() {
@@ -3422,7 +9085,7 @@
       return dt;
     }
 
-    let AUG2026_BILLS = {};   // loaded from private Firestore doc after admin login
+    const AUG2026_BILLS = {"01":[1616.0,7223.0,0.0,126.0,0,8965.0,"00189"],"02":[1557.0,0.0,0.0,0.0,5001.0,-3444.0,"00190"],"03":[1557.0,5798.0,109.0,101.0,0,7565.0,"00191"],"04":[1557.0,0.0,0.0,0.0,0,1557.0,"00192"],"05":[1557.0,0.0,0.0,0.0,1.0,1556.0,"00193"],"06":[1676.0,0.0,0.0,60.0,60.0,1676.0,"00194"],"07":[1557.0,4175.0,0.0,73.0,0,5805.0,"00195"],"08":[1557.0,2765.0,21.0,48.0,0,4391.0,"00196"],"09":[1557.0,4671.0,164.0,82.0,0,6474.0,"00197"],"10":[1616.0,7048.0,248.0,123.0,0,9035.0,"00198"],"101":[1616.0,5708.0,0.0,100.0,0,7424.0,"00199"],"102":[1557.0,4211.0,0.0,74.0,0,5842.0,"00200"],"103":[1557.0,0.0,0.0,27.0,0,1584.0,"00201"],"104":[1557.0,0.0,0.0,0.0,182.0,1375.0,"00202"],"105":[1557.0,0.0,0.0,0.0,44.0,1513.0,"00203"],"106":[1676.0,0.0,0.0,29.0,0,1705.0,"00204"],"107108":[1869.0,0.0,0.0,0.0,0,1869.0,"00205"],"109":[1557.0,0.0,0.0,0.0,0,1557.0,"00206"],"110":[1616.0,21.0,0.0,0.0,0,1637.0,"00207"],"201":[1836.0,0.0,0.0,0.0,696.0,1140.0,"00208"],"202203":[1652.0,0.0,0.0,0.0,0,1652.0,"00209"],"204":[8157.0,0.0,0.0,0.0,6401.0,1756.0,"00210"],"205":[1557.0,0.0,0.0,0.0,2.0,1555.0,"00211"],"206":[1676.0,0.0,0.0,0.0,0,1676.0,"00212"],"207":[1557.0,2950.0,24.0,52.0,0,4583.0,"00213"],"208":[1557.0,55.0,0.0,1.0,0,1613.0,"00214"],"209":[1557.0,0.0,0.0,0.0,0,1557.0,"00215"],"210":[1616.0,0.0,0.0,0.0,0,1616.0,"00216"],"301":[1616.0,0.0,0.0,29.0,0,1645.0,"00217"],"302":[1557.0,4671.0,164.0,82.0,0,6474.0,"00218"],"303":[7194.0,0.0,0.0,116.0,0,7310.0,"00219"],"304":[1557.0,6552.0,241.0,115.0,0,8465.0,"00220"],"305":[1557.0,0.0,0.0,27.0,0,1584.0,"00221"],"306":[1676.0,1.0,0.0,0.0,0,1677.0,"00222"],"307":[1557.0,0.0,0.0,0.0,18.0,1539.0,"00223"],"308309":[1697.0,1.0,0.0,0.0,0,1698.0,"00224"],"310":[1836.0,0.0,0.0,0.0,54.0,1782.0,"00225"],"401":[1616.0,0.0,0.0,0.0,0,1616.0,"00226"],"402":[1557.0,7879.0,0.0,138.0,0,9574.0,"00227"],"403":[1557.0,1557.0,56.0,27.0,0,3197.0,"00228"],"404":[1557.0,58.0,0.0,1.0,0,1616.0,"00229"],"405":[1557.0,7861.0,301.0,138.0,0,9857.0,"00230"],"406":[1676.0,162306.0,71149.0,2840.0,0,237971.0,"00231"],"407":[1557.0,0.0,0.0,0.0,0,1557.0,"00232"],"408":[1557.0,0.0,0.0,27.0,0,1584.0,"00233"],"409":[1557.0,0.0,0.0,0.0,0,1557.0,"00234"],"410":[1616.0,4936.0,58.0,86.0,0,6696.0,"00235"]};  // flat: [current, oldOutstanding, oldInt, lateInt, advance(CR), totalPayable(neg=CR), billNo]
 
     function recalculateMaintenanceChain(targetFlat = null) {
       const flats = targetFlat
@@ -3560,7 +9223,15 @@
     // =================== WELFARE FUND (admin only, separate from society accounts) ===================
     const WELFARE_LOCAL_KEY = 'shivsai_welfare_private_v1';
     let welfare = { opening: [], entries: [], seeded: false };
-    let WELFARE_SEED = [];   // loaded from private Firestore doc after admin login
+    const WELFARE_SEED = [
+      ['1', 'सुप्रिया मेस्त्री', 'जून 2025', 6000], ['2', 'धोंडीबा गुरखे', 'डिसेंबर 2025', 5500],
+      ['3', 'सईबाई लंबोर', '', 0], ['6', 'रमेश कुडू', 'डिसेंबर 2025', 6500],
+      ['7', 'भानू सोलंकी', 'जानेवारी 2026', 5500], ['9', 'अमृता ओश्रामकर', '', 0],
+      ['10', 'कल्पेश पिंपळकर', '', 0], ['101', 'युसुफ शेख', 'जून 2025', 5500],
+      ['105', 'विनायक चव्हाण', 'फेब्रुवारी 2026', 5500], ['110', 'उमेश म्हात्रे', 'जुलै 2025', 4800],
+      ['204', 'उमेश म्हात्रे', 'जून 2026', 5500], ['303', 'मयुरेश गायकर', 'जून 2025', 5500],
+      ['303', 'मयुरेश गायकर', 'जुलै 2026', 5500]
+    ];
 
     function saveWelfare() {
       if (!isAdmin()) return;
@@ -3728,7 +9399,6 @@
       renderAccounting();
       renderCommunity();
       renderWelfare();
-      applyAcctGate();
     }
 
     function openPayMaintenanceModal(id) {
@@ -3922,7 +9592,7 @@
 
     document.addEventListener('DOMContentLoaded', () => {
       populateMemberLoginDropdown();
-      updateSyncBadge(false, 'लॉगिन आवश्यक');
+      initFirestoreSync();
 
       // Login tabs
       const tabMem = document.getElementById('login-tab-member');
@@ -3945,47 +9615,29 @@
         document.getElementById('admin-login-error').classList.add('hidden');
       });
 
-      formMemLogin.addEventListener('submit', async (e) => {
+      formMemLogin.addEventListener('submit', (e) => {
         e.preventDefault();
-        const flatVal = document.getElementById('login-member-flat').value;
-        const pass = document.getElementById('login-member-pin').value;
+        const flatVal = document.getElementById('login-member-flat').value || '01';
+        const enteredPin = (document.getElementById('login-member-pin').value || '').trim();
         const errEl = document.getElementById('member-login-error');
-        const fail = (t) => { errEl.textContent = t; errEl.classList.remove('hidden'); };
-        if (!firebaseAuth || !fdb) return fail('Firebase उपलब्ध नाही.');
-        errEl.classList.add('hidden');
-        try {
-          const cred = await firebaseAuth.signInWithEmailAndPassword(memberEmail(flatVal), pass);
-          clearLocalCaches();
-          const ok = await memberLoadAll(flatVal);
-          if (!ok) { await firebaseAuth.signOut(); return fail('तुमचा डेटा अजून उपलब्ध नाही. ॲडमिनशी संपर्क साधा.'); }
-          document.getElementById('login-member-pin').value = '';
-          currentRole = 'member';
-          welfare = { opening: [], entries: [], seeded: false };
-          loggedInFlat = flatVal;
-          document.getElementById('login-screen').classList.add('hidden');
-          updateSyncBadge(true, 'सुरक्षित सत्र');
-          switchTab('dashboard');
-          showToast(`फ्लॅट ${flatLabel(flatVal)} — स्वागत`);
-        } catch (err) {
-          const c = err && err.code || '';
-          if (c === 'auth/too-many-requests') fail('खूप प्रयत्न झाले. थोड्या वेळाने पुन्हा प्रयत्न करा.');
-          else fail('फ्लॅट किंवा पासवर्ड चुकीचा आहे.');
+        const mem = state.members.find(m => m.flat === flatVal);
+        const mobDigits = mem && mem.phone ? mem.phone.replace(/\D/g, '') : '';
+        const expectedPin = (mem && mem.pin && mem.pin.trim()) || (mobDigits.length >= 4 ? mobDigits.slice(-4) : '1234');
+        if (enteredPin !== expectedPin) {
+          if (errEl) {
+            errEl.textContent = 'चुकीचा PIN! कृपया तुमचा बरोबर ४-अंकी PIN टाका.';
+            errEl.classList.remove('hidden');
+          }
+          return;
         }
-      });
-
-      document.getElementById('tab-accounting').addEventListener('click', (e) => {
-        const b = e.target.closest('[data-gate]'); if (!b) return;
-        if (b.dataset.gate === 'request') memberRequestLedger();
-        else memberLoadAccess(loggedInFlat).then(() => renderAll());
-      });
-      setInterval(() => { if (currentRole === 'member' && !memberHasLedger() && memberAccess.status === 'pending') memberLoadAccess(loggedInFlat).then(() => renderAll()); else if (currentRole === 'member') applyAcctGate(); }, 30000);
-
-      document.getElementById('btn-access-requests').addEventListener('click', () => { if (isAdmin()) { openModal('modal-access-requests'); renderAccessRequests(); } });
-      document.getElementById('access-req-body').addEventListener('change', (e) => {
-        if (e.target.id === 'seed-file' && e.target.files[0]) importPrivateSeed(e.target.files[0]);
-      });
-      document.getElementById('access-req-body').addEventListener('click', (e) => {
-        const b = e.target.closest('[data-acc]'); if (b) handleAccessAction(b.dataset.acc, b.dataset.flat);
+        if (errEl) errEl.classList.add('hidden');
+        document.getElementById('login-member-pin').value = '';
+        currentRole = 'member';
+        welfare = { opening: [], entries: [], seeded: false };   // never keep welfare data in a member session
+        loggedInFlat = flatVal;
+        document.getElementById('login-screen').classList.add('hidden');
+        renderAll();
+        showToast(`${loggedInFlat} सभासद म्हणून प्रवेश केला (Read-Only)`);
       });
 
       formAdmLogin.addEventListener('submit', async (e) => {
@@ -4000,27 +9652,29 @@
         }
         try {
           errEl.classList.add('hidden');
-          const cred = await firebaseAuth.signInWithEmailAndPassword(email, pass);
-          if (/^b[0-9]+@shivsai-b\.app$/i.test(cred.user.email || '')) { await firebaseAuth.signOut(); throw new Error('not admin'); }
+          await firebaseAuth.signInWithEmailAndPassword(email, pass);
           currentRole = 'admin';
           loggedInFlat = '';
-          const ok = await adminBootstrap();
-          if (!ok) { currentRole = null; await firebaseAuth.signOut(); throw new Error('load'); }
           document.getElementById('login-screen').classList.add('hidden');
           document.getElementById('login-admin-pin').value = '';
           ensureCurrentMonthBills();
-          syncMaintToTransactions();
+      if (isAdmin()) syncMaintToTransactions();
           loadWelfare();
           renderAll();
-          publishToMembers(false);
           showToast('ॲडमिन लॉगिन यशस्वी!');
         } catch (err) {
-          errEl.textContent = 'चुकीचा ईमेल किंवा पासवर्ड, किंवा डेटा लोड झाला नाही.';
+          errEl.textContent = 'चुकीचा ईमेल किंवा पासवर्ड! कृपया Firebase मधील ॲडमिन माहिती तपासा.';
           errEl.classList.remove('hidden');
         }
       });
 
-      document.getElementById('btn-switch-login').addEventListener('click', () => { logoutAndReload(); });
+      document.getElementById('btn-switch-login').addEventListener('click', () => {
+        if (firebaseAuth && firebaseAuth.currentUser) {
+          firebaseAuth.signOut().catch(() => {});
+        }
+        populateMemberLoginDropdown();
+        document.getElementById('login-screen').classList.remove('hidden');
+      });
 
       // Copy Bank Account & IFSC
       function copyTextVal(txt, label) {
@@ -6019,7 +11673,7 @@
 
       // Change Admin Password (Admin only)
       document.getElementById('btn-change-pin').addEventListener('click', () => {
-        if (!currentRole) return;
+        if (!isAdmin()) return;
         document.getElementById('form-change-pin').reset();
         document.getElementById('pin-change-error').classList.add('hidden');
         openModal('modal-change-pin');
@@ -6027,19 +11681,33 @@
 
       document.getElementById('form-change-pin').addEventListener('submit', (e) => {
         e.preventDefault();
-        if (!currentRole) return;
+        if (!isAdmin()) return;
         const curr = document.getElementById('pin-current').value.trim();
         const nextPin = document.getElementById('pin-new').value.trim();
         const confPin = document.getElementById('pin-confirm').value.trim();
         const errEl = document.getElementById('pin-change-error');
-        if (nextPin.length < 8) { errEl.textContent = 'नवीन पासवर्ड किमान ८ अक्षरांचा असावा.'; errEl.classList.remove('hidden'); return; }
-        if (nextPin !== confPin) { errEl.textContent = 'दोन्ही नवीन पासवर्ड जुळत नाहीत!'; errEl.classList.remove('hidden'); return; }
-        const u = firebaseAuth && firebaseAuth.currentUser;
-        if (!u) return;
-        u.reauthenticateWithCredential(firebase.auth.EmailAuthProvider.credential(u.email, curr))
-          .then(() => u.updatePassword(nextPin))
-          .then(() => { errEl.classList.add('hidden'); closeModal('modal-change-pin'); showToast('पासवर्ड यशस्वीरित्या बदलला!'); })
-          .catch(() => { errEl.textContent = 'सध्याचा पासवर्ड चुकीचा आहे किंवा बदल अयशस्वी.'; errEl.classList.remove('hidden'); });
+        const activePin = state.adminPin || ADMIN_PIN;
+
+        if (curr !== activePin) {
+          errEl.textContent = 'सध्याचा पासवर्ड चुकीचा आहे!';
+          errEl.classList.remove('hidden');
+          return;
+        }
+        if (nextPin.length < 4) {
+          errEl.textContent = 'नवीन पासवर्ड किमान ४ अक्षरांचा किंवा अंकांचा असावा.';
+          errEl.classList.remove('hidden');
+          return;
+        }
+        if (nextPin !== confPin) {
+          errEl.textContent = 'दोन्ही नवीन पासवर्ड जुळत नाहीत!';
+          errEl.classList.remove('hidden');
+          return;
+        }
+
+        state.adminPin = nextPin;
+        saveState();
+        closeModal('modal-change-pin');
+        showToast('ॲडमिन पासवर्ड यशस्वीरित्या बदलला!');
       });
 
       // Poll Modal (Admin only)
