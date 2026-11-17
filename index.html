@@ -2100,7 +2100,8 @@
       pubTimer = setTimeout(() => publishToMembers(false), 4000);
     }
 
-    async function publishToMembers(force) {
+    let lastPublishError = '';
+    async function publishToMembers(force, onProgress) {
       if (!isAdmin() || !fdb || !state.members.length) return 0;
       const jobs = [];
       state.members.forEach(m => {
@@ -2119,14 +2120,22 @@
       const led = { tx: JSON.stringify(state.transactions || []), opening: JSON.stringify(state.ledgerOpening || null), overrides: JSON.stringify(state.ledgerOverrides || {}) };
       const sl = JSON.stringify(led);
       if (force || pubCache.led !== sl) jobs.push({ key: 'led', s: sl, ref: fdb.collection('ledger_public').doc('current'), data: Object.assign(led, { updatedAt: firebase.firestore.FieldValue.serverTimestamp() }) });
-      try {
-        for (let k = 0; k < jobs.length; k += 400) {
-          const b = fdb.batch();
-          jobs.slice(k, k + 400).forEach(j => b.set(j.ref, j.data));
-          await b.commit();
+      lastPublishError = '';
+      let ok = 0;
+      for (const j of jobs) {
+        try {
+          await Promise.race([
+            j.ref.set(j.data),
+            new Promise((_, rej) => setTimeout(() => rej({ code: 'timeout' }), 20000))
+          ]);
+          pubCache[j.key] = j.s; ok++;
+          if (onProgress) onProgress(ok, jobs.length);
+        } catch (e) {
+          lastPublishError = `${j.ref.path}: ${e.code || e.message}`;
+          showToast('सभासद डेटा प्रकाशित करता आला नाही');
+          return -1;
         }
-        jobs.forEach(j => { pubCache[j.key] = j.s; });
-      } catch (e) { showToast('सभासद डेटा प्रकाशित करता आला नाही (नियम तपासा)'); return -1; }
+      }
       return jobs.length;
     }
 
@@ -2205,8 +2214,8 @@
         } else if (act === 'publish') {
           const bx = document.getElementById('acct-result');
           if (bx) bx.innerHTML = '<p class="text-slate-600">प्रकाशित करत आहे… थांबा</p>';
-          const n = await publishToMembers(true);
-          const msg = n >= 0 ? `${n} दस्तऐवज प्रकाशित झाले. आता सभासद लॉगिन करू शकतात.` : 'प्रकाशित झाले नाही — Firebase Rules (नियम) Publish केले आहेत का आणि ॲडमिन ईमेल बरोबर आहे का ते तपासा.';
+          const n = await publishToMembers(true, (a, b) => { const b3 = document.getElementById('acct-result'); if (b3) b3.textContent = `प्रकाशित करत आहे… ${a}/${b}`; });
+          const msg = n >= 0 ? `${n} दस्तऐवज प्रकाशित झाले. आता सभासद लॉगिन करू शकतात.` : `प्रकाशित झाले नाही. त्रुटी: ${lastPublishError}  —  permission-denied असल्यास Firebase Rules (नियम) Publish करा व ॲडमिन ईमेल तपासा; timeout/unavailable असल्यास इंटरनेट बदलून पहा.`;
           showToast(msg);
           setTimeout(() => { const b2 = document.getElementById('acct-result'); if (b2) b2.innerHTML = `<p class="font-bold ${n >= 0 ? 'text-emerald-700' : 'text-rose-600'}">${msg}</p>`; }, 50);
         }
