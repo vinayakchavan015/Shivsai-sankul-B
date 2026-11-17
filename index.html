@@ -2207,7 +2207,7 @@
           if (n >= 0) showToast(`${n} दस्तऐवज प्रकाशित केले`);
         }
       } catch (e) { showToast('कृती अयशस्वी: ' + (e.code || e.message)); }
-      renderAccessRequests();
+      if (act !== 'mkaccounts') renderAccessRequests();   // keep the password list visible
     }
 
     async function createMemberAccounts() {
