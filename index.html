@@ -1905,7 +1905,7 @@
   </div>
 
   <!-- Toast Notification -->
-  <div id="toast" class="fixed bottom-5 right-5 bg-slate-900 text-white px-4 py-2.5 rounded-xl shadow-lg text-sm font-medium transform translate-y-16 opacity-0 transition-all duration-300 z-50 pointer-events-none"></div>
+  <div id="toast" class="fixed bottom-5 right-5 bg-slate-900 text-white px-4 py-2.5 rounded-xl shadow-lg text-sm font-medium transform translate-y-16 opacity-0 transition-all duration-300 z-[100] pointer-events-none"></div>
 
   <!-- MODAL: Save Society Water Bill Details -->
   <div id="modal-water-info" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs hidden items-center justify-center p-4 z-50">
@@ -2203,11 +2203,15 @@
         } else if (act === 'mkaccounts') {
           await createMemberAccounts();
         } else if (act === 'publish') {
+          const bx = document.getElementById('acct-result');
+          if (bx) bx.innerHTML = '<p class="text-slate-600">प्रकाशित करत आहे… थांबा</p>';
           const n = await publishToMembers(true);
-          if (n >= 0) showToast(`${n} दस्तऐवज प्रकाशित केले`);
+          const msg = n >= 0 ? `${n} दस्तऐवज प्रकाशित झाले. आता सभासद लॉगिन करू शकतात.` : 'प्रकाशित झाले नाही — Firebase Rules (नियम) Publish केले आहेत का आणि ॲडमिन ईमेल बरोबर आहे का ते तपासा.';
+          showToast(msg);
+          setTimeout(() => { const b2 = document.getElementById('acct-result'); if (b2) b2.innerHTML = `<p class="font-bold ${n >= 0 ? 'text-emerald-700' : 'text-rose-600'}">${msg}</p>`; }, 50);
         }
       } catch (e) { showToast('कृती अयशस्वी: ' + (e.code || e.message)); }
-      if (act !== 'mkaccounts') renderAccessRequests();   // keep the password list visible
+      if (act !== 'mkaccounts' && act !== 'publish') renderAccessRequests();   // keep the password list visible
     }
 
     async function createMemberAccounts() {
