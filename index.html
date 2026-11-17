@@ -88,7 +88,6 @@
         <div>
           <label class="block text-xs font-semibold text-slate-700 mb-1">तुमचा ४-अंकी पासवर्ड / PIN *</label>
           <input id="login-member-pin" type="password" inputmode="numeric" required placeholder="उदा. मोबाईलचे शेवटचे ४ अंक" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:ring-2 focus:ring-teal-500 outline-none" />
-          <p class="text-[11px] text-slate-500 mt-1">टीप: डीफॉल्ट PIN हा तुमच्या नोंदणीकृत मोबाईल नंबरचे शेवटचे ४ अंक (किंवा १२३४) आहे.</p>
           <p id="member-login-error" class="text-xs font-semibold text-rose-600 mt-1 hidden"></p>
         </div>
         <button type="submit" class="w-full py-2.5 rounded-xl bg-teal-700 hover:bg-teal-800 text-white font-semibold text-sm transition">
@@ -184,6 +183,10 @@
         <button data-tab="accounting" class="nav-tab px-4 py-2.5 text-sm font-medium rounded-t-xl whitespace-nowrap transition flex items-center gap-2 text-teal-100 hover:bg-white/10">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
           आर्थिक हिशोब
+        </button>
+        <button data-tab="deposits" class="admin-only hidden nav-tab px-4 py-2.5 text-sm font-medium rounded-t-xl whitespace-nowrap transition items-center gap-2 text-teal-100 hover:bg-white/10">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          FD / RD ठेवी 🔒
         </button>
         <button data-tab="welfare" class="admin-only hidden nav-tab px-4 py-2.5 text-sm font-medium rounded-t-xl whitespace-nowrap transition items-center gap-2 text-teal-100 hover:bg-white/10">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
@@ -798,6 +801,31 @@
       </div>
     </section>
 
+
+    <!-- TAB: FD / RD DEPOSITS (admin only) -->
+    <section id="tab-deposits" class="tab-panel hidden space-y-5">
+      <div class="rounded-2xl border border-rose-200 bg-rose-50 p-3 text-xs text-rose-900">
+        🔒 <b>FD / RD ठेवी — फक्त ॲडमिनसाठी.</b> व्याज, जमा रक्कम आणि मुदतपूर्ती आपोआप आजच्या तारखेनुसार मोजली जाते. हा डेटा सोसायटीच्या आर्थिक हिशोबात मिसळत नाही.
+      </div>
+      <div id="dep-summary" class="grid grid-cols-2 lg:grid-cols-4 gap-3"></div>
+      <div id="dep-alerts" class="space-y-2"></div>
+      <div id="dep-list" class="grid grid-cols-1 lg:grid-cols-2 gap-4"></div>
+      <details class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80">
+        <summary class="font-bold text-slate-900 text-sm cursor-pointer">➕ नवीन ठेव जोडा (FD / RD)</summary>
+        <form id="form-deposit" class="grid grid-cols-2 lg:grid-cols-4 gap-3 items-end mt-3">
+          <div><label class="block text-xs font-semibold text-slate-700 mb-1">प्रकार</label><select id="dp-kind" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm"><option value="FD">FD (एकरकमी / तेव वृद्धी)</option><option value="RD">RD (मासिक हप्ता)</option></select></div>
+          <div class="col-span-2 lg:col-span-1"><label class="block text-xs font-semibold text-slate-700 mb-1">नाव</label><input id="dp-title" required class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm"></div>
+          <div class="col-span-2 lg:col-span-2"><label class="block text-xs font-semibold text-slate-700 mb-1">खाते क्रमांक</label><input id="dp-acc" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm"></div>
+          <div><label class="block text-xs font-semibold text-slate-700 mb-1">सुरू तारीख</label><input id="dp-start" type="date" required class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm"></div>
+          <div><label class="block text-xs font-semibold text-slate-700 mb-1">कालावधी (महिने)</label><input id="dp-months" type="number" min="1" required class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm"></div>
+          <div><label class="block text-xs font-semibold text-slate-700 mb-1">व्याज दर %</label><input id="dp-rate" type="number" step="0.01" required class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm"></div>
+          <div><label class="block text-xs font-semibold text-slate-700 mb-1">FD मुद्दल / RD हप्ता (₹)</label><input id="dp-amount" type="number" step="0.01" required class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm"></div>
+          <div><label class="block text-xs font-semibold text-slate-700 mb-1">मुदतपूर्ती रक्कम (₹) — रिकामी सोडल्यास आपोआप</label><input id="dp-mat" type="number" step="0.01" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm"></div>
+          <div class="col-span-2 lg:col-span-3"><label class="block text-xs font-semibold text-slate-700 mb-1">टीप</label><input id="dp-note" class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm"></div>
+          <div><button type="submit" class="w-full px-4 py-2 rounded-xl text-sm font-semibold bg-teal-700 hover:bg-teal-800 text-white">जतन करा</button></div>
+        </form>
+      </details>
+    </section>
 
     <!-- TAB 7: COMPLAINTS & VOTING -->
     <section id="tab-welfare" class="tab-panel hidden space-y-5">
@@ -8180,7 +8208,7 @@
     }
 
     function switchTab(tabName) {
-      if (tabName === 'welfare' && !isAdmin()) tabName = 'dashboard';   // welfare fund is admin-only
+      if ((tabName === 'welfare' || tabName === 'deposits') && !isAdmin()) tabName = 'dashboard';   // welfare fund is admin-only
       activeTab = tabName;
       document.querySelectorAll('.tab-panel').forEach(p => p.classList.add('hidden'));
       const target = document.getElementById('tab-' + tabName);
@@ -8716,10 +8744,11 @@
       const baseTx = (!isAdmin() && loggedInFlat)
         ? state.transactions.filter(t => {
             if (t.type === 'खर्च') return true;
+            // members see only their OWN contributions as income (no other flats' payments, lump totals or other society income)
             if (t.category === 'देखभाल शुल्क') {
               return (t.desc || '').startsWith(loggedInFlat + ' ') || (t.desc || '').includes('फ्लॅट ' + loggedInFlat);
             }
-            return true;
+            return false;
           })
         : state.transactions;
       const monthTx = selYM === 'all' ? baseTx : baseTx.filter(t => t.maintMonthYM ? t.maintMonthYM === selYM : (normalizeToISO(t.date) || '').startsWith(selYM));
@@ -9222,7 +9251,7 @@
 
     // =================== WELFARE FUND (admin only, separate from society accounts) ===================
     const WELFARE_LOCAL_KEY = 'shivsai_welfare_private_v1';
-    let welfare = { opening: [], entries: [], seeded: false };
+    let welfare = { opening: [], entries: [], seeded: false, deposits: [] };
     const WELFARE_SEED = [
       ['1', 'सुप्रिया मेस्त्री', 'जून 2025', 6000], ['2', 'धोंडीबा गुरखे', 'डिसेंबर 2025', 5500],
       ['3', 'सईबाई लंबोर', '', 0], ['6', 'रमेश कुडू', 'डिसेंबर 2025', 6500],
@@ -9266,6 +9295,7 @@
         loaded = { opening: WELFARE_SEED.map((r, i) => ({ id: i + 1, flat: r[0], name: r[1], month: r[2], amount: r[3] })), entries: [], seeded: true };
       }
       if (!Array.isArray(loaded.entries)) loaded.entries = [];
+      if (!Array.isArray(loaded.deposits)) loaded.deposits = DEPOSIT_SEED.map(d => Object.assign({}, d));
       welfare = loaded;
       const n = welfareMigrateFromLedger();
       saveWelfare();
@@ -9286,6 +9316,105 @@
       const a = m >= 4 ? y : y - 1;
       return `${a}-${String((a + 1) % 100).padStart(2, '0')}`;
     }
+
+
+    // =================== FD / RD DEPOSITS (admin only, automatic calculation) ===================
+    const DEPOSIT_SEED = [
+      { id: 'rd1', kind: 'RD', title: 'Recurring Deposit (RD)', accountNo: '000300390001168', accountType: 'RECURRING DEPOSIT SOCIETY (0039)', bank: 'VASAI ROAD', customerId: '0002332832', startDate: '2023-05-03', months: 60, rate: 6.5, amount: 5000, maturityDate: '2028-05-03', maturityAmount: 354953, note: 'व्याज मुदतपूर्तीला' },
+      { id: 'fd1', kind: 'FD', title: 'तेव वृद्धी ठेव (FD)', accountNo: '000300550022989', accountType: 'THEV VRIDHI DEP. SOC (0055)', bank: 'VASAI ROAD', customerId: '0002332832', startDate: '2023-04-27', months: 60, rate: 6.5, amount: 260215, maturityDate: '2028-04-27', maturityAmount: 359206, note: '' }
+    ];
+    const DAY_MS = 86400000;
+    const depDate = s => new Date(s + 'T00:00:00');
+    const depFmt = d => `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
+    const depMoney = n => '₹' + Math.round(n).toLocaleString('en-IN');
+    const depAddMonths = (d, k) => new Date(d.getFullYear(), d.getMonth() + k, d.getDate());
+    const depMonthsBetween = (a, b) => (b - a) / DAY_MS / 30.4375;
+
+    function depCalc(d, now) {
+      now = now || new Date();
+      const start = depDate(d.startDate), mat = depDate(d.maturityDate);
+      const total = mat - start, el = Math.min(Math.max(now - start, 0), total);
+      const r = Number(d.rate) / 400, A = Number(d.amount);
+      const o = { start, mat, done: now >= mat, daysLeft: Math.max(0, Math.ceil((mat - now) / DAY_MS)), progress: total ? el / total : 0 };
+      if (d.kind === 'RD') {
+        const n = Number(d.months); let paid = 0, value = 0, next = null;
+        const upto = now < mat ? now : mat;
+        for (let k = 0; k < n; k++) {
+          const dt = depAddMonths(start, k);
+          if (dt <= now) { paid++; value += A * Math.pow(1 + r, depMonthsBetween(dt, upto) / 3); }
+          else if (!next) next = dt;
+        }
+        o.paidCount = paid; o.deposited = paid * A; o.value = value; o.next = next;
+        o.calcMaturity = 0; for (let k = 0; k < n; k++) o.calcMaturity += A * Math.pow(1 + r, depMonthsBetween(depAddMonths(start, k), mat) / 3);
+      } else {
+        const M = Number(d.maturityAmount) || A * Math.pow(1 + r, Number(d.months) / 3);
+        o.deposited = A; o.value = A * Math.pow(M / A, total ? el / total : 1); o.calcMaturity = M;
+      }
+      o.maturity = Number(d.maturityAmount) || o.calcMaturity;
+      o.value = o.done ? o.maturity : o.value;
+      o.interest = o.value - o.deposited;
+      return o;
+    }
+
+    function renderDeposits() {
+      const list = document.getElementById('dep-list');
+      if (!list || !isAdmin()) return;
+      const deps = Array.isArray(welfare.deposits) ? welfare.deposits : [];
+      const now = new Date();
+      const calc = deps.map(d => [d, depCalc(d, now)]);
+      const tot = calc.reduce((a, [, c]) => ({ dep: a.dep + c.deposited, val: a.val + c.value, mat: a.mat + c.maturity }), { dep: 0, val: 0, mat: 0 });
+      const card = (t, v, c) => `<div class="bg-white rounded-2xl p-3 border border-slate-200/80 shadow-sm"><p class="text-[11px] text-slate-500">${t}</p><p class="text-lg font-extrabold ${c}">${v}</p></div>`;
+      document.getElementById('dep-summary').innerHTML =
+        card('आतापर्यंत जमा (मुद्दल)', depMoney(tot.dep), 'text-slate-900') +
+        card('आजची अंदाजे किंमत', depMoney(tot.val), 'text-teal-700') +
+        card('मिळालेले अंदाजे व्याज', depMoney(tot.val - tot.dep), 'text-emerald-700') +
+        card('मुदतपूर्तीला एकूण रक्कम', depMoney(tot.mat), 'text-indigo-700');
+      const alerts = [];
+      calc.forEach(([d, c]) => {
+        if (c.next) { const dl = Math.ceil((c.next - now) / DAY_MS); if (dl <= 7) alerts.push(`<div class="rounded-xl border border-amber-300 bg-amber-50 p-2.5 text-xs text-amber-900">⏰ <b>${escapeHtml(d.title)}</b>: पुढचा हप्ता ${depMoney(d.amount)} — ${depFmt(c.next)} (${dl <= 0 ? 'आज' : dl + ' दिवसांत'}). खात्यात शिल्लक ठेवा.</div>`); }
+        if (!c.done && c.daysLeft <= 90) alerts.push(`<div class="rounded-xl border border-indigo-300 bg-indigo-50 p-2.5 text-xs text-indigo-900">📅 <b>${escapeHtml(d.title)}</b> ${c.daysLeft} दिवसांत मुदतपूर्त होते (${depFmt(c.mat)}) — ${depMoney(c.maturity)}.</div>`);
+        if (c.done) alerts.push(`<div class="rounded-xl border border-emerald-300 bg-emerald-50 p-2.5 text-xs text-emerald-900">✅ <b>${escapeHtml(d.title)}</b> मुदतपूर्त झाली आहे — ${depMoney(c.maturity)}.</div>`);
+      });
+      document.getElementById('dep-alerts').innerHTML = alerts.join('');
+      list.innerHTML = calc.length ? calc.map(([d, c], i) => {
+        const row = (a, b) => `<div class="flex justify-between gap-3 py-1.5 border-b border-slate-100 text-xs"><span class="text-slate-500">${a}</span><span class="font-semibold text-slate-800 text-right">${b}</span></div>`;
+        return `<div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80">
+          <div class="flex items-start justify-between gap-2 mb-2"><div><span class="text-[11px] font-bold px-2 py-0.5 rounded-full ${d.kind === 'RD' ? 'bg-sky-100 text-sky-800' : 'bg-violet-100 text-violet-800'}">${d.kind}</span>
+            <h4 class="font-bold text-slate-900 mt-1">${escapeHtml(d.title)}</h4></div>
+            <button data-dep-del="${i}" class="text-xs text-rose-600 hover:underline">काढा</button></div>
+          <div class="h-2 bg-slate-100 rounded-full overflow-hidden mb-1"><div class="h-2 bg-teal-600" style="width:${Math.round(c.progress * 100)}%"></div></div>
+          <p class="text-[11px] text-slate-500 mb-2">${Math.round(c.progress * 100)}% पूर्ण • ${c.done ? 'मुदतपूर्त' : c.daysLeft + ' दिवस बाकी'}</p>
+          ${row('खाते क्रमांक', escapeHtml(d.accountNo || '—'))}
+          ${row('प्रकार / शाखा', escapeHtml((d.accountType || '') + ' / ' + (d.bank || '')))}
+          ${row('सुरू तारीख → मुदतपूर्ती', depFmt(c.start) + ' → ' + depFmt(c.mat))}
+          ${row('व्याज दर / कालावधी', d.rate + '% / ' + d.months + ' महिने')}
+          ${d.kind === 'RD' ? row('मासिक हप्ता', depMoney(d.amount)) + row('भरलेले हप्ते', c.paidCount + ' / ' + d.months) + (c.next ? row('पुढचा हप्ता', depFmt(c.next)) : '') : row('मुद्दल', depMoney(d.amount))}
+          ${row('आतापर्यंत जमा', depMoney(c.deposited))}
+          ${row('आजची अंदाजे किंमत', '<span class="text-teal-700">' + depMoney(c.value) + '</span>')}
+          ${row('अंदाजे व्याज', '<span class="text-emerald-700">' + depMoney(c.interest) + '</span>')}
+          ${row('मुदतपूर्तीला रक्कम', '<span class="text-indigo-700">' + depMoney(c.maturity) + '</span>')}
+          ${d.note ? row('टीप', escapeHtml(d.note)) : ''}
+        </div>`;
+      }).join('') : '<p class="text-sm text-slate-500">कोणतीही ठेव नाही. खाली जोडा.</p>';
+    }
+
+    (function initDeposits() {
+      const f = document.getElementById('form-deposit');
+      if (f) f.addEventListener('submit', (e) => {
+        e.preventDefault(); if (!isAdmin()) return;
+        const start = document.getElementById('dp-start').value, months = Number(document.getElementById('dp-months').value);
+        const sd = depDate(start), md = depAddMonths(sd, months);
+        const iso = `${md.getFullYear()}-${String(md.getMonth() + 1).padStart(2, '0')}-${String(md.getDate()).padStart(2, '0')}`;
+        const d = { id: 'd' + Date.now(), kind: document.getElementById('dp-kind').value, title: document.getElementById('dp-title').value.trim(), accountNo: document.getElementById('dp-acc').value.trim(), accountType: '', bank: '', customerId: '', startDate: start, months, rate: Number(document.getElementById('dp-rate').value), amount: Number(document.getElementById('dp-amount').value), maturityDate: iso, maturityAmount: Number(document.getElementById('dp-mat').value) || 0, note: document.getElementById('dp-note').value.trim() };
+        if (!Array.isArray(welfare.deposits)) welfare.deposits = [];
+        welfare.deposits.push(d); saveWelfare(); f.reset(); renderDeposits(); showToast('ठेव जतन झाली.');
+      });
+      const l = document.getElementById('dep-list');
+      if (l) l.addEventListener('click', (e) => {
+        const b = e.target.closest('[data-dep-del]'); if (!b || !isAdmin()) return;
+        if (confirm('ही ठेव यादीतून काढायची?')) { welfare.deposits.splice(Number(b.dataset.depDel), 1); saveWelfare(); renderDeposits(); }
+      });
+    })();
 
     function renderWelfare() {
       const body = document.getElementById('welfare-old-body');
@@ -9399,6 +9528,7 @@
       renderAccounting();
       renderCommunity();
       renderWelfare();
+      renderDeposits();
     }
 
     function openPayMaintenanceModal(id) {
