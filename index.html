@@ -1122,7 +1122,7 @@
   <div id="modal-access-requests" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs hidden items-center justify-center p-4 z-50">
     <div class="bg-white rounded-2xl max-w-xl w-full p-5 shadow-xl max-h-[92vh] overflow-y-auto">
       <div class="flex items-center justify-between mb-3">
-        <h3 class="text-lg font-bold text-slate-900">आर्थिक हिशोब — सभासद विनंत्या</h3>
+        <h3 class="text-lg font-bold text-slate-900">आर्थिक हिशोब — सभासद विनंत्या <span class="text-xs font-normal text-slate-400">(आवृत्ती v7)</span></h3>
         <button data-close="modal-access-requests" class="close-modal-btn text-slate-400 hover:text-slate-600 text-xl font-bold">&times;</button>
       </div>
       <div id="access-req-body" class="space-y-4 text-sm"></div>
@@ -1974,6 +1974,7 @@
       if (typeof firebase !== 'undefined') {
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
+        try { db.settings({ experimentalAutoDetectLongPolling: true, merge: true }); } catch (e) {}
         fdb = db;
         firestoreDocRef = db.collection('societies').doc('shivsai_sankul_b_v9');
         welfareDocRef = db.collection('societies').doc('shivsai_sankul_b_welfare_private');
