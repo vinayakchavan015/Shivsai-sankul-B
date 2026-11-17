@@ -2218,10 +2218,24 @@
       const al = 'abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789';
       const gen = () => Array.from(crypto.getRandomValues(new Uint8Array(8))).map(x => al[x % al.length]).join('');
       const rows = [];
+      const sleep = ms => new Promise(r => setTimeout(r, ms));
+      let done = 0;
       for (const m of state.members) {
         const email = memberEmail(m.flat), pass = gen();
-        try { await sa.createUserWithEmailAndPassword(email, pass); await sa.signOut(); rows.push([m.flat, m.name, email, pass, 'नवीन']); }
-        catch (e) { rows.push([m.flat, m.name, email, '', e.code === 'auth/email-already-in-use' ? 'आधीच आहे' : (e.code || 'त्रुटी')]); }
+        let res = null;
+        for (let tryNo = 0; tryNo < 4 && !res; tryNo++) {
+          try { await sa.createUserWithEmailAndPassword(email, pass); await sa.signOut(); res = [m.flat, m.name, email, pass, 'नवीन']; }
+          catch (e) {
+            if (e.code === 'auth/email-already-in-use') res = [m.flat, m.name, email, '', 'आधीच आहे'];
+            else if (e.code === 'auth/too-many-requests' && tryNo < 3) {
+              for (let s = 30; s > 0; s--) { box.textContent = `Firebase ने थोडा वेळ थांबवले — ${s} सेकंदांनी पुन्हा प्रयत्न (${done}/${state.members.length} झाले). पान बंद करू नका.`; await sleep(1000); }
+            } else res = [m.flat, m.name, email, '', e.code || 'त्रुटी'];
+          }
+        }
+        rows.push(res || [m.flat, m.name, email, '', 'auth/too-many-requests']);
+        done++;
+        box.textContent = `खाती बनवत आहे… ${done}/${state.members.length} (पान बंद करू नका)`;
+        await sleep(1500);
       }
       const csv = 'flat,name,email,password,status\n' + rows.map(r => r.map(x => `"${x}"`).join(',')).join('\n');
       box.innerHTML = `<p class="font-bold text-rose-600 mb-1">हे पासवर्ड फक्त आत्ताच दिसतात. आत्ताच फाइल सेव्ह करा.</p>
