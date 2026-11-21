@@ -79,7 +79,7 @@
       <!-- Member Login Panel -->
       <form id="form-member-login" class="space-y-4">
         <div class="bg-teal-50 border border-teal-200/80 rounded-xl p-3 text-xs text-teal-900 leading-relaxed">
-          <strong>सभासद प्रवेश (Read-Only):</strong> सभासदांना सोसायटीचे हिशोब, सूचना फलक, भाडेकरू माहिती व स्वतःची देखभाल पावती फक्त पाहता येईल. बदल करण्याचे अधिकार फक्त ॲडमिनकडे आहेत.
+          <strong>सभासद प्रवेश (Read-Only):</strong> सभासदांना सूचना फलक, नॉमिनेशन फॉर्म (मराठी/इंग्लिश), भाडेकरू माहिती व स्वतःची देखभाल पावती पाहता येईल; आर्थिक हिशोब ॲडमिनच्या परवानगीनंतरच दिसेल.
         </div>
         <div>
           <label class="block text-xs font-semibold text-slate-700 mb-1">तुमचा फ्लॅट क्रमांक निवडा</label>
@@ -96,9 +96,18 @@
       </form>
 
       <!-- Admin Login Panel -->
-      <form id="form-admin-login" class="space-y-4 hidden">
+      <form id="form-admin-login" class="space-y-3.5 hidden">
         <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-900 leading-relaxed">
-          <strong>ॲडमिन प्रवेश:</strong> सभासद, भाडेकरू, बिले, सूचना, कर्ज व आर्थिक नोंदींमध्ये बदल करण्यासाठी तुमचा ॲडमिन पासवर्ड टाका.
+          <strong>🛡️ Google सुरक्षित ॲडमिन प्रवेश:</strong> फक्त अधिकृत ॲडमिन Google खात्याने (2-Step Verification सह) किंवा Firebase ॲडमिन ईमेलने लॉगिन करा.
+        </div>
+        <button id="btn-admin-google-login" type="button" class="w-full py-2.5 px-4 rounded-xl bg-white hover:bg-slate-50 text-slate-800 border-2 border-slate-300 font-bold text-sm shadow-xs transition flex items-center justify-center gap-2.5">
+          <svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24"><path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"/><path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.11-6.72-4.96H1.29v3.14C3.26 21.3 7.31 24 12 24z"/><path fill="#FBBC05" d="M5.28 14.24c-.24-.72-.38-1.49-.38-2.24s.14-1.52.38-2.24V6.62H1.29C.47 8.24 0 10.06 0 12s.47 3.76 1.29 5.38l3.99-3.14z"/><path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.31 0 3.26 2.7 1.29 6.62l3.99 3.14c.95-2.85 3.6-4.96 6.72-4.96z"/></svg>
+          Google खात्याने ॲडमिन लॉगिन करा
+        </button>
+        <div class="relative flex items-center py-0.5">
+          <div class="flex-grow border-t border-slate-200"></div>
+          <span class="shrink mx-2.5 text-[11px] font-semibold text-slate-400">किंवा ईमेल व पासवर्डने</span>
+          <div class="flex-grow border-t border-slate-200"></div>
         </div>
         <div>
           <label class="block text-xs font-semibold text-slate-700 mb-1">ॲडमिन ईमेल (Email)</label>
@@ -145,6 +154,9 @@
         </div>
 
         <div class="flex flex-wrap items-center gap-2 self-start md:self-auto">
+          <button id="btn-open-security-center" type="button" class="admin-only hidden text-xs bg-emerald-400/90 hover:bg-emerald-300 text-slate-950 px-3 py-1.5 rounded-lg font-bold transition items-center gap-1 border border-emerald-200/40">
+            🛡️ Google सुरक्षा
+          </button>
           <button id="btn-change-pin" type="button" class="admin-only hidden text-xs bg-white/15 hover:bg-white/25 text-white px-3 py-1.5 rounded-lg font-medium transition items-center gap-1.5 border border-white/20">
             पासवर्ड बदला
           </button>
@@ -2260,6 +2272,80 @@
     </div>
   </div>
 
+
+  <!-- MODAL: GOOGLE SECURITY CENTER (ADMIN ONLY) -->
+  <div id="modal-security-center" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs hidden items-center justify-center p-3 sm:p-4 z-50 overflow-y-auto">
+    <div class="bg-white rounded-2xl max-w-3xl w-full p-5 sm:p-6 shadow-2xl max-h-[92vh] overflow-y-auto space-y-5">
+      <div class="flex items-start justify-between gap-3 border-b border-slate-200 pb-3">
+        <div>
+          <h3 class="text-lg font-bold text-slate-900 flex items-center gap-2">🛡️ Google सुरक्षा व Firebase नियंत्रण केंद्र</h3>
+          <p class="text-xs text-slate-500 mt-0.5">अधिकृत Google ॲडमिन ईमेल, सुरक्षा नोंदी (Audit Log) व Firebase Security Rules व्यवस्थापित करा.</p>
+        </div>
+        <button data-close="modal-security-center" class="close-modal-btn text-slate-400 hover:text-slate-700 text-2xl font-bold leading-none">&times;</button>
+      </div>
+
+      <!-- Active Protections Summary -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs">
+        <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-3">
+          <div class="font-bold text-emerald-900">✅ Google Sign-In व ईमेल लॉक</div>
+          <div class="text-emerald-800 mt-0.5">फक्त यादीतील अधिकृत Google ईमेललाच ॲडमिन प्रवेश.</div>
+        </div>
+        <div class="bg-teal-50 border border-teal-200 rounded-xl p-3">
+          <div class="font-bold text-teal-900">⏱️ ३० मिनिटे ऑटो-लॉगआउट</div>
+          <div class="text-teal-800 mt-0.5">निष्क्रिय राहिल्यास ॲडमिन सेशन आपोआप बंद होते.</div>
+        </div>
+        <div class="bg-amber-50 border border-amber-200 rounded-xl p-3">
+          <div class="font-bold text-amber-900">🔒 PIN ब्रूट-फोर्स संरक्षण</div>
+          <div class="text-amber-800 mt-0.5">५ वेळा चुकीचा PIN टाकल्यास २ मिनिटे लॉगिन लॉक.</div>
+        </div>
+      </div>
+
+      <!-- Authorized Admin Emails -->
+      <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 space-y-3">
+        <div>
+          <h4 class="text-sm font-bold text-slate-900">१. अधिकृत Google ॲडमिन ईमेल यादी (Authorized Admin Emails)</h4>
+          <p class="text-xs text-slate-500">अध्यक्ष, सचिव किंवा खजिनदार यांचा Gmail पत्ता येथे जोडा (मुख्य ॲडमिन ईमेल कायम सुरक्षित राहील).</p>
+        </div>
+        <div id="sec-admin-emails-list" class="flex flex-wrap gap-2"></div>
+        <div class="flex flex-col sm:flex-row gap-2">
+          <input id="sec-new-admin-email" type="email" placeholder="उदा. committee.member@gmail.com" class="flex-1 px-3 py-2 rounded-xl border border-slate-300 text-xs sm:text-sm bg-white focus:outline-none focus:ring-2 focus:ring-teal-500" />
+          <button id="btn-sec-add-admin-email" type="button" class="px-4 py-2 rounded-xl bg-teal-700 hover:bg-teal-800 text-white text-xs sm:text-sm font-bold transition whitespace-nowrap">
+            + अधिकृत ईमेल जोडा
+          </button>
+        </div>
+      </div>
+
+      <!-- Ready-to-Paste Hardened Firestore Rules -->
+      <div class="bg-slate-900 text-slate-100 rounded-2xl p-4 space-y-3">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div>
+            <h4 class="text-sm font-bold text-emerald-300">२. Firebase Firestore Security Rules (सर्व्हर-लेव्हल सुरक्षा)</h4>
+            <p class="text-[11px] text-slate-300 mt-0.5">खालील नियम कॉपी करून Firebase Console → Firestore Database → Rules मध्ये पेस्ट करून Publish करा.</p>
+          </div>
+          <button id="btn-copy-firestore-rules" type="button" class="px-3.5 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs font-extrabold transition shrink-0 self-start sm:self-auto">
+            📋 Firestore Rules कॉपी करा
+          </button>
+        </div>
+        <pre id="sec-firestore-rules-code" class="text-[11px] leading-relaxed bg-slate-950 border border-slate-700 rounded-xl p-3 overflow-x-auto text-emerald-200 max-h-52"></pre>
+        <div class="text-[11px] text-slate-300 space-y-1 bg-slate-800/80 rounded-xl p-3 border border-slate-700">
+          <div class="font-bold text-amber-300">Firebase Console मध्ये ३ सोप्या पायऱ्या:</div>
+          <div>१. <strong>Authentication → Sign-in method → Google</strong> चालू (Enable) करा.</div>
+          <div>२. <strong>Authentication → Settings → Authorized domains</strong> मध्ये तुमची GitHub Pages लिंक (उदा. <code>username.github.io</code>) जोडा.</div>
+          <div>३. <strong>Firestore Database → Rules</strong> मध्ये वरील कॉपी केलेले Rules पेस्ट करून <strong>Publish</strong> करा.</div>
+        </div>
+      </div>
+
+      <!-- Security Audit Log -->
+      <div class="space-y-2">
+        <div class="flex items-center justify-between">
+          <h4 class="text-sm font-bold text-slate-900">३. अलीकडील सुरक्षा नोंदी (Security Audit Log)</h4>
+          <span class="text-[11px] text-slate-500">शेवटच्या २५ नोंदी</span>
+        </div>
+        <div id="sec-audit-log-list" class="max-h-52 overflow-y-auto divide-y divide-slate-100 border border-slate-200 rounded-xl bg-white text-xs"></div>
+      </div>
+    </div>
+  </div>
+
   <script>
     const WATER_BACKUP_KEY = 'shivsai_water_tax_backup_v1';
     const STORAGE_KEY = 'shivsai_sankul_b_wing_v9';
@@ -2285,11 +2371,51 @@
     } catch (e) {
       firestoreDocRef = null;
     }
-    const ADMIN_USER = 'admin';
-    const ADMIN_PIN = 'शिवसाई';
+    const PRIMARY_ADMIN_EMAILS = ['vinayak.chavan015@gmail.com'];
+    const ADMIN_IDLE_TIMEOUT_MS = 30 * 60 * 1000; // 30 min auto-logout
+    let memberFailedAttempts = 0;
+    let memberLockUntil = 0;
+    let adminLastActivityAt = Date.now();
+    let adminIdleIntervalId = null;
+
+    function getAuthorizedAdminEmails() {
+      const set = new Set(PRIMARY_ADMIN_EMAILS.map(e => e.toLowerCase()));
+      const extra = (typeof state !== 'undefined' && state && Array.isArray(state.authorizedAdminEmails))
+        ? state.authorizedAdminEmails
+        : [];
+      extra.forEach(e => {
+        const clean = String(e || '').trim().toLowerCase();
+        if (clean && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(clean)) set.add(clean);
+      });
+      return [...set];
+    }
+
+    function isAuthorizedAdminEmail(email) {
+      const clean = String(email || '').trim().toLowerCase();
+      if (!clean) return false;
+      return getAuthorizedAdminEmails().includes(clean);
+    }
+
+    function recordAuditEvent(action, detail, actor) {
+      try {
+        if (!state || typeof state !== 'object') return;
+        if (!Array.isArray(state.auditLog)) state.auditLog = [];
+        const who = actor || (isAdmin()
+          ? ((firebaseAuth && firebaseAuth.currentUser && firebaseAuth.currentUser.email) || 'Admin')
+          : (loggedInFlat ? ('फ्लॅट ' + loggedInFlat) : 'Guest'));
+        state.auditLog.unshift({
+          ts: Date.now(),
+          action: String(action || ''),
+          detail: String(detail || ''),
+          actor: String(who)
+        });
+        if (state.auditLog.length > 60) state.auditLog = state.auditLog.slice(0, 60);
+      } catch (e) {}
+    }
 
     const DEFAULT_DATA = {
-  "adminPin": "शिवसाई",
+  "authorizedAdminEmails": ["vinayak.chavan015@gmail.com"],
+  "auditLog": [],
   "polls": [
     {
       "id": 501,
@@ -8281,9 +8407,10 @@
 
     let lastLocalSaveAt = 0;
 
-    function saveState() {
+    function saveState(memberAllowedKeys) {
       lastLocalSaveAt = Date.now();
       const cleanState = JSON.parse(JSON.stringify(state));
+      delete cleanState.adminPin; // never persist legacy plaintext adminPin
       state = cleanState;
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(cleanState));
@@ -8291,9 +8418,22 @@
       } catch (e) {}
       if (firestoreDocRef) {
         try {
-          firestoreDocRef.set(cleanState, { merge: false })
-            .then(() => updateSyncBadge(true, 'क्लाउड सिंक सक्रिय'))
-            .catch(() => updateSyncBadge(false, 'लोकल मोड (Firestore नियम तपासा)'));
+          if (isAdmin()) {
+            firestoreDocRef.set(cleanState, { merge: false })
+              .then(() => updateSyncBadge(true, 'क्लाउड सिंक सक्रिय'))
+              .catch(() => updateSyncBadge(false, 'लोकल मोड (Firestore नियम तपासा)'));
+          } else if (Array.isArray(memberAllowedKeys) && memberAllowedKeys.length > 0) {
+            const SAFE_MEMBER_KEYS = new Set(['polls', 'complaints', 'accountingAccess', 'auditLog']);
+            const patch = {};
+            memberAllowedKeys.forEach(k => {
+              if (SAFE_MEMBER_KEYS.has(k) && cleanState[k] !== undefined) patch[k] = cleanState[k];
+            });
+            if (Object.keys(patch).length > 0) {
+              firestoreDocRef.update(patch)
+                .then(() => updateSyncBadge(true, 'क्लाउड सिंक सक्रिय'))
+                .catch(() => updateSyncBadge(false, 'लोकल मोड (Firestore नियम तपासा)'));
+            }
+          }
         } catch (e) {}
       }
     }
@@ -8408,7 +8548,104 @@
     }
 
     function isAdmin() {
-      return currentRole === 'admin';
+      if (currentRole !== 'admin') return false;
+      if (firebaseAuth && !firebaseAuth.currentUser) return false;
+      return true;
+    }
+
+    function generateHardenedFirestoreRules() {
+      const emails = getAuthorizedAdminEmails();
+      const emailListExpr = emails.map(e => "'" + e.replace(/'/g, '') + "'").join(', ');
+      return [
+        "rules_version = '2';",
+        "service cloud.firestore {",
+        "  match /databases/{database}/documents {",
+        "    function isVerifiedAdmin() {",
+        "      return request.auth != null",
+        "        && request.auth.token.email != null",
+        "        && (request.auth.token.email.lower() in [" + emailListExpr + "]);",
+        "    }",
+        "",
+        "    // खाजगी वेलफेअर फंड: फक्त अधिकृत ॲडमिनलाच वाचन व बदल",
+        "    match /societies/shivsai_sankul_b_welfare_private {",
+        "      allow read, write: if isVerifiedAdmin();",
+        "    }",
+        "",
+        "    // मुख्य सोसायटी डॉक्युमेंट",
+        "    match /societies/shivsai_sankul_b_v9 {",
+        "      allow read: if true;",
+        "      allow create, delete: if isVerifiedAdmin();",
+        "      allow update: if isVerifiedAdmin()",
+        "        || request.resource.data.diff(resource.data).affectedKeys()",
+        "             .hasOnly(['polls', 'complaints', 'accountingAccess', 'auditLog']);",
+        "    }",
+        "",
+        "    // इतर सर्व पथ डीफॉल्टनुसार बंद (Deny All)",
+        "    match /{document=**} {",
+        "      allow read, write: if false;",
+        "    }",
+        "  }",
+        "}"
+      ].join('\n');
+    }
+
+    function renderSecurityCenterModal() {
+      const listEl = document.getElementById('sec-admin-emails-list');
+      if (listEl) {
+        const emails = getAuthorizedAdminEmails();
+        listEl.innerHTML = emails.map(em => {
+          const isPrimary = PRIMARY_ADMIN_EMAILS.includes(em);
+          return `
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold ${isPrimary ? 'bg-emerald-100 text-emerald-900 border border-emerald-300' : 'bg-white text-slate-800 border border-slate-300'}">
+              <span>${escapeHtml(em)}</span>
+              ${isPrimary
+                ? '<span class="text-[10px] font-bold bg-emerald-700 text-white px-1.5 py-0.5 rounded-full">मुख्य</span>'
+                : `<button type="button" data-rem-admin-email="${escapeHtml(em)}" class="text-rose-600 hover:text-rose-800 font-bold ml-0.5">&times;</button>`}
+            </span>`;
+        }).join('');
+      }
+      const rulesEl = document.getElementById('sec-firestore-rules-code');
+      if (rulesEl) rulesEl.textContent = generateHardenedFirestoreRules();
+
+      const logEl = document.getElementById('sec-audit-log-list');
+      if (logEl) {
+        const logs = Array.isArray(state.auditLog) ? state.auditLog.slice(0, 25) : [];
+        logEl.innerHTML = logs.length
+          ? logs.map(item => `
+            <div class="px-3 py-2 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">
+              <div>
+                <span class="font-bold text-slate-900">${escapeHtml(item.action)}</span>
+                ${item.detail ? `<span class="text-slate-600"> — ${escapeHtml(item.detail)}</span>` : ''}
+              </div>
+              <div class="text-[11px] text-slate-500 whitespace-nowrap">
+                <strong class="text-teal-800">${escapeHtml(item.actor || '')}</strong> • ${escapeHtml(formatAccTimestamp(item.ts))}
+              </div>
+            </div>`).join('')
+          : '<div class="p-4 text-center text-slate-500">अद्याप कोणतीही सुरक्षा नोंद नाही.</div>';
+      }
+    }
+
+    function startAdminIdleMonitor() {
+      adminLastActivityAt = Date.now();
+      if (adminIdleIntervalId) clearInterval(adminIdleIntervalId);
+      adminIdleIntervalId = setInterval(() => {
+        if (!isAdmin()) {
+          clearInterval(adminIdleIntervalId);
+          adminIdleIntervalId = null;
+          return;
+        }
+        if (Date.now() - adminLastActivityAt >= ADMIN_IDLE_TIMEOUT_MS) {
+          clearInterval(adminIdleIntervalId);
+          adminIdleIntervalId = null;
+          currentRole = 'member';
+          loggedInFlat = '';
+          if (firebaseAuth && firebaseAuth.currentUser) {
+            firebaseAuth.signOut().catch(() => {});
+          }
+          document.getElementById('login-screen').classList.remove('hidden');
+          showToast('३० मिनिटे निष्क्रिय राहिल्यामुळे सुरक्षिततेसाठी ॲडमिन सेशन ऑटोमॅटिक लॉगआउट झाले.');
+        }
+      }, 30000);
     }
 
     function formatINR(num) {
@@ -9330,6 +9567,7 @@
         slotLabel: ACC_SLOT_LABELS[mins] || (mins + ' मिनिटे'),
         expiresAt: now + mins * 60 * 1000
       };
+      recordAuditEvent('आर्थिक हिशोब परवानगी मंजूर', `फ्लॅट ${flatStr} — स्लॉट: ${map[flatStr].slotLabel}`);
       saveState();
       renderAll();
       showToast(`फ्लॅट ${flatStr} ला ${map[flatStr].slotLabel} साठी संपूर्ण आर्थिक हिशोब पाहण्याची परवानगी दिली!`);
@@ -11085,19 +11323,37 @@
 
       formMemLogin.addEventListener('submit', (e) => {
         e.preventDefault();
-        const flatVal = document.getElementById('login-member-flat').value || '01';
-        const enteredPin = (document.getElementById('login-member-pin').value || '').trim();
         const errEl = document.getElementById('member-login-error');
-        const mem = state.members.find(m => m.flat === flatVal);
-        const mobDigits = mem && mem.phone ? mem.phone.replace(/\D/g, '') : '';
-        const expectedPin = (mem && mem.pin && mem.pin.trim()) || (mobDigits.length >= 4 ? mobDigits.slice(-4) : '1234');
-        if (enteredPin !== expectedPin) {
+        if (memberLockUntil > Date.now()) {
+          const secs = Math.ceil((memberLockUntil - Date.now()) / 1000);
           if (errEl) {
-            errEl.textContent = 'चुकीचा PIN! कृपया तुमचा बरोबर ४-अंकी PIN टाका.';
+            errEl.textContent = `अनेक वेळा चुकीचा PIN टाकल्यामुळे लॉगिन तात्पुरते लॉक आहे (${secs} सेकंद प्रतीक्षा करा).`;
             errEl.classList.remove('hidden');
           }
           return;
         }
+        const flatVal = document.getElementById('login-member-flat').value || '01';
+        const enteredPin = (document.getElementById('login-member-pin').value || '').trim();
+        const mem = state.members.find(m => m.flat === flatVal);
+        const mobDigits = mem && mem.phone ? mem.phone.replace(/\D/g, '') : '';
+        const expectedPin = (mem && mem.pin && mem.pin.trim()) || (mobDigits.length >= 4 ? mobDigits.slice(-4) : '1234');
+        if (enteredPin !== expectedPin) {
+          memberFailedAttempts += 1;
+          if (memberFailedAttempts >= 5) {
+            memberLockUntil = Date.now() + 2 * 60 * 1000;
+            memberFailedAttempts = 0;
+            if (errEl) {
+              errEl.textContent = '५ वेळा चुकीचा PIN टाकल्यामुळे सुरक्षिततेसाठी २ मिनिटे लॉगिन लॉक केले आहे.';
+              errEl.classList.remove('hidden');
+            }
+          } else if (errEl) {
+            errEl.textContent = `चुकीचा PIN! कृपया बरोबर ४-अंकी PIN टाका (शिल्लक प्रयत्न: ${5 - memberFailedAttempts}).`;
+            errEl.classList.remove('hidden');
+          }
+          return;
+        }
+        memberFailedAttempts = 0;
+        memberLockUntil = 0;
         if (errEl) errEl.classList.add('hidden');
         document.getElementById('login-member-pin').value = '';
         currentRole = 'member';
@@ -11107,6 +11363,58 @@
         renderAll();
         showToast(`${loggedInFlat} सभासद म्हणून प्रवेश केला (Read-Only)`);
       });
+
+      function completeAdminSessionLogin(methodLabel, userEmail) {
+        currentRole = 'admin';
+        loggedInFlat = '';
+        document.getElementById('login-screen').classList.add('hidden');
+        document.getElementById('login-admin-pin').value = '';
+        startAdminIdleMonitor();
+        recordAuditEvent('ॲडमिन लॉगिन (' + methodLabel + ')', userEmail || '', userEmail || 'Admin');
+        ensureCurrentMonthBills();
+        if (isAdmin()) syncMaintToTransactions();
+        saveState();
+        loadWelfare();
+        renderAll();
+        showToast(`ॲडमिन लॉगिन यशस्वी (${methodLabel})!`);
+      }
+
+      const btnGoogleAdmin = document.getElementById('btn-admin-google-login');
+      if (btnGoogleAdmin) {
+        btnGoogleAdmin.addEventListener('click', async () => {
+          const errEl = document.getElementById('admin-login-error');
+          if (!firebaseAuth || !firebase.auth || !firebase.auth.GoogleAuthProvider) {
+            errEl.textContent = 'Firebase Google Authentication उपलब्ध नाही.';
+            errEl.classList.remove('hidden');
+            return;
+          }
+          try {
+            errEl.classList.add('hidden');
+            const provider = new firebase.auth.GoogleAuthProvider();
+            provider.setCustomParameters({ prompt: 'select_account' });
+            const cred = await firebaseAuth.signInWithPopup(provider);
+            const signedEmail = (cred && cred.user && cred.user.email) ? cred.user.email.trim().toLowerCase() : '';
+            if (!isAuthorizedAdminEmail(signedEmail)) {
+              await firebaseAuth.signOut().catch(() => {});
+              errEl.textContent = `अनाधिकृत ईमेल (${signedEmail || 'अज्ञात'})! फक्त अधिकृत Google ॲडमिन खात्यालाच प्रवेश आहे.`;
+              errEl.classList.remove('hidden');
+              return;
+            }
+            completeAdminSessionLogin('Google Sign-In', signedEmail);
+          } catch (err) {
+            const code = (err && err.code) || '';
+            if (code === 'auth/popup-closed-by-user') return;
+            if (code === 'auth/unauthorized-domain') {
+              errEl.textContent = 'हा डोमेन Firebase Authorized Domains मध्ये जोडलेला नाही — Firebase Console → Authentication → Settings → Authorized domains मध्ये जोडा.';
+            } else if (code === 'auth/operation-not-allowed') {
+              errEl.textContent = 'Firebase Console मध्ये Google Sign-In अद्याप चालू (Enable) केलेले नाही. सध्या ईमेल व पासवर्डने लॉगिन करा.';
+            } else {
+              errEl.textContent = 'Google लॉगिन अयशस्वी झाले. कृपया पुन्हा प्रयत्न करा किंवा ईमेल व पासवर्ड वापरा.';
+            }
+            errEl.classList.remove('hidden');
+          }
+        });
+      }
 
       formAdmLogin.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -11120,20 +11428,29 @@
         }
         try {
           errEl.classList.add('hidden');
-          await firebaseAuth.signInWithEmailAndPassword(email, pass);
-          currentRole = 'admin';
-          loggedInFlat = '';
-          document.getElementById('login-screen').classList.add('hidden');
-          document.getElementById('login-admin-pin').value = '';
-          ensureCurrentMonthBills();
-      if (isAdmin()) syncMaintToTransactions();
-          loadWelfare();
-          renderAll();
-          showToast('ॲडमिन लॉगिन यशस्वी!');
+          const cred = await firebaseAuth.signInWithEmailAndPassword(email, pass);
+          const signedEmail = (cred && cred.user && cred.user.email) || email;
+          completeAdminSessionLogin('Email/Password', signedEmail);
         } catch (err) {
           errEl.textContent = 'चुकीचा ईमेल किंवा पासवर्ड! कृपया Firebase मधील ॲडमिन माहिती तपासा.';
           errEl.classList.remove('hidden');
         }
+      });
+
+      if (firebaseAuth && firebaseAuth.onAuthStateChanged) {
+        firebaseAuth.onAuthStateChanged((user) => {
+          if (!user && currentRole === 'admin') {
+            currentRole = 'member';
+            loggedInFlat = '';
+            document.getElementById('login-screen').classList.remove('hidden');
+          }
+        });
+      }
+
+      ['click', 'keydown', 'touchstart'].forEach(evt => {
+        document.addEventListener(evt, () => {
+          if (currentRole === 'admin') adminLastActivityAt = Date.now();
+        }, { passive: true });
       });
 
       document.getElementById('btn-switch-login').addEventListener('click', () => {
@@ -13163,22 +13480,28 @@
         openModal('modal-change-pin');
       });
 
-      document.getElementById('form-change-pin').addEventListener('submit', (e) => {
+      document.getElementById('form-change-pin').addEventListener('submit', async (e) => {
         e.preventDefault();
         if (!isAdmin()) return;
         const curr = document.getElementById('pin-current').value.trim();
         const nextPin = document.getElementById('pin-new').value.trim();
         const confPin = document.getElementById('pin-confirm').value.trim();
         const errEl = document.getElementById('pin-change-error');
-        const activePin = state.adminPin || ADMIN_PIN;
 
-        if (curr !== activePin) {
-          errEl.textContent = 'सध्याचा पासवर्ड चुकीचा आहे!';
+        if (!firebaseAuth || !firebaseAuth.currentUser) {
+          errEl.textContent = 'Firebase ॲडमिन सेशन सक्रिय नाही.';
           errEl.classList.remove('hidden');
           return;
         }
-        if (nextPin.length < 4) {
-          errEl.textContent = 'नवीन पासवर्ड किमान ४ अक्षरांचा किंवा अंकांचा असावा.';
+        const user = firebaseAuth.currentUser;
+        const hasPasswordProvider = (user.providerData || []).some(p => p && p.providerId === 'password');
+        if (!hasPasswordProvider) {
+          errEl.textContent = 'तुम्ही Google Sign-In ने लॉगिन आहात — पासवर्ड व 2-Step Verification तुमच्या Google Account सेटिंग्जमधून बदला.';
+          errEl.classList.remove('hidden');
+          return;
+        }
+        if (nextPin.length < 8) {
+          errEl.textContent = 'सुरक्षिततेसाठी नवीन पासवर्ड किमान ८ अक्षरांचा असावा.';
           errEl.classList.remove('hidden');
           return;
         }
@@ -13187,11 +13510,18 @@
           errEl.classList.remove('hidden');
           return;
         }
-
-        state.adminPin = nextPin;
-        saveState();
-        closeModal('modal-change-pin');
-        showToast('ॲडमिन पासवर्ड यशस्वीरित्या बदलला!');
+        try {
+          const cred = firebase.auth.EmailAuthProvider.credential(user.email, curr);
+          await user.reauthenticateWithCredential(cred);
+          await user.updatePassword(nextPin);
+          recordAuditEvent('ॲडमिन पासवर्ड बदलला', user.email);
+          saveState();
+          closeModal('modal-change-pin');
+          showToast('Firebase ॲडमिन पासवर्ड यशस्वीरित्या बदलला!');
+        } catch (err) {
+          errEl.textContent = 'सध्याचा पासवर्ड चुकीचा आहे किंवा पुन्हा लॉगिन आवश्यक आहे.';
+          errEl.classList.remove('hidden');
+        }
       });
 
       // Poll Modal (Admin only)
@@ -13251,7 +13581,7 @@
           date: new Date().toISOString().slice(0, 10),
           status: 'प्रलंबित'
         });
-        saveState();
+        saveState(['complaints']);
         closeModal('modal-complaint');
         renderAll();
         showToast('तुमची तक्रार यशस्वीरित्या नोंदवली गेली!');
@@ -13278,7 +13608,7 @@
             }
             poll.votes[String(optIdx)] = Number(poll.votes[String(optIdx)] || 0) + 1;
             poll.votedFlats[voterKey] = optIdx;
-            saveState();
+            saveState(['polls']);
             renderAll();
             showToast(prevChoice !== undefined ? `फ्लॅट ${voterKey} चे मत बदलले गेले!` : `फ्लॅट ${voterKey} चे मत नोंदवले गेले!`);
           }
@@ -13362,7 +13692,8 @@
             expiresAt: null
           };
           if (reasonInp) reasonInp.value = '';
-          saveState();
+          recordAuditEvent('आर्थिक हिशोब विनंती', `फ्लॅट ${loggedInFlat}${reason ? ' — ' + reason : ''}`, 'फ्लॅट ' + loggedInFlat);
+          saveState(['accountingAccess', 'auditLog']);
           renderAccounting();
           showToast('आर्थिक हिशोब पाहण्याची विनंती ॲडमिनकडे पाठवली आहे!');
         });
@@ -13374,7 +13705,7 @@
           if (isAdmin() || !loggedInFlat) return;
           const map = getAccAccessMap();
           delete map[String(loggedInFlat)];
-          saveState();
+          saveState(['accountingAccess']);
           renderAccounting();
           showToast('तुमची विनंती रद्द केली आहे.');
         });
@@ -13428,6 +13759,63 @@
               showToast(`फ्लॅट ${flat} ची आर्थिक हिशोब परवानगी बंद केली.`);
             }
           }
+        });
+      }
+
+      // ================= GOOGLE SECURITY CENTER LISTENERS =================
+      const btnOpenSec = document.getElementById('btn-open-security-center');
+      if (btnOpenSec) {
+        btnOpenSec.addEventListener('click', () => {
+          if (!isAdmin()) return;
+          renderSecurityCenterModal();
+          openModal('modal-security-center');
+        });
+      }
+
+      const btnAddSecEmail = document.getElementById('btn-sec-add-admin-email');
+      if (btnAddSecEmail) {
+        btnAddSecEmail.addEventListener('click', () => {
+          if (!isAdmin()) return;
+          const inp = document.getElementById('sec-new-admin-email');
+          const em = (inp ? inp.value : '').trim().toLowerCase();
+          if (!em || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(em)) {
+            showToast('कृपया वैध Gmail / ईमेल पत्ता टाका.');
+            return;
+          }
+          const list = getAuthorizedAdminEmails();
+          if (list.includes(em)) {
+            showToast('हा ईमेल आधीच अधिकृत यादीत आहे.');
+            return;
+          }
+          state.authorizedAdminEmails = [...list, em];
+          recordAuditEvent('अधिकृत ॲडमिन ईमेल जोडला', em);
+          saveState();
+          if (inp) inp.value = '';
+          renderSecurityCenterModal();
+          showToast(`${em} अधिकृत ॲडमिन यादीत जोडला (नवीन Rules कॉपी करून Publish करा)!`);
+        });
+      }
+
+      const secEmailListHost = document.getElementById('sec-admin-emails-list');
+      if (secEmailListHost) {
+        secEmailListHost.addEventListener('click', (e) => {
+          if (!isAdmin()) return;
+          const remBtn = e.target.closest('[data-rem-admin-email]');
+          if (!remBtn) return;
+          const em = String(remBtn.dataset.remAdminEmail || '').toLowerCase();
+          if (PRIMARY_ADMIN_EMAILS.includes(em)) return;
+          state.authorizedAdminEmails = getAuthorizedAdminEmails().filter(x => x !== em);
+          recordAuditEvent('अधिकृत ॲडमिन ईमेल काढला', em);
+          saveState();
+          renderSecurityCenterModal();
+          showToast(`${em} अधिकृत यादीतून काढला.`);
+        });
+      }
+
+      const btnCopyRules = document.getElementById('btn-copy-firestore-rules');
+      if (btnCopyRules) {
+        btnCopyRules.addEventListener('click', () => {
+          copyTextVal(generateHardenedFirestoreRules(), 'Firestore Security Rules');
         });
       }
 
