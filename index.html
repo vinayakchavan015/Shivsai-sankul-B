@@ -186,7 +186,9 @@
         </button>
         <button data-tab="accounting" class="nav-tab px-4 py-2.5 text-sm font-medium rounded-t-xl whitespace-nowrap transition flex items-center gap-2 text-teal-100 hover:bg-white/10">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-          आर्थिक हिशोब
+          <span>आर्थिक हिशोब</span>
+          <span id="acc-nav-lock-icon" class="text-[11px] opacity-85" title="ॲडमिन परवानगी आवश्यक">🔒</span>
+          <span id="acc-req-nav-badge" class="hidden px-1.5 py-0.5 rounded-full text-[10px] font-extrabold bg-rose-500 text-white leading-none">0</span>
         </button>
         <button data-tab="deposits" class="admin-only hidden nav-tab px-4 py-2.5 text-sm font-medium rounded-t-xl whitespace-nowrap transition items-center gap-2 text-teal-100 hover:bg-white/10">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
@@ -217,6 +219,17 @@
 
     <!-- TAB 1: DASHBOARD -->
     <section id="tab-dashboard" class="tab-panel space-y-6">
+      <!-- Admin Pending Accounting Permission Requests Alert -->
+      <div id="dash-acc-req-alert" class="hidden bg-amber-50 border-2 border-amber-300 rounded-2xl px-4 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 shadow-xs">
+        <div class="flex items-center gap-2.5 text-xs sm:text-sm text-amber-950 font-semibold">
+          <span class="w-7 h-7 rounded-lg bg-amber-400 text-slate-950 flex items-center justify-center font-extrabold shrink-0">🔔</span>
+          <span id="dash-acc-req-text">सभासदांनी आर्थिक हिशोब पाहण्यासाठी परवानगी मागितली आहे.</span>
+        </div>
+        <button id="btn-dash-open-acc-reqs" type="button" class="px-3.5 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold transition self-start sm:self-auto shrink-0">
+          परवानगी पहा / मंजूर करा →
+        </button>
+      </div>
+
       <!-- Dashboard Month Bar -->
       <div class="bg-white rounded-2xl px-4 py-3 shadow-sm border border-slate-200/80 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
         <div class="text-xs sm:text-sm font-semibold text-slate-700">
@@ -683,6 +696,99 @@
 
     <!-- TAB 6: FINANCIAL ACCOUNTING -->
     <section id="tab-accounting" class="tab-panel hidden space-y-5">
+
+      <!-- ADMIN ONLY: Accounting Access Permission Manager (Requests + Time Slots) -->
+      <div id="acc-admin-access-panel" class="admin-only hidden bg-white rounded-2xl p-5 shadow-sm border-2 border-indigo-200 space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-slate-200 pb-3">
+          <div>
+            <div class="flex flex-wrap items-center gap-2">
+              <h2 class="text-base sm:text-lg font-bold text-slate-900">🔐 सभासद आर्थिक हिशोब परवानगी व्यवस्थापन (Time Slot Access)</h2>
+              <span id="acc-admin-pending-pill" class="hidden text-xs font-bold px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-700">0 प्रलंबित</span>
+              <span id="acc-admin-active-pill" class="hidden text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800">0 सक्रिय</span>
+            </div>
+            <p class="text-xs text-slate-500 mt-0.5">सभासदांना आर्थिक हिशोब बाय-डिफॉल्ट दिसत नाही. येथून टाइम स्लॉट (१० मिनिटे, १५ मिनिटे, ३० मिनिटे, १ तास, १ दिवस) निवडून संपूर्ण हिशोब पाहण्याची परवानगी द्या किंवा रद्द करा.</p>
+          </div>
+        </div>
+
+        <!-- Pending Requests List -->
+        <div class="space-y-2">
+          <h3 class="text-xs font-bold uppercase tracking-wide text-amber-800">प्रलंबित विनंत्या (Pending Requests)</h3>
+          <div id="acc-admin-pending-list" class="space-y-2"></div>
+        </div>
+
+        <!-- Direct Grant Bar -->
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5">
+          <div class="text-xs font-bold text-slate-700 mb-2">कोणत्याही सभासदाला थेट परवानगी द्या (Direct Time Slot Grant)</div>
+          <div class="flex flex-col sm:flex-row gap-2">
+            <select id="acc-direct-flat" class="flex-1 px-3 py-2 rounded-xl border border-slate-300 text-xs sm:text-sm bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"></select>
+            <select id="acc-direct-slot" class="px-3 py-2 rounded-xl border border-slate-300 text-xs sm:text-sm bg-white font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <option value="10">१० मिनिटे (10 Min)</option>
+              <option value="15" selected>१५ मिनिटे (15 Min)</option>
+              <option value="30">३० मिनिटे (30 Min)</option>
+              <option value="60">१ तास (1 Hour)</option>
+              <option value="1440">१ दिवस (24 तास)</option>
+            </select>
+            <button id="btn-acc-direct-grant" type="button" class="px-4 py-2 rounded-xl bg-indigo-700 hover:bg-indigo-800 text-white text-xs sm:text-sm font-bold transition whitespace-nowrap">
+              🔓 परवानगी सुरू करा
+            </button>
+          </div>
+        </div>
+
+        <!-- Active Permissions List -->
+        <div class="space-y-2">
+          <h3 class="text-xs font-bold uppercase tracking-wide text-emerald-800">सध्या सुरू असलेल्या परवानग्या (Active Time Slots)</h3>
+          <div id="acc-admin-active-list" class="space-y-2"></div>
+        </div>
+      </div>
+
+      <!-- MEMBER ONLY: Active Permission Live Countdown Banner -->
+      <div id="acc-member-active-banner" class="hidden bg-emerald-50 border-2 border-emerald-300 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 shadow-xs">
+        <div class="flex items-start gap-3">
+          <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0 font-bold text-lg">🔓</div>
+          <div>
+            <div class="text-sm sm:text-base font-bold text-emerald-950">ॲडमिन परवानगी सक्रिय — संपूर्ण आर्थिक हिशोब (Read-Only)</div>
+            <div id="acc-member-slot-meta" class="text-xs text-emerald-800 mt-0.5">टाइम स्लॉट संपल्यावर आर्थिक हिशोब आपोआप बंद (लॉक) होईल.</div>
+          </div>
+        </div>
+        <div class="bg-white border border-emerald-300 rounded-xl px-4 py-2 text-center shrink-0">
+          <div class="text-[10px] font-bold uppercase text-emerald-700">शिल्लक वेळ (Time Left)</div>
+          <div id="acc-member-timer-text" class="text-base sm:text-lg font-extrabold text-emerald-900 tabular-nums">--:--</div>
+        </div>
+      </div>
+
+      <!-- MEMBER ONLY: Locked Screen & Permission Request Card -->
+      <div id="acc-member-lock-panel" class="hidden bg-white rounded-2xl p-6 sm:p-8 shadow-sm border border-slate-200 max-w-xl mx-auto text-center space-y-5">
+        <div class="w-16 h-16 rounded-2xl bg-slate-100 border border-slate-200 text-slate-700 flex items-center justify-center mx-auto text-3xl">
+          🔒
+        </div>
+        <div class="space-y-1.5">
+          <h2 class="text-lg sm:text-xl font-bold text-slate-900">आर्थिक हिशोब पाहण्यासाठी ॲडमिनची परवानगी आवश्यक आहे</h2>
+          <p class="text-xs sm:text-sm text-slate-600 leading-relaxed">
+            सोसायटीचा संपूर्ण आर्थिक हिशोब सुरक्षिततेसाठी लॉक ठेवला आहे. ॲडमिनने परवानगी (जसे की १० मिनिटे, १५ मिनिटे किंवा १ दिवस टाइम स्लॉट) दिल्यानंतर तुम्हाला संपूर्ण जमा-खर्च, लेजर व वार्षिक नफा-तोटा पत्रक पाहता येईल.
+          </p>
+        </div>
+
+        <div id="acc-lock-status-box" class="hidden rounded-xl p-4 text-xs sm:text-sm text-left"></div>
+
+        <div id="acc-req-form-wrap" class="space-y-3 text-left">
+          <div>
+            <label for="acc-req-reason" class="block text-xs font-semibold text-slate-700 mb-1">विनंतीचे कारण / टीप (ऐच्छिक)</label>
+            <input id="acc-req-reason" type="text" maxlength="160" placeholder="उदा. मासिक जमा-खर्च व वार्षिक हिशोब पाहण्यासाठी" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-teal-500" />
+          </div>
+          <button id="btn-acc-request-access" type="button" class="w-full py-3 px-4 rounded-xl bg-teal-700 hover:bg-teal-800 text-white text-sm font-bold shadow-sm transition">
+            📩 ॲडमिनकडे परवानगी मागा
+          </button>
+        </div>
+
+        <div id="acc-req-pending-actions" class="hidden flex flex-col sm:flex-row items-center justify-center gap-2 pt-1">
+          <button id="btn-acc-cancel-req" type="button" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition">
+            विनंती रद्द करा
+          </button>
+        </div>
+      </div>
+
+      <!-- ACCOUNTING DATA WRAPPER (Hidden for members without active Admin permission) -->
+      <div id="acc-content-wrap" class="space-y-5">
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80">
           <p class="text-xs font-medium text-slate-500">एकूण जमा (Income)</p>
@@ -693,15 +799,15 @@
           <p id="acc-total-expense" class="text-xl font-bold text-rose-600 mt-1">₹0</p>
           <p id="acc-expense-split" class="text-[11px] font-semibold text-slate-500 mt-1">कॅश: ₹0 | बँक: ₹0</p>
         </div>
-        <div class="admin-only bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80">
+        <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80">
           <p class="text-xs font-medium text-slate-500">ऑनलाइन शिल्लक (Online)</p>
           <p id="acc-online-balance" class="text-xl font-bold text-teal-700 mt-1">₹0</p>
         </div>
-        <div class="admin-only bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80">
+        <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80">
           <p class="text-xs font-medium text-slate-500">कॅश शिल्लक (Cash)</p>
           <p id="acc-cash-balance" class="text-xl font-bold text-amber-600 mt-1">₹0</p>
         </div>
-        <div class="admin-only bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80">
+        <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200/80">
           <p class="text-xs font-medium text-slate-500">एकूण निव्वळ शिल्लक</p>
           <p id="acc-net-balance" class="text-xl font-bold text-slate-900 mt-1">₹0</p>
         </div>
@@ -836,6 +942,7 @@
         </div>
 
         <div id="pnl-net-banner" class="rounded-xl p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border"></div>
+      </div>
       </div>
     </section>
 
@@ -8936,7 +9043,342 @@
         : '<p class="text-sm text-slate-500 col-span-2 text-center py-6">सध्या कोणतीही सूचना प्रसिद्ध केलेली नाही.</p>';
     }
 
+    // ================= ACCOUNTING ACCESS CONTROL (ADMIN PERMISSION + TIME SLOTS) =================
+    const ACC_SLOT_LABELS = {
+      10: '१० मिनिटे',
+      15: '१५ मिनिटे',
+      30: '३० मिनिटे',
+      60: '१ तास',
+      1440: '१ दिवस (२४ तास)'
+    };
+    let accAccessTimerId = null;
+
+    function getAccAccessMap() {
+      if (!state.accountingAccess || typeof state.accountingAccess !== 'object') {
+        state.accountingAccess = {};
+      }
+      return state.accountingAccess;
+    }
+
+    function getAccAccessEntry(flat) {
+      if (!flat) return null;
+      return getAccAccessMap()[String(flat)] || null;
+    }
+
+    function hasActiveAccountingAccess(flat) {
+      if (isAdmin()) return true;
+      const entry = getAccAccessEntry(flat || loggedInFlat);
+      return Boolean(entry && entry.status === 'approved' && Number(entry.expiresAt) > Date.now());
+    }
+
+    function formatAccRemaining(ms) {
+      const totalSec = Math.max(0, Math.floor(ms / 1000));
+      const hrs = Math.floor(totalSec / 3600);
+      const mins = Math.floor((totalSec % 3600) / 60);
+      const secs = totalSec % 60;
+      const pad2 = (n) => String(n).padStart(2, '0');
+      if (hrs > 0) return `${hrs} तास ${pad2(mins)} मि. ${pad2(secs)} से.`;
+      return `${pad2(mins)} मि. ${pad2(secs)} से.`;
+    }
+
+    function formatAccTimestamp(ts) {
+      if (!ts) return '';
+      try {
+        return new Date(Number(ts)).toLocaleString('mr-IN', {
+          day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit'
+        });
+      } catch {
+        return new Date(Number(ts)).toLocaleString();
+      }
+    }
+
+    function updateAccountingNavAndAlerts() {
+      const map = getAccAccessMap();
+      const entries = Object.values(map);
+      const pendingList = entries.filter(e => e && e.status === 'pending');
+      const navBadge = document.getElementById('acc-req-nav-badge');
+      const lockIcon = document.getElementById('acc-nav-lock-icon');
+      const dashAlert = document.getElementById('dash-acc-req-alert');
+      const dashAlertText = document.getElementById('dash-acc-req-text');
+
+      if (navBadge) {
+        if (isAdmin() && pendingList.length > 0) {
+          navBadge.textContent = String(pendingList.length);
+          navBadge.classList.remove('hidden');
+        } else {
+          navBadge.classList.add('hidden');
+        }
+      }
+      if (lockIcon) {
+        if (isAdmin()) {
+          lockIcon.classList.add('hidden');
+        } else {
+          lockIcon.classList.remove('hidden');
+          const unlocked = hasActiveAccountingAccess(loggedInFlat);
+          lockIcon.textContent = unlocked ? '🔓' : '🔒';
+          lockIcon.title = unlocked ? 'ॲडमिन परवानगी सक्रिय' : 'ॲडमिन परवानगी आवश्यक';
+        }
+      }
+      if (dashAlert) {
+        if (isAdmin() && pendingList.length > 0) {
+          const flatsStr = pendingList.map(p => 'फ्लॅट ' + p.flat).join(', ');
+          if (dashAlertText) {
+            dashAlertText.textContent = `${pendingList.length} सभासदांनी (${flatsStr}) आर्थिक हिशोब पाहण्यासाठी परवानगी मागितली आहे.`;
+          }
+          dashAlert.classList.remove('hidden');
+        } else {
+          dashAlert.classList.add('hidden');
+        }
+      }
+    }
+
+    function renderAdminAccountingAccessPanel() {
+      const panel = document.getElementById('acc-admin-access-panel');
+      if (!panel) return;
+      if (!isAdmin()) {
+        panel.classList.add('hidden');
+        return;
+      }
+      panel.classList.remove('hidden');
+
+      const map = getAccAccessMap();
+      const now = Date.now();
+      const allEntries = Object.values(map).filter(Boolean);
+      const pending = allEntries.filter(e => e.status === 'pending')
+        .sort((a, b) => (b.requestedAt || 0) - (a.requestedAt || 0));
+      const active = allEntries.filter(e => e.status === 'approved' && Number(e.expiresAt) > now)
+        .sort((a, b) => (a.expiresAt || 0) - (b.expiresAt || 0));
+
+      const pendPill = document.getElementById('acc-admin-pending-pill');
+      const actPill = document.getElementById('acc-admin-active-pill');
+      if (pendPill) {
+        pendPill.textContent = `${pending.length} प्रलंबित`;
+        pendPill.classList.toggle('hidden', pending.length === 0);
+      }
+      if (actPill) {
+        actPill.textContent = `${active.length} सक्रिय`;
+        actPill.classList.toggle('hidden', active.length === 0);
+      }
+
+      const pendHost = document.getElementById('acc-admin-pending-list');
+      if (pendHost) {
+        pendHost.innerHTML = pending.length
+          ? pending.map(req => `
+            <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+              <div class="text-xs sm:text-sm">
+                <div class="font-bold text-slate-900">फ्लॅट ${escapeHtml(req.flat)} — ${escapeHtml(req.memberName || '')}</div>
+                <div class="text-[11px] text-slate-600 mt-0.5">
+                  विनंती वेळ: ${escapeHtml(formatAccTimestamp(req.requestedAt))}
+                  ${req.reason ? ` • कारण: <strong class="text-slate-800">${escapeHtml(req.reason)}</strong>` : ''}
+                </div>
+              </div>
+              <div class="flex flex-wrap items-center gap-2 shrink-0">
+                <select data-req-slot="${escapeHtml(req.flat)}" class="px-2.5 py-1.5 rounded-lg border border-amber-300 bg-white text-xs font-semibold text-slate-800">
+                  <option value="10">१० मिनिटे (10 Min)</option>
+                  <option value="15" selected>१५ मिनिटे (15 Min)</option>
+                  <option value="30">३० मिनिटे (30 Min)</option>
+                  <option value="60">१ तास (1 Hour)</option>
+                  <option value="1440">१ दिवस (24 तास)</option>
+                </select>
+                <button type="button" data-acc-approve="${escapeHtml(req.flat)}" class="px-3 py-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold transition">
+                  ✅ परवानगी द्या
+                </button>
+                <button type="button" data-acc-reject="${escapeHtml(req.flat)}" class="px-3 py-1.5 rounded-lg bg-rose-100 hover:bg-rose-200 text-rose-800 text-xs font-bold transition">
+                  ❌ नाकारा
+                </button>
+              </div>
+            </div>
+          `).join('')
+          : '<p class="text-xs text-slate-500 bg-slate-50 border border-slate-200/70 rounded-xl px-3.5 py-2.5">सध्या कोणत्याही सभासदाची प्रलंबित विनंती नाही.</p>';
+      }
+
+      const directSel = document.getElementById('acc-direct-flat');
+      if (directSel) {
+        const prev = directSel.value;
+        const sorted = [...state.members].sort((a, b) => String(a.flat).localeCompare(String(b.flat), undefined, { numeric: true }));
+        directSel.innerHTML = sorted.map(m => `<option value="${escapeHtml(m.flat)}">फ्लॅट ${escapeHtml(m.flat)} — ${escapeHtml(m.name)}</option>`).join('');
+        if (prev && sorted.some(m => String(m.flat) === String(prev))) directSel.value = prev;
+      }
+
+      const actHost = document.getElementById('acc-admin-active-list');
+      if (actHost) {
+        actHost.innerHTML = active.length
+          ? active.map(gr => `
+            <div class="bg-emerald-50 border border-emerald-200 rounded-xl p-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5">
+              <div class="text-xs sm:text-sm">
+                <div class="font-bold text-emerald-950">फ्लॅट ${escapeHtml(gr.flat)} — ${escapeHtml(gr.memberName || '')}</div>
+                <div class="text-[11px] text-emerald-800 mt-0.5">
+                  मंजूर स्लॉट: <strong>${escapeHtml(gr.slotLabel || (gr.durationMin + ' मिनिटे'))}</strong> •
+                  शिल्लक वेळ: <strong class="tabular-nums text-emerald-950" data-acc-countdown="${Number(gr.expiresAt)}">${escapeHtml(formatAccRemaining(Number(gr.expiresAt) - now))}</strong>
+                </div>
+              </div>
+              <button type="button" data-acc-revoke="${escapeHtml(gr.flat)}" class="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold transition self-start sm:self-auto shrink-0">
+                ⛔ लगेच बंद करा
+              </button>
+            </div>
+          `).join('')
+          : '<p class="text-xs text-slate-500 bg-slate-50 border border-slate-200/70 rounded-xl px-3.5 py-2.5">सध्या कोणत्याही सभासदाला सक्रिय परवानगी नाही.</p>';
+      }
+    }
+
+    function renderMemberAccountingLockPanel() {
+      const lockPanel = document.getElementById('acc-member-lock-panel');
+      const statusBox = document.getElementById('acc-lock-status-box');
+      const formWrap = document.getElementById('acc-req-form-wrap');
+      const pendActs = document.getElementById('acc-req-pending-actions');
+      if (!lockPanel) return;
+
+      const entry = getAccAccessEntry(loggedInFlat);
+      const isPending = Boolean(entry && entry.status === 'pending');
+      const isExpired = Boolean(entry && entry.status === 'approved' && Number(entry.expiresAt) <= Date.now());
+      const isRejected = Boolean(entry && (entry.status === 'rejected' || entry.status === 'revoked'));
+
+      if (statusBox) {
+        if (isPending) {
+          statusBox.className = 'rounded-xl p-4 text-xs sm:text-sm text-left bg-amber-50 border border-amber-300 text-amber-950';
+          statusBox.innerHTML = `
+            <div class="font-bold">⏳ तुमची विनंती ॲडमिनकडे पाठवली आहे!</div>
+            <div class="mt-1 text-xs text-amber-900">फ्लॅट <strong>${escapeHtml(loggedInFlat)}</strong> साठी परवानगी विनंती वेळ: ${escapeHtml(formatAccTimestamp(entry.requestedAt))}. ॲडमिनने टाइम स्लॉटसह परवानगी दिल्यावर संपूर्ण आर्थिक हिशोब येथे आपोआप दिसेल.</div>
+          `;
+        } else if (isExpired) {
+          statusBox.className = 'rounded-xl p-4 text-xs sm:text-sm text-left bg-rose-50 border border-rose-200 text-rose-900';
+          statusBox.innerHTML = `
+            <div class="font-bold">⏱️ तुमची पूर्वीची परवानगी संपली आहे</div>
+            <div class="mt-1 text-xs">तुम्हाला दिलेला टाइम स्लॉट (${escapeHtml(entry.slotLabel || '')}) पूर्ण झाला आहे. पुन्हा पाहण्यासाठी खालील बटणावरून ॲडमिनकडे विनंती पाठवा.</div>
+          `;
+        } else if (isRejected) {
+          statusBox.className = 'rounded-xl p-4 text-xs sm:text-sm text-left bg-rose-50 border border-rose-200 text-rose-900';
+          statusBox.innerHTML = `
+            <div class="font-bold">❌ ॲडमिनने परवानगी नाकारली / बंद केली आहे</div>
+            <div class="mt-1 text-xs">आवश्यक असल्यास तुम्ही खालील बटणावरून पुन्हा परवानगी मागू शकता.</div>
+          `;
+        } else {
+          statusBox.className = 'hidden';
+          statusBox.innerHTML = '';
+        }
+      }
+
+      if (formWrap) formWrap.classList.toggle('hidden', isPending);
+      if (pendActs) pendActs.classList.toggle('hidden', !isPending);
+    }
+
+    function ensureAccountingAccessTimer() {
+      if (accAccessTimerId) {
+        clearInterval(accAccessTimerId);
+        accAccessTimerId = null;
+      }
+      const now = Date.now();
+      const map = getAccAccessMap();
+      const anyActive = Object.values(map).some(e => e && e.status === 'approved' && Number(e.expiresAt) > now);
+      if (!anyActive) return;
+
+      accAccessTimerId = setInterval(() => {
+        const tNow = Date.now();
+        // Update Admin countdowns
+        let expiredAny = false;
+        document.querySelectorAll('[data-acc-countdown]').forEach(el => {
+          const exp = Number(el.dataset.accCountdown || 0);
+          const rem = exp - tNow;
+          if (rem <= 0) {
+            expiredAny = true;
+          } else {
+            el.textContent = formatAccRemaining(rem);
+          }
+        });
+
+        // Update Member countdown
+        if (!isAdmin() && loggedInFlat) {
+          const entry = getAccAccessEntry(loggedInFlat);
+          if (entry && entry.status === 'approved') {
+            const rem = Number(entry.expiresAt) - tNow;
+            const tEl = document.getElementById('acc-member-timer-text');
+            if (rem <= 0) {
+              clearInterval(accAccessTimerId);
+              accAccessTimerId = null;
+              renderAccounting();
+              showToast('आर्थिक हिशोब पाहण्याची वेळ संपली आहे — पुन्हा पाहण्यासाठी ॲडमिनची परवानगी मागा.');
+              return;
+            } else if (tEl) {
+              tEl.textContent = formatAccRemaining(rem);
+            }
+          }
+        }
+
+        if (expiredAny && isAdmin()) {
+          renderAdminAccountingAccessPanel();
+          updateAccountingNavAndAlerts();
+        }
+      }, 1000);
+    }
+
+    function grantAccountingAccessToFlat(flat, minutes) {
+      if (!isAdmin()) return;
+      const flatStr = String(flat || '').trim();
+      const mins = Number(minutes) || 15;
+      const mem = state.members.find(m => String(m.flat) === flatStr);
+      const map = getAccAccessMap();
+      const now = Date.now();
+      const existing = map[flatStr] || {};
+      map[flatStr] = {
+        flat: flatStr,
+        memberName: (mem && mem.name) || existing.memberName || ('फ्लॅट ' + flatStr),
+        status: 'approved',
+        reason: existing.reason || '',
+        requestedAt: existing.requestedAt || now,
+        approvedAt: now,
+        durationMin: mins,
+        slotLabel: ACC_SLOT_LABELS[mins] || (mins + ' मिनिटे'),
+        expiresAt: now + mins * 60 * 1000
+      };
+      saveState();
+      renderAll();
+      showToast(`फ्लॅट ${flatStr} ला ${map[flatStr].slotLabel} साठी संपूर्ण आर्थिक हिशोब पाहण्याची परवानगी दिली!`);
+    }
+
     function renderAccounting() {
+      updateAccountingNavAndAlerts();
+      renderAdminAccountingAccessPanel();
+
+      const lockPanel = document.getElementById('acc-member-lock-panel');
+      const activeBanner = document.getElementById('acc-member-active-banner');
+      const contentWrap = document.getElementById('acc-content-wrap');
+      const allowed = hasActiveAccountingAccess(loggedInFlat);
+
+      if (!isAdmin() && !allowed) {
+        // Member does NOT have active permission -> hide ALL accounting data & clear DOM
+        if (contentWrap) contentWrap.classList.add('hidden');
+        if (activeBanner) activeBanner.classList.add('hidden');
+        if (lockPanel) lockPanel.classList.remove('hidden');
+        const tb = document.getElementById('tx-table-body');
+        if (tb) tb.innerHTML = '';
+        const sum = document.getElementById('tx-ledger-summary');
+        if (sum) sum.innerHTML = '';
+        renderMemberAccountingLockPanel();
+        ensureAccountingAccessTimer();
+        return;
+      }
+
+      // Allowed (Admin OR Approved Member within active time slot)
+      if (lockPanel) lockPanel.classList.add('hidden');
+      if (contentWrap) contentWrap.classList.remove('hidden');
+
+      if (!isAdmin() && allowed) {
+        const entry = getAccAccessEntry(loggedInFlat);
+        if (activeBanner) activeBanner.classList.remove('hidden');
+        const metaEl = document.getElementById('acc-member-slot-meta');
+        const timerEl = document.getElementById('acc-member-timer-text');
+        if (metaEl && entry) {
+          metaEl.textContent = `मंजूर टाइम स्लॉट: ${entry.slotLabel || (entry.durationMin + ' मिनिटे')} • मुदत संपताच आर्थिक हिशोब आपोआप लॉक होईल.`;
+        }
+        if (timerEl && entry) {
+          timerEl.textContent = formatAccRemaining(Number(entry.expiresAt) - Date.now());
+        }
+      } else if (activeBanner) {
+        activeBanner.classList.add('hidden');
+      }
+
+      ensureAccountingAccessTimer();
+
       const accMonthSel = document.getElementById('acc-filter-month');
       const currYM = getCurrentYYYYMM();
       const txMonths = getMonthsSinceApril2024YYYYMM();
@@ -8946,16 +9388,8 @@
       accMonthSel.value = (prevAccVal && (prevAccVal === 'all' || txMonths.includes(prevAccVal))) ? prevAccVal : currYM;
 
       const selYM = accMonthSel.value;
-      const baseTx = (!isAdmin() && loggedInFlat)
-        ? state.transactions.filter(t => {
-            if (t.type === 'खर्च') return true;
-            // members see only their OWN contributions as income (no other flats' payments, lump totals or other society income)
-            if (t.category === 'देखभाल शुल्क') {
-              return (t.desc || '').startsWith(loggedInFlat + ' ') || (t.desc || '').includes('फ्लॅट ' + loggedInFlat);
-            }
-            return false;
-          })
-        : state.transactions;
+      // Approved members & Admin BOTH see COMPLETE society accounting (full transactions)
+      const baseTx = state.transactions;
       const monthTx = selYM === 'all' ? baseTx : baseTx.filter(t => t.maintMonthYM ? t.maintMonthYM === selYM : (normalizeToISO(t.date) || '').startsWith(selYM));
 
       const totalIncome = monthTx.filter(t => t.type === 'जमा').reduce((s, t) => s + Number(t.amount), 0);
@@ -10951,12 +11385,14 @@
       document.getElementById('dash-filter-month').addEventListener('change', renderDashboard);
       document.getElementById('acc-filter-month').addEventListener('change', renderAccounting);
       document.getElementById('pnl-fy-select').addEventListener('change', renderAnnualPnL);
-            document.getElementById('btn-print-ledger').addEventListener('click', () => {
+      document.getElementById('btn-print-ledger').addEventListener('click', () => {
+        if (!hasActiveAccountingAccess(loggedInFlat)) {
+          showToast('आर्थिक हिशोब पाहण्यासाठी ॲडमिनची परवानगी आवश्यक आहे.');
+          return;
+        }
         const selYM = document.getElementById('acc-filter-month').value;
         const monthLabel = selYM === 'all' ? 'सर्व महिने (एकूण लेजर)' : formatYYYYMMToMarathi(selYM);
-        const baseTx = (!isAdmin() && loggedInFlat)
-          ? state.transactions.filter(t => t.type === 'खर्च' || (t.desc || '').startsWith(loggedInFlat + ' ') || (t.desc || '').startsWith(loggedInFlat + '('))
-          : state.transactions;
+        const baseTx = state.transactions;
 
         const F = getLedgerFigures(selYM, baseTx);
         const openingCash = F.openingCash, openingBank = F.openingBank;
@@ -11221,6 +11657,10 @@
       });
 
       document.getElementById('btn-print-pnl').addEventListener('click', () => {
+        if (!hasActiveAccountingAccess(loggedInFlat)) {
+          showToast('आर्थिक हिशोब पाहण्यासाठी ॲडमिनची परवानगी आवश्यक आहे.');
+          return;
+        }
         const fy = document.getElementById('pnl-fy-select').value;
         const area = document.getElementById('pnl-print-area');
         if (!area) return;
@@ -12694,8 +13134,12 @@
         showToast('बॅकअप फाइल डाउनलोड झाली!');
       });
 
-      // Export CSV (Allowed for both)
+      // Export CSV (Admin or Member with active Accounting permission)
       document.getElementById('btn-export-csv').addEventListener('click', () => {
+        if (!hasActiveAccountingAccess(loggedInFlat)) {
+          showToast('आर्थिक हिशोब डाउनलोड करण्यासाठी ॲडमिनची परवानगी आवश्यक आहे.');
+          return;
+        }
         const rows = [['दिनांक', 'प्रकार', 'माध्यम', 'श्रेणी', 'तपशील', 'रक्कम']];
         state.transactions.forEach(t => {
           rows.push([t.date, t.type, t.mode || 'ऑनलाइन', t.category, `"${(t.desc || '').replace(/"/g, '""')}"`, t.amount]);
@@ -12890,6 +13334,102 @@
           }
         }
       });
+
+      // ================= ACCOUNTING ACCESS REQUEST & APPROVAL LISTENERS =================
+      const btnDashAccReqs = document.getElementById('btn-dash-open-acc-reqs');
+      if (btnDashAccReqs) {
+        btnDashAccReqs.addEventListener('click', () => switchTab('accounting'));
+      }
+
+      const btnAccReq = document.getElementById('btn-acc-request-access');
+      if (btnAccReq) {
+        btnAccReq.addEventListener('click', () => {
+          if (isAdmin()) return;
+          if (!loggedInFlat) { showToast('कृपया आधी तुमच्या फ्लॅटने लॉगिन करा.'); return; }
+          const mem = state.members.find(m => String(m.flat) === String(loggedInFlat));
+          const reasonInp = document.getElementById('acc-req-reason');
+          const reason = reasonInp ? reasonInp.value.trim() : '';
+          const map = getAccAccessMap();
+          map[String(loggedInFlat)] = {
+            flat: String(loggedInFlat),
+            memberName: (mem && mem.name) || ('फ्लॅट ' + loggedInFlat),
+            status: 'pending',
+            reason,
+            requestedAt: Date.now(),
+            approvedAt: null,
+            durationMin: null,
+            slotLabel: '',
+            expiresAt: null
+          };
+          if (reasonInp) reasonInp.value = '';
+          saveState();
+          renderAccounting();
+          showToast('आर्थिक हिशोब पाहण्याची विनंती ॲडमिनकडे पाठवली आहे!');
+        });
+      }
+
+      const btnAccCancelReq = document.getElementById('btn-acc-cancel-req');
+      if (btnAccCancelReq) {
+        btnAccCancelReq.addEventListener('click', () => {
+          if (isAdmin() || !loggedInFlat) return;
+          const map = getAccAccessMap();
+          delete map[String(loggedInFlat)];
+          saveState();
+          renderAccounting();
+          showToast('तुमची विनंती रद्द केली आहे.');
+        });
+      }
+
+      const btnAccDirectGrant = document.getElementById('btn-acc-direct-grant');
+      if (btnAccDirectGrant) {
+        btnAccDirectGrant.addEventListener('click', () => {
+          if (!isAdmin()) return;
+          const flat = (document.getElementById('acc-direct-flat') || {}).value;
+          const mins = Number((document.getElementById('acc-direct-slot') || {}).value) || 15;
+          if (!flat) { showToast('कृपया फ्लॅट निवडा.'); return; }
+          grantAccountingAccessToFlat(flat, mins);
+        });
+      }
+
+      const adminAccPanel = document.getElementById('acc-admin-access-panel');
+      if (adminAccPanel) {
+        adminAccPanel.addEventListener('click', (e) => {
+          if (!isAdmin()) return;
+          const appBtn = e.target.closest('[data-acc-approve]');
+          if (appBtn) {
+            const flat = appBtn.dataset.accApprove;
+            const slotSel = adminAccPanel.querySelector(`[data-req-slot="${flat}"]`);
+            const mins = Number(slotSel ? slotSel.value : 15) || 15;
+            grantAccountingAccessToFlat(flat, mins);
+            return;
+          }
+          const rejBtn = e.target.closest('[data-acc-reject]');
+          if (rejBtn) {
+            const flat = rejBtn.dataset.accReject;
+            const map = getAccAccessMap();
+            if (map[flat]) {
+              map[flat].status = 'rejected';
+              map[flat].expiresAt = null;
+              saveState();
+              renderAll();
+              showToast(`फ्लॅट ${flat} ची विनंती नाकारली.`);
+            }
+            return;
+          }
+          const revBtn = e.target.closest('[data-acc-revoke]');
+          if (revBtn) {
+            const flat = revBtn.dataset.accRevoke;
+            const map = getAccAccessMap();
+            if (map[flat]) {
+              map[flat].status = 'revoked';
+              map[flat].expiresAt = null;
+              saveState();
+              renderAll();
+              showToast(`फ्लॅट ${flat} ची आर्थिक हिशोब परवानगी बंद केली.`);
+            }
+          }
+        });
+      }
 
       // ================= NOMINATION FORM EVENT LISTENERS =================
       const btnDashNomMr = document.getElementById('btn-dash-nom-mr');
